@@ -11,8 +11,10 @@
 .stage #walkFilm{display:none;z-index:0}
 .stage #walkFilm.visible{display:block}
 @media(prefers-reduced-motion:reduce){.stage #frameCanvas{opacity:1}}
+.nav-actions{display:flex;align-items:center;gap:14px}.nav .nav-actions .nav-phone{font-size:12px;letter-spacing:0;font-weight:600;text-transform:none;white-space:nowrap;border:0;padding:0}
+@media(max-width:700px){.nav-actions{gap:8px}.nav .nav-actions .nav-phone{font-size:0}.nav .nav-actions .nav-phone:after{content:"Call";font-size:11px}}
 </style></head><body>
-<header class="nav"><a href="#top" class="brand">ARQ<b>O</b>RA</a><a href="#film-controls">Your Film ↗</a></header>
+<header class="nav"><a href="#top" class="brand">ARQ<b>O</b>RA</a><div class="nav-actions"><a class="nav-phone" href="tel:+19162251015" aria-label="Call 5 Star Constructions at (916) 225-1015">(916) 225-1015</a><a href="#film-controls">Your Film ↗</a></div></header>
 <main id="top"><section class="rail" id="filmRail"><div class="stage" id="filmStage"><div class="poster"></div>
 <canvas id="frameCanvas" aria-label="Continuous house walkthrough controlled by scroll"></canvas>
 <video id="walkFilm" muted playsinline preload="metadata" aria-label="Your local architectural walkthrough video" poster="assets/v6/poster.jpg"></video>
@@ -25,7 +27,7 @@
 <div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">V6 optimized: 72 WebP frames, ~1.11 MB total; on-demand loading.</div></div>
 </section>
 <section class="route"><span class="kicker" style="color:#c7cbbf">Final camera route</span><h2>Five beats. One take.</h2><div class="steps"><div class="step"><span>01 / ARRIVAL</span><b>Exterior</b><p>Camera approaches the modern home from the driveway.</p></div><div class="step"><span>02 / ENTRY</span><b>Door opens</b><p>Door swings inward and the camera passes through naturally.</p></div><div class="step"><span>03 / INTERIOR</span><b>Kitchen</b><p>Reveal marble island, cabinetry and natural daylight.</p></div><div class="step"><span>04 / RETREAT</span><b>Bathroom</b><p>Turn through an actual doorway into the glass-shower bathroom.</p></div><div class="step"><span>05 / EXPANSION</span><b>ADU</b><p>Exit to backyard and enter the detached accessory dwelling unit.</p></div></div></section></main>
-<footer class="legal">Free V5 footage: <a href="https://www.pexels.com/video/showcase-of-modern-home-interior-11630727/" target="_blank" rel="noopener">Abdullah | 4K / Pexels — Showcase of Modern Home Interior</a> · <a href="https://www.pexels.com/license/" target="_blank" rel="noopener">Pexels License</a>. Free stock footage showing a different modern home interior. This does not feature exterior, kitchen, bathroom or ADU and is not an actual client project. © ARQORA testing demo.</footer>
+<footer class="legal"><a href="tel:+19162251015" style="font-weight:700">Call (916) 225-1015</a> · Free V5 footage: <a href="https://www.pexels.com/video/showcase-of-modern-home-interior-11630727/" target="_blank" rel="noopener">Abdullah | 4K / Pexels — Showcase of Modern Home Interior</a> · <a href="https://www.pexels.com/license/" target="_blank" rel="noopener">Pexels License</a>. Free stock footage showing a different modern home interior. This does not feature exterior, kitchen, bathroom or ADU and is not an actual client project. © ARQORA testing demo.</footer>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
