@@ -28,6 +28,8 @@ jobs:
           ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 /tmp/kitchen.mp4
           ffmpeg -hide_banner -loglevel error -y -i /tmp/living.mp4 -vf 'fps=1/2,scale=440:-2,tile=3x2' -frames:v 1 video-sync-test/preview/living-contact.jpg
           ffmpeg -hide_banner -loglevel error -y -i /tmp/kitchen.mp4 -vf 'fps=1/2,scale=440:-2,tile=3x2' -frames:v 1 video-sync-test/preview/kitchen-contact.jpg
+          curl -fL --retry 3 --retry-delay 3 --max-time 180 'https://videos.pexels.com/video-files/15887298/15887298-uhd_2560_1440_30fps.mp4' -o /tmp/white-kitchen.mp4
+          ffmpeg -hide_banner -loglevel error -y -i /tmp/white-kitchen.mp4 -vf 'fps=1/2,scale=440:-2,tile=3x2' -frames:v 1 video-sync-test/preview/white-kitchen-contact.jpg
           ls -lh video-sync-test/preview/
       - name: Commit the contact sheets
         run: |
