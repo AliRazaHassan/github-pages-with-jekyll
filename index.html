@@ -31,10 +31,12 @@
 .progress-fill{transition:none}
 @media(max-width:620px){.scroll-film{height:360svh}.film-stick{min-height:0}.film-content{transform:translateY(-38%)}.film-overlay{background:linear-gradient(90deg,rgba(5,13,10,.8),rgba(5,13,10,.25)),linear-gradient(0deg,rgba(5,13,10,.45),transparent 50%)}}
 @media(prefers-reduced-motion:reduce){.scroll-film{height:100svh}.film-poster{opacity:1}}
+.nav-call{white-space:nowrap;text-decoration:none;font-size:13px;font-weight:600;letter-spacing:0}
+@media(max-width:760px){.nav-call{font-size:15px;padding:10px 0}}
 </style>
 </head>
 <body>
-<header class="nav" id="nav"><a class="logo" href="#top" aria-label="Arqora Home">ARQ<span>O</span>RA</a><nav class="nav-links" id="navlinks"><a href="#story">Our Approach</a><a href="#services">Expertise</a><a href="#contact">Contact</a><a class="nav-cta" href="#contact">Start Your Project ↗</a></nav><button class="menu-btn" aria-label="Toggle navigation" aria-expanded="false" id="menubtn">☰</button></header>
+<header class="nav" id="nav"><a class="logo" href="#top" aria-label="Arqora Home">ARQ<span>O</span>RA</a><nav class="nav-links" id="navlinks"><a href="#story">Our Approach</a><a href="#services">Expertise</a><a href="#contact">Contact</a><a class="nav-call" href="tel:+19162251015" aria-label="Call 5 Star Constructions at (916) 225-1015">(916) 225-1015</a><a class="nav-cta" href="#contact">Start Your Project ↗</a></nav><button class="menu-btn" aria-label="Toggle navigation" aria-expanded="false" id="menubtn">☰</button></header>
 <main id="top">
 <section class="scroll-film" id="scrollFilm" aria-label="Explore our home transformations as you scroll"><div class="film-stick" id="filmStick">
 <div class="film-frame" aria-hidden="true"><div class="film-poster" id="filmPoster"></div><canvas id="filmCanvas" aria-label="Architecture walkthrough animation"></canvas></div>
@@ -51,7 +53,7 @@
 <article class="service"><div class="service-image"><img loading="lazy" src="https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1050&q=80" alt="Whole home renovation design"></div><div class="service-text"><small>03 / TOTAL TRANSFORMATION</small><h3>Whole Home Remodeling</h3><p>Cohesive environments that transform how your home looks and lives.</p><a href="#contact">Discuss your home ↗</a></div></article>
 </div></section>
 <section class="quote" id="contact"><div class="kicker">Let's create something exceptional</div><h2 class="section-title">Your next chapter<br>starts <em>at home.</em></h2><p>Whether you are dreaming of a refined kitchen, a spa-like bathroom, or a complete renovation, let's bring your vision to life.</p><a class="btn" href="mailto:hello@example.com?subject=Remodeling%20Project%20Inquiry">Get a Free Estimate ↗</a><p style="font-size:.71rem;margin-top:20px;opacity:.65">Demo site: replace the contact email with your business address before launch.</p></section>
-</main><footer class="footer"><a href="#top" class="logo">ARQ<span>O</span>RA</a><div>Thoughtful design. Timeless spaces.</div><div class="footer-links"><a href="#story">About</a><a href="#services">Services</a><a href="#contact">Contact</a></div><div>© <span id="year"></span> ARQORA</div></footer>
+</main><footer class="footer"><a href="#top" class="logo">ARQ<span>O</span>RA</a><div>Thoughtful design. Timeless spaces.</div><div class="footer-links"><a href="tel:+19162251015">Call (916) 225-1015</a><a href="#story">About</a><a href="#services">Services</a><a href="#contact">Contact</a></div><div>© <span id="year"></span> ARQORA</div></footer>
 <script>
 
 (()=>{
