@@ -1,0 +1,45 @@
+name: Build Lightweight V6 Mobile Sequence
+on:
+  push:
+    branches: [remodeling-v2-hostinger-test]
+    paths: [.github/workflows/build-lightweight-v6.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  compress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: 
+          ref: remodeling-v2-hostinger-test
+      - name: Render 72 optimised WebP frames from the already-approved source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p video-sync-test/assets/v6/frames
+          SRC=video-sync-test/assets/v5/walkthrough.mp4
+          test -s "$SRC"
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$SRC")
+          FPS=$(awk -v d="$DURATION" 'BEGIN {printf "%.7f", 72/d}')
+          ffmpeg -hide_banner -loglevel error -y -i "$SRC" -vf "fps=$FPS,scale=768:-2" -frames:v 72 -c:v libwebp -quality 60 -compression_level 6 video-sync-test/assets/v6/frames/frame_%03d.webp
+          ffmpeg -hide_banner -loglevel error -y -ss 0.2 -i "$SRC" -frames:v 1 -vf scale=768:-2 -q:v 4 video-sync-test/assets/v6/poster.jpg
+          COUNT=$(find video-sync-test/assets/v6/frames -name 'frame_*.webp' | wc -l)
+          test "$COUNT" -ge 70
+          du -sh video-sync-test/assets/v6/frames/
+          find video-sync-test/assets/v6/frames/ -name '*.webp' -type f -printf '%s\n' | awk '{s+=$1}END{printf "total bytes=%d (~%.2f MB)\n", s,s/1048576}'
+      - name: Commit with upstream conflict resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add video-sync-test/assets/v6
+          git diff --staged --quiet && exit 0
+          git commit -m 'Add 72 lightweight scroll frames optimized for mobile'
+          git fetch origin remodeling-v2-hostinger-test
+          git rebase origin/remodeling-v2-hostinger-test
+          git push origin HEAD:remodeling-v2-hostinger-test
