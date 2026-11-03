@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#121916"><title>ARQORA | Free 120-Frame Canvas House Tour</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#121916"><title>ARQORA | Free Modern Luxury Home Walkthrough</title>
 <meta name="description" content="Test single-video scroll synchronisation for an architectural remodeling walkthrough.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -16,16 +16,16 @@
 <main id="top"><section class="rail" id="filmRail"><div class="stage" id="filmStage"><div class="poster"></div>
 <canvas id="frameCanvas" aria-label="Continuous house walkthrough controlled by scroll"></canvas>
 <video id="walkFilm" muted playsinline preload="metadata" aria-label="Your local architectural walkthrough video" poster="assets/house-tour-poster.jpg"></video>
-<div class="error" id="videoError">Free sample could not load. You can select your own MP4 below.</div>
-<div class="note" id="sampleNote">FREE CONTINUOUS TOUR · test footage, not final luxury project</div>
+<div class="error" id="videoError">Preview frames unavailable. Choose a local MP4 below to test.</div>
+<div class="note" id="sampleNote">LUXURY INTERIOR TOUR · real footage, free testing sample</div>
 <div class="story"><span class="eyebrow" id="sceneLabel">A CONNECTED JOURNEY / 01</span><h1 id="sceneHead">One Home.<br><em>One Journey.</em></h1><p id="sceneText">A continuous camera move replaces abrupt room changes. Scroll to control the film, forwards and backwards.</p></div>
 <div class="foot"><span class="hint">Scroll to move through the film</span><div class="line"><div class="bar" id="progressBar"></div></div><span class="count" id="progressCount">00%</span></div>
 </div></section>
-<section id="film-controls" class="controls"><div><span class="kicker">Single-film scroll synchronization</span><h2>The camera moves.<br>The story unfolds.</h2><p>Instead of switching among four images, this page scrubs a single uninterrupted house-tour video against scroll progress. This free sample tours an unfinished small house, not the finished luxury exterior-to-ADU route. Replace it with a matching master video without changing the page.</p><p>This prototype uses 120 WebP frames rendered into one canvas, requested with async image decoding and requestAnimationFrame. For the finished hero, the same engine can use 180–240 frames from one custom matching exterior-to-ADU film.</p></div>
-<div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">120 locally hosted optimized frames · Free continuous house tour. Scroll to test.</div></div>
+<section id="film-controls" class="controls"><div><span class="kicker">Single-film scroll synchronization</span><h2>The camera moves.<br>The story unfolds.</h2><p>This upgraded sample uses a single continuous camera movement through a finished, spacious luxury interior. Its 120 image frames track your scroll position. It does not yet feature a front-door entry, kitchen, bathroom, and ADU in one journey.</p><p>This prototype uses 120 WebP frames rendered into one canvas, requested with async image decoding and requestAnimationFrame. For the finished hero, the same engine can use 180–240 frames from one custom matching exterior-to-ADU film.</p></div>
+<div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">New free luxury interior footage · 120 locally hosted WebP frames. Scroll to explore.</div></div>
 </section>
 <section class="route"><span class="kicker" style="color:#c7cbbf">Final camera route</span><h2>Five beats. One take.</h2><div class="steps"><div class="step"><span>01 / ARRIVAL</span><b>Exterior</b><p>Camera approaches the modern home from the driveway.</p></div><div class="step"><span>02 / ENTRY</span><b>Door opens</b><p>Door swings inward and the camera passes through naturally.</p></div><div class="step"><span>03 / INTERIOR</span><b>Kitchen</b><p>Reveal marble island, cabinetry and natural daylight.</p></div><div class="step"><span>04 / RETREAT</span><b>Bathroom</b><p>Turn through an actual doorway into the glass-shower bathroom.</p></div><div class="step"><span>05 / EXPANSION</span><b>ADU</b><p>Exit to backyard and enter the detached accessory dwelling unit.</p></div></div></section></main>
-<footer class="legal">Free sample: <a href="https://coverr.co/videos/tour-of-a-house-10dx22zecx" target="_blank" rel="noopener">Coverr — Tour of a house</a>, free commercial-use clip under the <a href="https://coverr.co/license" target="_blank" rel="noopener">Coverr License</a>. Sample shows a small house under construction, not a completed luxury renovation. © ARQORA demo.</footer>
+<footer class="legal">Free footage: <a href="https://www.pexels.com/video/modern-luxury-interior-with-open-design-38675643/" target="_blank" rel="noopener">Alef Morais / Pexels — Modern Luxury Interior with Open Design</a> · <a href="https://www.pexels.com/license/" target="_blank" rel="noopener">Pexels License</a>. This is stock footage of a finished luxury open-plan home, not an actual client project. © ARQORA testing demo.</footer>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
@@ -91,7 +91,7 @@ function selectFrame(){
  ctx.drawImage(chosen,(w-dw)/2,(h-dh)/2,dw,dh);
  canvas.style.opacity='1';current=fallback;
  if(!img)put(desired,true);
- if(desired===0||desired===TOTAL-1||frames[desired])status.textContent='Free sample · 120 scroll-synced frames · hosted on this website (no external CDN)';
+ if(desired===0||desired===TOTAL-1||frames[desired])status.textContent='Free luxury interior · 120 scroll-synced frames · locally hosted';
 }
 function findNearest(i){
  if(frames[i])return i;
