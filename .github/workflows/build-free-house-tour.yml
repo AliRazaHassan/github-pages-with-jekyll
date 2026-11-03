@@ -44,4 +44,6 @@ jobs:
           git add video-sync-test/assets/house-tour-optimized.mp4 video-sync-test/assets/house-tour-poster.jpg video-sync-test/assets/luxury-preview.jpg video-sync-test/assets/frames
           git diff --staged --quiet && exit 0
           git commit -m "Replace sample with bright open-plan luxury interior to patio tour"
-          git push
+          git fetch origin remodeling-v2-hostinger-test
+          git rebase origin/remodeling-v2-hostinger-test
+          git push origin HEAD:remodeling-v2-hostinger-test
