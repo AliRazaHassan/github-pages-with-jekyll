@@ -8,20 +8,22 @@
 <header class="nav"><a href="#top" class="brand">ARQ<b>O</b>RA</a><a href="#film-controls">Your Film ↗</a></header>
 <main id="top"><section class="rail" id="filmRail"><div class="stage" id="filmStage"><div class="poster"></div>
 <video id="walkFilm" muted playsinline preload="auto" aria-label="Continuous architectural walkthrough sample" poster="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70"></video>
-<div class="error" id="videoError">No final film loaded. Select the completed Runway MP4 below to test scroll synchronization.</div>
-<div class="note" id="sampleNote">AWAITING MASTER FILM · Exterior → Kitchen → Bathroom → ADU</div>
+<div class="error" id="videoError">Free sample could not load. You can select your own MP4 below.</div>
+<div class="note" id="sampleNote">FREE CONTINUOUS TOUR · test footage, not final luxury project</div>
 <div class="story"><span class="eyebrow" id="sceneLabel">A CONNECTED JOURNEY / 01</span><h1 id="sceneHead">One Home.<br><em>One Journey.</em></h1><p id="sceneText">A continuous camera move replaces abrupt room changes. Scroll to control the film, forwards and backwards.</p></div>
 <div class="foot"><span class="hint">Scroll to move through the film</span><div class="line"><div class="bar" id="progressBar"></div></div><span class="count" id="progressCount">00%</span></div>
 </div></section>
-<section id="film-controls" class="controls"><div><span class="kicker">Single-film scroll synchronization</span><h2>The camera moves.<br>The story unfolds.</h2><p>Instead of crossfading between four images, this page scrubs one continuous camera-journey video against scroll progress. Upload the final film below to preview it locally without changing the live site.</p><p>For the finished hero, render or generate one coherent shot through the same 3D house. Export a web-optimized master and a 180-frame image sequence for final low-lag canvas scrubbing on mobile.</p></div>
-<div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">Awaiting the finished single-property camera walkthrough MP4. No media is currently loaded.</div></div>
+<section id="film-controls" class="controls"><div><span class="kicker">Single-film scroll synchronization</span><h2>The camera moves.<br>The story unfolds.</h2><p>Instead of switching among four images, this page scrubs a single uninterrupted house-tour video against scroll progress. This free sample tours an unfinished small house, not the finished luxury exterior-to-ADU route. Replace it with a matching master video without changing the page.</p><p>For the finished hero, render or generate one coherent shot through the same 3D house. Export a web-optimized master and a 180-frame image sequence for final low-lag canvas scrubbing on mobile.</p></div>
+<div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">Free Coverr house walkthrough sample (19 seconds) · Only for testing camera continuity.</div></div>
 </section>
 <section class="route"><span class="kicker" style="color:#c7cbbf">Final camera route</span><h2>Five beats. One take.</h2><div class="steps"><div class="step"><span>01 / ARRIVAL</span><b>Exterior</b><p>Camera approaches the modern home from the driveway.</p></div><div class="step"><span>02 / ENTRY</span><b>Door opens</b><p>Door swings inward and the camera passes through naturally.</p></div><div class="step"><span>03 / INTERIOR</span><b>Kitchen</b><p>Reveal marble island, cabinetry and natural daylight.</p></div><div class="step"><span>04 / RETREAT</span><b>Bathroom</b><p>Turn through an actual doorway into the glass-shower bathroom.</p></div><div class="step"><span>05 / EXPANSION</span><b>ADU</b><p>Exit to backyard and enter the detached accessory dwelling unit.</p></div></div></section></main>
-<footer class="legal">ARQORA independent animation-testing page. Demo files selected in the browser remain local and are not uploaded. © ARQORA demo.</footer>
+<footer class="legal">Free sample: <a href="https://coverr.co/videos/tour-of-a-house-10dx22zecx" target="_blank" rel="noopener">Coverr — Tour of a house</a>, free commercial-use clip under the <a href="https://coverr.co/license" target="_blank" rel="noopener">Coverr License</a>. Sample shows a small house under construction, not a completed luxury renovation. © ARQORA demo.</footer>
 <script>
 (()=>{'use strict';
 const video=document.getElementById('walkFilm'),rail=document.getElementById('filmRail'),fill=document.getElementById('progressBar'),count=document.getElementById('progressCount'),status=document.getElementById('fileStatus'),sample=document.getElementById('sampleNote'),error=document.getElementById('videoError');
-// Await a user-provided Runway master; avoid broken third-party sample videos.
+const sampleSrc='https://cdn.coverr.co/videos/coverr-tour-of-a-house-5566/720p.mp4';
+video.src=sampleSrc;
+video.load();
 
 const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
@@ -39,7 +41,7 @@ if(Math.abs(video.currentTime-desired)<.045)return;
 latestSeek=performance.now();try{video.currentTime=desired}catch(e){}}
 function schedule(){if(seekTimer)return;const wait=Math.max(0,85-(performance.now()-latestSeek));seekTimer=setTimeout(seek,wait)}
 function scroll(){const p=reduced?0:position();fill.style.width=(p*100).toFixed(1)+'%';count.textContent=String(Math.round(p*100)).padStart(2,'0')+'%';updateText(p);requested=p*duration;if(video.readyState>=1)schedule()}
-video.addEventListener('loadedmetadata',()=>{duration=Math.max(0.1,video.duration||20);disabled=false;error.style.display='none';scroll()});
+video.addEventListener('loadedmetadata',()=>{duration=Math.max(0.1,video.duration||20);disabled=false;error.style.display='none';if(!fileUrl) status.textContent='Loaded free 19-second continuous house tour from Coverr. Scroll to scrub the camera.';scroll()});
 video.addEventListener('seeked',()=>{if(Math.abs(video.currentTime-requested)>.12)schedule()});
 video.addEventListener('error',()=>{error.style.display='block';status.textContent='Could not decode this video. Please use browser-compatible H.264 MP4 or WebM.'});
 document.getElementById('videoUpload').addEventListener('change',e=>{
