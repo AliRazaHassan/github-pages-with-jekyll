@@ -1,0 +1,41 @@
+name: Inspect Free Luxury Walkthrough Footage
+on:
+  push:
+    branches: [remodeling-v2-hostinger-test]
+    paths: [.github/workflows/compare-luxury-footage.yml]
+  workflow_dispatch:
+permissions: { contents: write }
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: remodeling-v2-hostinger-test }
+      - name: Download samples and render comparison sheet
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p video-sync-test/comparison
+          URLS=(
+            "https://videos.pexels.com/video-files/38675643/16428570_2560_1440_30fps.mp4"
+            "https://videos.pexels.com/video-files/11630727/11630727-uhd_2560_1440_25fps.mp4"
+            "https://videos.pexels.com/video-files/34874523/14777095_2560_1440_25fps.mp4"
+            "https://videos.pexels.com/video-files/34955012/14807045_2560_1440_25fps.mp4"
+          )
+          NAMES=(open-plan luxe-living ocean-villa marble-kitchen)
+          for i in 0 1 2 3; do
+            echo "Fetching ${NAMES[i]}"
+            curl -fL --retry 3 --retry-delay 4 --connect-timeout 15 --max-time 160 "${URLS[i]}" -o "/tmp/${NAMES[i]}.mp4"
+            ffmpeg -y -hide_banner -loglevel error -i "/tmp/${NAMES[i]}.mp4" -vf "fps=1/2.5,scale=400:225:force_original_aspect_ratio=decrease,pad=400:225:(ow-iw)/2:(oh-ih)/2,tile=4x1" -frames:v 1 "video-sync-test/comparison/${NAMES[i]}.jpg"
+            echo "${NAMES[i]} bytes $(stat -c%s /tmp/${NAMES[i]}.mp4)"
+          done
+          ffmpeg -y -hide_banner -loglevel error -i video-sync-test/comparison/open-plan.jpg -i video-sync-test/comparison/luxe-living.jpg -i video-sync-test/comparison/ocean-villa.jpg -i video-sync-test/comparison/marble-kitchen.jpg -filter_complex "vstack=inputs=4" -frames:v 1 -q:v 3 video-sync-test/comparison/luxury-comparison.jpg
+          ls -lh video-sync-test/comparison
+      - name: Commit sample contact sheet
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add video-sync-test/comparison
+          git diff --cached --quiet || (git commit -m "Add free luxury footage visual comparison" && git push)
