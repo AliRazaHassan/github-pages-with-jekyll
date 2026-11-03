@@ -28,14 +28,19 @@ jobs:
           ffmpeg -hide_banner -loglevel error -y -i /tmp/house-tour.mp4 -an -vf "scale=960:-2,fps=18" -c:v libx264 -pix_fmt yuv420p -preset veryfast -crf 27 -movflags +faststart video-sync-test/assets/house-tour-optimized.mp4
           test $(stat -c%s video-sync-test/assets/house-tour-optimized.mp4) -gt 50000
           ffmpeg -hide_banner -loglevel error -y -ss 0 -i /tmp/house-tour.mp4 -frames:v 1 -vf scale=960:-2 video-sync-test/assets/house-tour-poster.jpg
-          ls -lh video-sync-test/assets
+          mkdir -p video-sync-test/assets/frames
+          ffmpeg -hide_banner -loglevel error -y -i /tmp/house-tour.mp4 -vf "fps=120/19.1,scale=768:-2" -frames:v 120 -c:v libwebp -quality 72 -compression_level 4 video-sync-test/assets/frames/frame_%03d.webp
+          count=$(find video-sync-test/assets/frames -type f -name "frame_*.webp" | wc -l)
+          echo "frame count: $count"
+          test "$count" -ge 110
+          du -sh video-sync-test/assets/*
       - name: Commit preview video to demo branch
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add video-sync-test/assets/house-tour-optimized.mp4 video-sync-test/assets/house-tour-poster.jpg
+          git add video-sync-test/assets/house-tour-optimized.mp4 video-sync-test/assets/house-tour-poster.jpg video-sync-test/assets/frames
           git diff --staged --quiet && exit 0
           git commit -m "Add locally hosted optimized free house tour for scroll QA"
           git push
