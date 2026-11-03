@@ -8,7 +8,7 @@
 <header class="nav"><a href="#top" class="brand">ARQ<b>O</b>RA</a><a href="#film-controls">Your Film ↗</a></header>
 <main id="top"><section class="rail" id="filmRail"><div class="stage" id="filmStage"><div class="poster"></div>
 <video id="walkFilm" muted playsinline preload="auto" aria-label="Continuous architectural walkthrough sample" poster="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70"></video>
-<div class="error" id="videoError">Sample video unavailable. Add your master walkthrough MP4 below to test synchronized scrolling.</div>
+<div class="error" id="videoError">Sample video unavailable. Select your own walkthrough MP4 below to test scroll sync.</div>
 <div class="note" id="sampleNote">DEMO FOOTAGE · Final custom exterior-to-ADU film not yet supplied.</div>
 <div class="story"><span class="eyebrow" id="sceneLabel">A CONNECTED JOURNEY / 01</span><h1 id="sceneHead">One Home.<br><em>One Journey.</em></h1><p id="sceneText">A continuous camera move replaces abrupt room changes. Scroll to control the film, forwards and backwards.</p></div>
 <div class="foot"><span class="hint">Scroll to move through the film</span><div class="line"><div class="bar" id="progressBar"></div></div><span class="count" id="progressCount">00%</span></div>
@@ -17,11 +17,11 @@
 <div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">Using demonstration video. Your custom route is not available yet.</div></div>
 </section>
 <section class="route"><span class="kicker" style="color:#c7cbbf">Final camera route</span><h2>Five beats. One take.</h2><div class="steps"><div class="step"><span>01 / ARRIVAL</span><b>Exterior</b><p>Camera approaches the modern home from the driveway.</p></div><div class="step"><span>02 / ENTRY</span><b>Door opens</b><p>Door swings inward and the camera passes through naturally.</p></div><div class="step"><span>03 / INTERIOR</span><b>Kitchen</b><p>Reveal marble island, cabinetry and natural daylight.</p></div><div class="step"><span>04 / RETREAT</span><b>Bathroom</b><p>Turn through an actual doorway into the glass-shower bathroom.</p></div><div class="step"><span>05 / EXPANSION</span><b>ADU</b><p>Exit to backyard and enter the detached accessory dwelling unit.</p></div></div></section></main>
-<footer class="legal">Sample media: <a href="https://github.com/pascalorg/editor/releases/tag/pascal-next-media-2026-09-21" target="_blank" rel="noopener">Pascal Group Inc. — Pascal Next</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>. This test seeks through unmodified example footage. No affiliation or endorsement. © ARQORA demo.</footer>
+<footer class="legal">Sample footage: <a href="https://www.pexels.com/video/modern-kitchen-and-living-area-with-elegant-decor-34955012/" target="_blank" rel="noopener">Owen Mathias on Pexels</a> (<a href="https://www.pexels.com/license/" target="_blank" rel="noopener">Pexels License</a>). A kitchen/living-area sample only, not the final exterior-to-ADU walkthrough. © ARQORA demo.</footer>
 <script>
 (()=>{'use strict';
 const video=document.getElementById('walkFilm'),rail=document.getElementById('filmRail'),fill=document.getElementById('progressBar'),count=document.getElementById('progressCount'),status=document.getElementById('fileStatus'),sample=document.getElementById('sampleNote'),error=document.getElementById('videoError');
-const videoSource='https://github.com/pascalorg/editor/releases/download/pascal-next-media-2026-09-21/pascal-editor-interactions.mp4';
+const videoSource='https://videos.pexels.com/video-files/34955012/14807045_1920_1080_25fps.mp4';
 video.src=videoSource;
 const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
