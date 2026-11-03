@@ -1,53 +1,153 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#121916"><title>ARQORA | One-film scroll walkthrough test</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#121916"><title>ARQORA | Free 120-Frame Canvas House Tour</title>
 <meta name="description" content="Test single-video scroll synchronisation for an architectural remodeling walkthrough.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--cream:#eae8df;--gold:#dbc39d;--ink:#131b16}*{box-sizing:border-box}html{scroll-behavior:auto}body{margin:0;background:#eae9e3;color:#213029;font:15px/1.7 'DM Sans',Arial,sans-serif}a{color:inherit;text-decoration:none}.nav{position:fixed;inset:0 0 auto;z-index:30;height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,6vw,95px);color:#fff;background:linear-gradient(#07120db0,transparent)}.brand{font:700 22px Manrope,sans-serif;letter-spacing:.27em}.brand b{color:var(--gold)}.nav a:last-child{border:1px solid #fff9;padding:11px 20px;font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase}.rail{height:390svh;position:relative}.stage{height:100svh;position:sticky;top:0;background:#17231b;color:#fff;overflow:hidden;isolation:isolate}.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.86) contrast(1.04)}.stage:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,#07130db8,#07130d62 54%,#07130d14 96%),linear-gradient(0deg,#0c1916b8,transparent 30%)}.stage:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.5;background:linear-gradient(to right,transparent 7%,#ffffff18 7.05%,transparent 7.1%,transparent 93%,#ffffff18 93.05%,transparent 93.1%)}.poster{position:absolute;inset:0;z-index:0;background:#26372b url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70') center/cover}.story{position:absolute;z-index:4;top:46%;left:clamp(22px,9vw,155px);right:22px;transform:translateY(-50%);max-width:710px;pointer-events:none}.eyebrow{font-size:11px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;font-weight:700}.story h1{font:500 clamp(3.35rem,7.8vw,7.5rem)/1.04 Manrope,Arial,sans-serif;letter-spacing:-.065em;margin:26px 0 25px}.story h1 em{font-style:normal;color:#ecd4af}.story p{font-size:clamp(14px,1.35vw,17px);line-height:1.85;max-width:445px;color:#ecefe7}.foot{position:absolute;bottom:34px;left:clamp(22px,6vw,90px);right:clamp(22px,6vw,90px);z-index:5;display:flex;align-items:center;gap:25px}.foot .hint{font-size:10px;letter-spacing:.16em;white-space:nowrap;text-transform:uppercase}.line{height:2px;background:#ffffff80;flex:1;max-width:350px}.bar{height:2px;width:0;background:var(--gold)}.count{font-size:12px;letter-spacing:.14em}.note{position:absolute;right:clamp(22px,6vw,90px);top:100px;z-index:6;font-size:10px;max-width:235px;letter-spacing:.06em;padding:9px 13px;border:1px solid #ffffff60;background:#101a16b5;color:#f4e5ca}.stage .error{position:absolute;inset:50% 20px auto;transform:translateY(-50%);z-index:3;text-align:center;color:#fff;font-size:12px;display:none}.controls{background:#eae9e3;padding:90px clamp(22px,8vw,130px);display:grid;gap:50px;grid-template-columns:1.1fr .9fr;align-items:start}.kicker{text-transform:uppercase;font-size:10px;letter-spacing:.24em;font-weight:700;color:#7e897c}.controls h2{font:500 clamp(2.2rem,4.3vw,4.5rem)/1.12 Manrope,sans-serif;letter-spacing:-.065em;margin:17px 0 22px}.controls p{max-width:600px;color:#606d63;font-size:15px;line-height:1.9}.upload{border:1px solid #c6ccbf;background:#f7f6f1;padding:30px}.upload strong{display:block;font:600 18px Manrope,sans-serif;margin-bottom:10px}.upload label{display:block;margin:20px 0 9px;font-size:12px;font-weight:700}.upload input{max-width:100%;font:inherit;font-size:12px}.meta{font-size:12px;color:#637263;margin-top:15px}.route{padding:70px clamp(22px,8vw,130px);background:#243329;color:#fff}.route h2{font:500 clamp(2rem,4vw,4rem) Manrope,sans-serif;letter-spacing:-.055em;margin:14px 0 35px}.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:18px}.step{border-top:1px solid #d9d0b289;padding-top:20px}.step span{color:var(--gold);font-size:11px;letter-spacing:.17em}.step b{display:block;margin:14px 0;font:500 17px Manrope,sans-serif}.step p{font-size:12px;color:#c4cec5;line-height:1.8}.legal{padding:25px clamp(22px,8vw,130px);font-size:12px;background:#151e18;color:#c0c9c0}.legal a{text-decoration:underline}@media(max-width:700px){.nav{height:65px}.nav a:last-child{font-size:9px;padding:8px}.note{right:20px;top:76px;font-size:9px;max-width:190px}.story{top:49%}.story h1{font-size:clamp(2.9rem,11vw,4.5rem)}.foot{bottom:20px}.foot .hint{font-size:8px}.controls{grid-template-columns:1fr;padding-top:65px;padding-bottom:65px}.steps{grid-template-columns:repeat(2,1fr)}.stage video{object-position:58% center}}@media(prefers-reduced-motion:reduce){.rail{height:100svh}.foot{display:none}}
+
+/* True local frame-sequence renderer: no external video hotlinks. */
+.stage .poster{background-image:url('assets/house-tour-poster.jpg');z-index:0}
+.stage #frameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;opacity:0;transition:opacity .25s;contain:strict}
+.stage #walkFilm{display:none;z-index:0}
+.stage #walkFilm.visible{display:block}
+@media(prefers-reduced-motion:reduce){.stage #frameCanvas{opacity:1}}
 </style></head><body>
 <header class="nav"><a href="#top" class="brand">ARQ<b>O</b>RA</a><a href="#film-controls">Your Film ↗</a></header>
 <main id="top"><section class="rail" id="filmRail"><div class="stage" id="filmStage"><div class="poster"></div>
-<video id="walkFilm" muted playsinline preload="auto" aria-label="Continuous architectural walkthrough sample" poster="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=70"></video>
+<canvas id="frameCanvas" aria-label="Continuous house walkthrough controlled by scroll"></canvas>
+<video id="walkFilm" muted playsinline preload="metadata" aria-label="Your local architectural walkthrough video" poster="assets/house-tour-poster.jpg"></video>
 <div class="error" id="videoError">Free sample could not load. You can select your own MP4 below.</div>
 <div class="note" id="sampleNote">FREE CONTINUOUS TOUR · test footage, not final luxury project</div>
 <div class="story"><span class="eyebrow" id="sceneLabel">A CONNECTED JOURNEY / 01</span><h1 id="sceneHead">One Home.<br><em>One Journey.</em></h1><p id="sceneText">A continuous camera move replaces abrupt room changes. Scroll to control the film, forwards and backwards.</p></div>
 <div class="foot"><span class="hint">Scroll to move through the film</span><div class="line"><div class="bar" id="progressBar"></div></div><span class="count" id="progressCount">00%</span></div>
 </div></section>
-<section id="film-controls" class="controls"><div><span class="kicker">Single-film scroll synchronization</span><h2>The camera moves.<br>The story unfolds.</h2><p>Instead of switching among four images, this page scrubs a single uninterrupted house-tour video against scroll progress. This free sample tours an unfinished small house, not the finished luxury exterior-to-ADU route. Replace it with a matching master video without changing the page.</p><p>For the finished hero, render or generate one coherent shot through the same 3D house. Export a web-optimized master and a 180-frame image sequence for final low-lag canvas scrubbing on mobile.</p></div>
-<div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">Free Coverr house walkthrough sample (19 seconds) · Only for testing camera continuity.</div></div>
+<section id="film-controls" class="controls"><div><span class="kicker">Single-film scroll synchronization</span><h2>The camera moves.<br>The story unfolds.</h2><p>Instead of switching among four images, this page scrubs a single uninterrupted house-tour video against scroll progress. This free sample tours an unfinished small house, not the finished luxury exterior-to-ADU route. Replace it with a matching master video without changing the page.</p><p>This prototype uses 120 WebP frames rendered into one canvas, requested with async image decoding and requestAnimationFrame. For the finished hero, the same engine can use 180–240 frames from one custom matching exterior-to-ADU film.</p></div>
+<div class="upload"><strong>Test with your own walkthrough video</strong><p>Choose an MP4 or WebM on this device. It stays local in your browser; the file is not uploaded to the site.</p><label for="videoUpload">Select master video</label><input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime"><div class="meta" id="fileStatus">120 locally hosted optimized frames · Free continuous house tour. Scroll to test.</div></div>
 </section>
 <section class="route"><span class="kicker" style="color:#c7cbbf">Final camera route</span><h2>Five beats. One take.</h2><div class="steps"><div class="step"><span>01 / ARRIVAL</span><b>Exterior</b><p>Camera approaches the modern home from the driveway.</p></div><div class="step"><span>02 / ENTRY</span><b>Door opens</b><p>Door swings inward and the camera passes through naturally.</p></div><div class="step"><span>03 / INTERIOR</span><b>Kitchen</b><p>Reveal marble island, cabinetry and natural daylight.</p></div><div class="step"><span>04 / RETREAT</span><b>Bathroom</b><p>Turn through an actual doorway into the glass-shower bathroom.</p></div><div class="step"><span>05 / EXPANSION</span><b>ADU</b><p>Exit to backyard and enter the detached accessory dwelling unit.</p></div></div></section></main>
 <footer class="legal">Free sample: <a href="https://coverr.co/videos/tour-of-a-house-10dx22zecx" target="_blank" rel="noopener">Coverr — Tour of a house</a>, free commercial-use clip under the <a href="https://coverr.co/license" target="_blank" rel="noopener">Coverr License</a>. Sample shows a small house under construction, not a completed luxury renovation. © ARQORA demo.</footer>
 <script>
 (()=>{'use strict';
-const video=document.getElementById('walkFilm'),rail=document.getElementById('filmRail'),fill=document.getElementById('progressBar'),count=document.getElementById('progressCount'),status=document.getElementById('fileStatus'),sample=document.getElementById('sampleNote'),error=document.getElementById('videoError');
-const sampleSrc='https://cdn.coverr.co/videos/coverr-tour-of-a-house-5566/720p.mp4';
-video.src=sampleSrc;
-video.load();
-
+const $=id=>document.getElementById(id);
+const video=$('walkFilm'),canvas=$('frameCanvas'),rail=$('filmRail'),fill=$('progressBar'),count=$('progressCount'),status=$('fileStatus'),sample=$('sampleNote'),error=$('videoError');
+const ctx=canvas.getContext('2d',{alpha:false,desynchronized:true});
 const reduced=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const mobile=matchMedia('(max-width:700px)').matches;
 const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
-let duration=20,requested=0,latestSeek=0,seekTimer=0,fileUrl=null,disabled=false;
-function position(){let r=rail.getBoundingClientRect();return clamp(-r.top/Math.max(1,r.height-innerHeight))}
-function updateText(p){
-const labels=['AN ARCHITECTURAL JOURNEY','THE APPROACH','THROUGH THE HOME','CRAFTED IN DETAIL','A COMPLETE TRANSFORMATION'];
-const heads=['One Home.<br><em>One Journey.</em>','The First<br><em>Impression.</em>','An Open<br><em>Experience.</em>','Every Detail<br><em>Matters.</em>','Built For<br><em>What’s Next.</em>'];
-const k=Math.min(4,Math.floor(p*5));
-if(updateText.k!==k){updateText.k=k;document.getElementById('sceneLabel').textContent=labels[k]+' / '+String(k+1).padStart(2,'0');document.getElementById('sceneHead').innerHTML=heads[k]}
+const TOTAL=120,frames=Array(TOTAL).fill(null),pending=new Set(),queued=new Set(),queue=[];
+let inFlight=0,current=-1,wanted=0,raf=0,progress=0,duration=19.1,fileUrl=null,seekTimer=0,lastSeek=0,videoMode=false;
+const cap=mobile?3:6;
+function resize(){
+ const r=canvas.getBoundingClientRect();
+ const dpr=clamp(devicePixelRatio||1,.5,Math.min(mobile?1.2:1.4,1280/Math.max(1,r.width),800/Math.max(1,r.height)));
+ canvas.width=Math.max(1,Math.round(r.width*dpr));
+ canvas.height=Math.max(1,Math.round(r.height*dpr));
+ ctx.imageSmoothingEnabled=true;
+ ctx.imageSmoothingQuality=mobile?'low':'medium';
+ current=-1;
+ schedule();
 }
-function seek(){seekTimer=0;if(disabled||!video.duration||video.seeking)return;
-const desired=clamp(requested,0,Math.max(0,video.duration-.06));
-if(Math.abs(video.currentTime-desired)<.045)return;
-latestSeek=performance.now();try{video.currentTime=desired}catch(e){}}
-function schedule(){if(seekTimer)return;const wait=Math.max(0,85-(performance.now()-latestSeek));seekTimer=setTimeout(seek,wait)}
-function scroll(){const p=reduced?0:position();fill.style.width=(p*100).toFixed(1)+'%';count.textContent=String(Math.round(p*100)).padStart(2,'0')+'%';updateText(p);requested=p*duration;if(video.readyState>=1)schedule()}
-video.addEventListener('loadedmetadata',()=>{duration=Math.max(0.1,video.duration||20);disabled=false;error.style.display='none';if(!fileUrl) status.textContent='Loaded free 19-second continuous house tour from Coverr. Scroll to scrub the camera.';scroll()});
-video.addEventListener('seeked',()=>{if(Math.abs(video.currentTime-requested)>.12)schedule()});
-video.addEventListener('error',()=>{error.style.display='block';status.textContent='Could not decode this video. Please use browser-compatible H.264 MP4 or WebM.'});
-document.getElementById('videoUpload').addEventListener('change',e=>{
-const f=e.target.files?.[0];if(!f)return;if(fileUrl)URL.revokeObjectURL(fileUrl);fileUrl=URL.createObjectURL(f);video.src=fileUrl;video.load();status.textContent='Local file: '+f.name+' · '+(f.size/1048576).toFixed(1)+' MB';sample.textContent='YOUR OWN WALKTHROUGH VIDEO · LOCAL PREVIEW';disabled=false
+function put(i,urgent=false){
+ if(i<0||i>=TOTAL||frames[i]||pending.has(i))return;
+ if(queued.has(i)){
+   if(urgent){let p=queue.indexOf(i);if(p>0){queue.splice(p,1);queue.unshift(i)}}
+   return;
+ }
+ if(urgent)queue.unshift(i);else queue.push(i);
+ queued.add(i);
+ pump();
+}
+function pump(){
+ while(inFlight<cap&&queue.length){
+   const i=queue.shift();queued.delete(i);
+   if(frames[i]||pending.has(i))continue;
+   pending.add(i);inFlight++;
+   const img=new Image();img.decoding='async';
+   let finished=false;
+   const done=(ok)=>{
+     if(finished)return;finished=true;pending.delete(i);inFlight--;
+     if(ok){frames[i]=img;if(i===0||i===wanted)schedule();}
+     pump();
+   };
+   img.onload=()=>{if(img.decode)img.decode().then(()=>done(true)).catch(()=>done(img.naturalWidth>0));else done(true)};
+   img.onerror=()=>done(false);
+   img.src='assets/frames/frame_'+String(i+1).padStart(3,'0')+'.webp';
+ }
+}
+function selectFrame(){
+ if(videoMode||!ctx)return;
+ const desired=clamp(wanted,0,TOTAL-1);
+ if(current===desired)return;
+ const img=frames[desired];
+ if(!img){put(desired,true);put(desired+1,true);put(desired-1,true);}
+ const fallback=img?desired:findNearest(desired);
+ if(fallback<0)return;
+ const chosen=frames[fallback];
+ if(!chosen||!chosen.naturalWidth)return;
+ const w=canvas.width,h=canvas.height;
+ const scale=Math.max(w/chosen.naturalWidth,h/chosen.naturalHeight);
+ const dw=chosen.naturalWidth*scale,dh=chosen.naturalHeight*scale;
+ ctx.fillStyle='#132119';ctx.fillRect(0,0,w,h);
+ ctx.drawImage(chosen,(w-dw)/2,(h-dh)/2,dw,dh);
+ canvas.style.opacity='1';current=fallback;
+ if(!img)put(desired,true);
+ if(desired===0||desired===TOTAL-1||frames[desired])status.textContent='Free sample · 120 scroll-synced frames · hosted on this website (no external CDN)';
+}
+function findNearest(i){
+ if(frames[i])return i;
+ for(let d=1;d<TOTAL;d++){if(frames[i-d])return i-d;if(frames[i+d])return i+d}
+ return -1;
+}
+function tick(){raf=0;selectFrame()}
+function schedule(){if(!raf)raf=requestAnimationFrame(tick)}
+function position(){const r=rail.getBoundingClientRect();return clamp(-r.top/Math.max(1,r.height-innerHeight))}
+function updateText(p){
+ const labels=['A SINGLE CAMERA JOURNEY','CONTINUOUS MOTION','ONE CONNECTED SPACE','ARCHITECTURAL DETAILS','THE FINAL REVEAL'];
+ const heads=['One Home.<br><em>One Journey.</em>','Follow the<br><em>Camera.</em>','Stay Inside<br><em>the Space.</em>','Every Detail<br><em>Matters.</em>','The Journey<br><em>Continues.</em>'];
+ const k=Math.min(4,Math.floor(p*5));
+ if(updateText.k!==k){updateText.k=k;$('sceneLabel').textContent=labels[k]+' / '+String(k+1).padStart(2,'0');$('sceneHead').innerHTML=heads[k]}
+}
+function seekVideo(){
+ seekTimer=0;if(!videoMode||!video.duration||video.seeking)return;
+ const desired=clamp(progress*duration,0,Math.max(0,duration-.06));
+ if(Math.abs(video.currentTime-desired)<.04)return;
+ lastSeek=performance.now();
+ try{video.currentTime=desired}catch(e){}
+}
+function scheduleSeek(){if(seekTimer)return;seekTimer=setTimeout(seekVideo,Math.max(0,90-(performance.now()-lastSeek)))}
+function scroll(){
+ const p=reduced?0:position();progress=p;
+ fill.style.width=(p*100).toFixed(1)+'%';
+ count.textContent=String(Math.round(p*100)).padStart(2,'0')+'%';
+ updateText(p);
+ if(videoMode){if(video.readyState>=1)scheduleSeek();return;}
+ wanted=reduced?0:Math.round(p*(TOTAL-1));
+ put(wanted,true);
+ if(wanted>0)put(wanted-1,true);
+ if(wanted<TOTAL-1)put(wanted+1,true);
+ schedule();
+}
+video.addEventListener('loadedmetadata',()=>{duration=Math.max(.1,video.duration||19.1);error.style.display='none';scroll()});
+video.addEventListener('seeked',()=>{if(videoMode&&Math.abs(video.currentTime-progress*duration)>.15)scheduleSeek()});
+video.addEventListener('error',()=>{if(videoMode){error.style.display='block';status.textContent='Could not decode this video. Try a browser-compatible H.264 MP4.'}});
+$('videoUpload').addEventListener('change',e=>{
+ const f=e.target.files?.[0];if(!f)return;
+ if(fileUrl)URL.revokeObjectURL(fileUrl);
+ fileUrl=URL.createObjectURL(f);
+ videoMode=true;video.classList.add('visible');canvas.style.display='none';
+ video.src=fileUrl;video.load();video.pause();
+ sample.textContent='YOUR OWN WALKTHROUGH · LOCAL FILE PREVIEW';
+ status.textContent='Local video: '+f.name+' · '+(f.size/1048576).toFixed(1)+' MB · not uploaded';
+ scroll();
 });
-addEventListener('scroll',scroll,{passive:true});addEventListener('resize',scroll,{passive:true});
+if(ctx){
+ resize();
+ put(0,true);
+ [20,40,60,80,100,119].forEach(i=>put(i));
+ for(let i=1;i<TOTAL;i++)put(i);
+}
+addEventListener('scroll',scroll,{passive:true});
+addEventListener('resize',resize,{passive:true});
 scroll();
 })();
 </script></body></html>
