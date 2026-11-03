@@ -1,0 +1,39 @@
+name: Compare Free Luxury Video Sources
+on:
+  push:
+    branches: [remodeling-v2-hostinger-test]
+    paths:
+      - .github/workflows/compare-luxury-clips.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: remodeling-v2-hostinger-test
+      - name: Fetch and inspect two licensed free video candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p video-sync-test/preview
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          curl -fL --retry 3 --retry-delay 3 --max-time 180 'https://videos.pexels.com/video-files/7578542/7578542-uhd_2560_1440_30fps.mp4' -o /tmp/living.mp4
+          curl -fL --retry 3 --retry-delay 3 --max-time 180 'https://videos.pexels.com/video-files/34955012/14807045_2560_1440_25fps.mp4' -o /tmp/kitchen.mp4
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 /tmp/living.mp4
+          ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 /tmp/kitchen.mp4
+          ffmpeg -hide_banner -loglevel error -y -i /tmp/living.mp4 -vf 'fps=1/2,scale=440:-2,tile=3x2' -frames:v 1 video-sync-test/preview/living-contact.jpg
+          ffmpeg -hide_banner -loglevel error -y -i /tmp/kitchen.mp4 -vf 'fps=1/2,scale=440:-2,tile=3x2' -frames:v 1 video-sync-test/preview/kitchen-contact.jpg
+          ls -lh video-sync-test/preview/
+      - name: Commit the contact sheets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add video-sync-test/preview/*.jpg
+          git diff --staged --quiet && exit 0
+          git commit -m "Add luxury stock video contact sheets for source selection"
+          git push
