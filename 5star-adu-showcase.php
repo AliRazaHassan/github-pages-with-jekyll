@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: 5 Star Constructions — ADU 3D Concept Showcase
- * Description: Three lightweight original interactive ADU concept models and floor-plan previews.
- * Version: 1.1.0
+ * Plugin Name: 5 Star Constructions — Published ADU Model Showcase
+ * Description: Six published ADU model designs, original affiliated images and floor plans, plus an optional illustrative 3D viewer.
+ * Version: 1.2.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -18,9 +18,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.1.0');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.1.0', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.1.0', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.2.0');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.2.0', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.2.0', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
@@ -29,7 +29,7 @@ add_action('template_redirect', function() {
     $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     if ($path !== 'atelier/contact') return;
     $choice = isset($_GET['adu_concept']) ? sanitize_key(wp_unslash($_GET['adu_concept'])) : '';
-    $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest'];
+    $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest','s1'=>'Model S1','a1'=>'Model A1','a2'=>'Model A2','a3'=>'Model A3','b3'=>'Model B3','r4'=>'Model R4'];
     if (!isset($names[$choice])) return;
     $message = esc_textarea('I am interested in the ' . $names[$choice] . ' ADU concept. Please discuss property feasibility, planning requirements and the next steps.');
     ob_start(function($html) use ($message) {
