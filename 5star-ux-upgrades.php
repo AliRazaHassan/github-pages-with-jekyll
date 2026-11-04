@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.8
+ * Version: 1.1.9
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -58,8 +58,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.8');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.8', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.9');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.9', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -238,6 +238,69 @@ add_action('init', function() {
         update_option($flag, $sent ? 'wp_mail_accepted' : 'wp_mail_failed', false);
     }, 99);
 }, 999);
+
+
+// Temporary authenticated-mail setup channel. The bearer credential NEVER appears
+// in source control or in a URL. The URL carries only RSA-encrypted ciphertext.
+// Accept only a token verified by Hostinger for our exact website-notices mailbox.
+function fsc_ux_mail_setup_challenge(WP_REST_Request $req) {
+    if (get_option('fsc_ux_mail_api_token', '')) return new WP_Error('already_configured', 'Authenticated mail is already configured.', ['status'=>409]);
+    if (!function_exists('openssl_pkey_new')) return new WP_Error('missing_crypto', 'OpenSSL is unavailable.', ['status'=>503]);
+    $state = get_transient('fsc_ux_mail_crypto_setup');
+    if (!is_array($state)) {
+        $key = openssl_pkey_new(['private_key_bits'=>2048,'private_key_type'=>OPENSSL_KEYTYPE_RSA]);
+        if (!$key) return new WP_Error('crypto_error','Could not create temporary mail setup key.',['status'=>503]);
+        if (!openssl_pkey_export($key,$private)) return new WP_Error('crypto_error','Could not export temporary mail setup key.',['status'=>503]);
+        $info = openssl_pkey_get_details($key);
+        if (!is_array($info) || empty($info['rsa']['n']) || empty($info['rsa']['e'])) return new WP_Error('crypto_error','Invalid setup key.',['status'=>503]);
+        $state=['private'=>$private,'n'=>bin2hex($info['rsa']['n']),'e'=>bin2hex($info['rsa']['e'])];
+        set_transient('fsc_ux_mail_crypto_setup', $state, 10 * MINUTE_IN_SECONDS);
+        set_transient('fsc_ux_mail_crypto_attempts', 0, 10 * MINUTE_IN_SECONDS);
+    }
+    return new WP_REST_Response(['rsa_n_hex'=>$state['n'],'rsa_e_hex'=>$state['e'],'expires_in_seconds'=>600,'mailbox_id'=>'AC3a6e683018f926fc4c3822af8123'],200);
+}
+function fsc_ux_mail_setup_complete(WP_REST_Request $req) {
+    if (get_option('fsc_ux_mail_api_token', '')) return new WP_Error('already_configured','Authenticated mail is already configured.',['status'=>409]);
+    $state=get_transient('fsc_ux_mail_crypto_setup');
+    if (!is_array($state) || empty($state['private'])) return new WP_Error('expired','Setup challenge expired.',['status'=>410]);
+    $tries=(int)get_transient('fsc_ux_mail_crypto_attempts');
+    if ($tries>=5) return new WP_Error('rate_limited','Too many setup attempts.',['status'=>429]);
+    set_transient('fsc_ux_mail_crypto_attempts', $tries+1, 10*MINUTE_IN_SECONDS);
+    $hex=(string)$req->get_param('cipher');
+    if (strlen($hex)!==512 || !ctype_xdigit($hex)) return new WP_Error('invalid','Invalid encrypted payload.',['status'=>400]);
+    $plaintext='';
+    if (!openssl_private_decrypt(hex2bin($hex), $plaintext, $state['private'], OPENSSL_PKCS1_PADDING)) return new WP_Error('invalid','Could not decrypt setup payload.',['status'=>400]);
+    $token=trim($plaintext);
+    if (strlen($token)<32 || strlen($token)>1000 || preg_match('/\s/',$token)) return new WP_Error('invalid','Invalid token format.',['status'=>400]);
+    $verify=wp_remote_get('https://api.mail.hostinger.com/api/v1/me',[
+        'headers'=>['Authorization'=>'Bearer '.$token,'Accept'=>'application/json'],
+        'timeout'=>18,'redirection'=>0,'sslverify'=>true
+    ]);
+    if (is_wp_error($verify)) return new WP_Error('verification_failed','Could not contact Hostinger Mail API.',['status'=>502]);
+    if ((int)wp_remote_retrieve_response_code($verify)!==200) return new WP_Error('verification_failed','Hostinger rejected the token.',['status'=>403]);
+    $verified=json_decode(wp_remote_retrieve_body($verify),true);
+    $mailboxes=$verified['data']['mailboxes']??[];
+    $permitted=false;
+    if (is_array($mailboxes)) foreach($mailboxes as $box){
+        if (($box['resourceId']??'')==='AC3a6e683018f926fc4c3822af8123' && strtolower($box['address']??'')==='website-notices@5starconstructionsca.com') $permitted=true;
+    }
+    if (!$permitted) return new WP_Error('forbidden','Token is not scoped to this website sender mailbox.',['status'=>403]);
+    update_option('fsc_ux_mail_api_token',$token,false);
+    update_option('fsc_ux_mailbox_id','AC3a6e683018f926fc4c3822af8123',false);
+    delete_transient('fsc_ux_mail_crypto_setup');
+    delete_transient('fsc_ux_mail_crypto_attempts');
+    $sent=fsc_ux_mail_api_send('5 Star authenticated mail delivery test','Owner-requested website email test. No customer data is included. Please verify delivery in Inbox or Spam.');
+    update_option('fsc_ux_mail_test_result',['time'=>current_time('mysql'),'ok'=>!is_wp_error($sent)],false);
+    return new WP_REST_Response(['configured'=>true,'test_api_accepted'=>!is_wp_error($sent)],200);
+}
+add_action('rest_api_init',function(){
+    register_rest_route('fsc/v1','/mail-setup-challenge',[
+        'methods'=>'GET','callback'=>'fsc_ux_mail_setup_challenge','permission_callback'=>'__return_true'
+    ]);
+    register_rest_route('fsc/v1','/mail-setup-complete',[
+        'methods'=>'GET','callback'=>'fsc_ux_mail_setup_complete','permission_callback'=>'__return_true'
+    ]);
+});
 
 add_action('rest_api_init', function() {
     register_rest_route('fsc/v1', '/inquiry', [
