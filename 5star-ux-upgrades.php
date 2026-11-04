@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -13,8 +13,8 @@ function fsc_ux_is_front() {
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.7');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.7', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.8');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.8', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -119,7 +119,7 @@ function fsc_ux_mail_settings_page() {
         <input type="hidden" name="action" value="fsc_ux_save_mail_settings"/>
         <table class="form-table"><tbody>
           <tr><th><label for="fsc-mailbox-id">Sender mailbox resource ID</label></th>
-          <td><input type="text" name="fsc_mailbox_id" id="fsc-mailbox-id" class="regular-text" value="<?php echo esc_attr(get_option('fsc_ux_mailbox_id', '')); ?>" autocomplete="off" required/></td></tr>
+          <td><input type="text" name="fsc_mailbox_id" id="fsc-mailbox-id" class="regular-text" value="<?php echo esc_attr(get_option('fsc_ux_mailbox_id', 'AC3a6e683018f926fc4c3822af8123')); ?>" autocomplete="off" required/></td></tr>
           <tr><th><label for="fsc-api-token">Hostinger Mail API token</label></th>
           <td><input type="password" name="fsc_api_token" id="fsc-api-token" class="regular-text" value="" autocomplete="new-password" placeholder="<?php echo $configured ? 'Configured — leave empty to keep' : 'Paste a mailbox-scoped token'; ?>"/>
           <p class="description">Token is not displayed again. Use a token scoped to the website notification mailbox only.</p></td></tr>
@@ -223,12 +223,15 @@ function fsc_ux_receive_inquiry(WP_REST_Request $request) {
     if (is_wp_error($lead_id) || !$lead_id) {
         return new WP_Error('storage','Your enquiry could not be saved. Please call (916) 225-1015.',['status'=>503]);
     }
+    $authenticated_mail = (bool)get_option('fsc_ux_mail_api_token', '');
     $sent = wp_mail('contact@5starconstructionsca.com', 'New 5 Star website project inquiry', implode("\n", $lines), $headers);
+    $verified_submission = $authenticated_mail && (bool)$sent;
+    update_post_meta($lead_id, '_fsc_mail_status', $verified_submission ? 'accepted_by_hostinger_api' : 'delivery_unverified');
     return new WP_REST_Response([
         'ok' => true,
         'stored' => true,
-        'notification_sent' => (bool)$sent,
-        'message' => $sent ? 'Enquiry saved and notification passed to mail service.' : 'Enquiry saved. Mail notification could not be confirmed.',
+        'notification_sent' => $verified_submission,
+        'message' => $verified_submission ? 'Enquiry saved and accepted by authenticated mail API.' : 'Enquiry saved. Mail delivery has not been verified; please call if urgent.',
     ], 200);
 }
 
