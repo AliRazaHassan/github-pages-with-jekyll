@@ -168,3 +168,95 @@ body.fsc-ux-dialog-open{overflow:hidden}
  #fsc-ux-gallery .fsc-ux-gallery-grid{scroll-behavior:auto}
  #fsc-ux-gallery .fsc-ux-gallery-card{transition:none!important}
 }
+
+/* 5 Star brand consistency — navy / red / warm cream across integrations. */
+#fsc-ux-gallery, #fsc-serve{font-family:var(--sans,'Helvetica Neue',Arial,sans-serif)!important}
+#fsc-serve{
+  background:#f8f6f1!important;color:#102f4e!important;
+  padding:clamp(64px,7.4vw,108px) 5.2%!important;
+  border-top:1px solid #082b5014;
+}
+#fsc-serve .fsc-layout{max-width:1370px!important;gap:clamp(24px,4.5vw,72px)!important;align-items:center!important}
+#fsc-serve .fsc-eyebrow,
+#fsc-ux-gallery .fsc-ux-eyebrow{
+  color:#bd1b2a!important;letter-spacing:.18em!important;
+  font-size:11px!important;font-weight:700!important;
+}
+#fsc-serve h2,#fsc-ux-gallery .fsc-ux-gallery-heading h2{
+  font-family:var(--display,Georgia,serif)!important;
+  font-size:clamp(39px,4.75vw,67px)!important;
+  font-weight:400!important;line-height:1.08!important;
+  letter-spacing:-.035em!important;color:#082b50!important;
+}
+#fsc-serve .fsc-sub,#fsc-ux-gallery .fsc-ux-gallery-heading p{
+  color:#5d6b78!important;font-size:15px!important;line-height:1.7!important;
+}
+#fsc-serve button.fsc-tab{
+  background:#e8e9e9!important;color:#5d6b78!important;
+  min-height:39px!important;font-weight:650!important;
+}
+#fsc-serve button.fsc-tab[aria-selected="true"]{
+  background:#082b50!important;color:#fff!important;
+}
+#fsc-serve .fsc-tags-card{
+  border:1px solid #082b501a!important;border-radius:13px!important;
+  background:#fff!important;box-shadow:0 6px 20px #082b5009!important;
+  padding:17px!important;
+}
+#fsc-serve button.fsc-place{background:#f2f5f7!important;color:#334d65!important;border:1px solid #e2e9f0!important}
+#fsc-serve button.fsc-place:hover,
+#fsc-serve button.fsc-place.active{
+  background:#e3ebf2!important;color:#082b50!important;border-color:#a6bccd!important;
+}
+#fsc-serve .fsc-map{height:375px!important;border-radius:14px!important;background:#e6edf0!important}
+#fsc-serve .fsc-map-caption{color:#082b50!important;top:16px!important}
+#fsc-serve .fsc-map-link{color:#082b50!important;text-decoration:underline!important}
+#fsc-ux-gallery{
+  background:#fff!important;color:#102f4e!important;
+  padding:clamp(64px,7.4vw,108px) 5.2%!important;
+  border-top:1px solid #082b5014!important;
+  border-bottom:1px solid #082b5014!important;
+}
+#fsc-ux-gallery .fsc-ux-gallery-inner{max-width:1370px!important}
+#fsc-ux-gallery .fsc-ux-gallery-heading{align-items:flex-end!important;margin-bottom:30px!important}
+#fsc-ux-gallery .fsc-ux-gallery-heading h2 em{color:#516981!important}
+#fsc-ux-gallery .fsc-ux-gallery-link{
+  color:#082b50!important;border-bottom:1px solid #082b50!important;
+}
+#fsc-ux-gallery .fsc-ux-filters button{
+  border-color:#082b5026!important;color:#304c65!important;background:#f8f6f1!important;
+  font-weight:650!important;
+}
+#fsc-ux-gallery .fsc-ux-filters button.active{
+  background:#082b50!important;color:#fff!important;border-color:#082b50!important;
+}
+#fsc-ux-gallery #fsc-ux-carousel-help,
+#fsc-ux-gallery #fsc-ux-carousel-count{color:#5d6b78!important}
+#fsc-ux-gallery .fsc-ux-carousel-controls button{border-color:#ced7e0!important;color:#082b50!important}
+#fsc-ux-gallery .fsc-ux-carousel-controls button:not(:disabled):hover{
+  background:#082b50!important;color:#fff!important;
+}
+#fsc-ux-gallery .fsc-ux-gallery-card{border-color:#082b501a!important;box-shadow:0 8px 24px #082b500a!important}
+#fsc-ux-gallery .fsc-ux-gallery-card>span{color:#bd1b2a!important}
+#fsc-ux-gallery .fsc-ux-gallery-card>strong{font-family:var(--display,Georgia,serif)!important;color:#082b50!important;font-weight:400!important;font-size:27px!important;line-height:1.2!important}
+#fsc-ux-gallery .fsc-ux-gallery-card>small{color:#355874!important}
+#fsc-ux-gallery .fsc-ux-adu-art{background:linear-gradient(135deg,#d4e0e8,#eff0ed)!important}
+#fsc-ux-gallery .fsc-ux-adu-art span{color:#082b50!important}
+#fsc-ux-root #fsc-ux-launch,#fsc-ux-root .fsc-ux-head{background:#082b50!important;color:#fff!important}
+#fsc-ux-root .fsc-ux-head-mark{background:#bd1b2a!important;color:#fff!important}
+#fsc-ux-root .fsc-ux-message.user{background:#123c62!important}
+#fsc-ux-root .fsc-ux-actions button{background:#f2f5f8!important;color:#082b50!important;border-color:#d8e2ea!important}
+#fsc-ux-root .fsc-ux-actions button:hover{background:#e1eaf1!important}
+#fsc-ux-root .fsc-ux-question button,
+#fsc-ux-root #fsc-ux-submit{background:#082b50!important;color:#fff!important}
+#fsc-ux-root .fsc-ux-bottom a{color:#082b50!important}
+@media(max-width:930px){
+ #fsc-serve{padding:64px 5.2%!important}
+ #fsc-serve .fsc-map{height:310px!important}
+}
+@media(max-width:600px){
+ #fsc-ux-gallery,#fsc-serve{padding:56px 18px!important}
+ #fsc-serve h2,#fsc-ux-gallery .fsc-ux-gallery-heading h2{font-size:clamp(34px,9vw,48px)!important}
+ #fsc-serve .fsc-map{height:275px!important}
+ #fsc-ux-gallery .fsc-ux-gallery-card>strong{font-size:24px!important}
+}
