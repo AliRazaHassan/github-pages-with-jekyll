@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Published ADU Model Showcase
  * Description: Six published ADU model designs, original affiliated images and floor plans, plus an optional illustrative 3D viewer.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -18,9 +18,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.2.0');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.2.0', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.2.0', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.2.1');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.2.1', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.2.1', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
