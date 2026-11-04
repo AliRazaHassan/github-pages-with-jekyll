@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.7
+ * Version: 1.1.8
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -58,8 +58,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.7');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.7', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.8');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.8', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -218,6 +218,27 @@ function fsc_ux_notification_sender_name($name) { return '5 Star Constructions W
 
 // The default PHP mail transport may still be filtered by the recipient.
 // Deliverability is not marked verified until the authenticated Mail API succeeds.
+// One-time non-customer sender diagnostic, requested by the site owner.
+// Sends only to the owner's contact mailbox and records mail() acceptance.
+// WP mail acceptance does NOT prove Inbox delivery; verify Hostinger inbound logs.
+add_action('init', function() {
+    $flag = 'fsc_ux_mail_sender_test_20261105';
+    if (get_option($flag, '') !== '') return;
+    update_option($flag, 'queued', false);
+    add_action('shutdown', function() use ($flag) {
+        add_filter('wp_mail_from', 'fsc_ux_notification_sender', 100);
+        add_filter('wp_mail_from_name', 'fsc_ux_notification_sender_name', 100);
+        $sent = wp_mail(
+            'contact@5starconstructionsca.com',
+            '5 Star Form Email QA — sender check 2026-11-05',
+            'Automated one-time site-owner diagnostic from 5 Star Constructions. No customer data is included. Please check Inbox and Spam/Junk.'
+        );
+        remove_filter('wp_mail_from', 'fsc_ux_notification_sender', 100);
+        remove_filter('wp_mail_from_name', 'fsc_ux_notification_sender_name', 100);
+        update_option($flag, $sent ? 'wp_mail_accepted' : 'wp_mail_failed', false);
+    }, 99);
+}, 999);
+
 add_action('rest_api_init', function() {
     register_rest_route('fsc/v1', '/inquiry', [
         'methods' => 'POST',
