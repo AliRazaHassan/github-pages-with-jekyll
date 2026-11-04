@@ -57,8 +57,17 @@ ready(function(){
    }catch(error){fail(error.message||"Could not submit. Please call (916) 225-1015 or email contact@5starconstructionsca.com.");}
    finally{submit.disabled=false;submit.textContent="Send project request";}
  });
- document.querySelectorAll('a[href^="mailto:service@blueheavenconstructions.com"]').forEach(function(a){a.href="mailto:contact@5starconstructionsca.com";if(/@/.test(a.textContent))a.textContent="contact@5starconstructionsca.com";});
+ function syncContactLinks(){
+   document.querySelectorAll('a[href^="mailto:service@blueheavenconstructions.com"]').forEach(function(a){a.href="mailto:contact@5starconstructionsca.com";if(/@/.test(a.textContent))a.textContent="contact@5starconstructionsca.com";});
+   document.querySelectorAll("a").forEach(function(a){
+     if(/^get a free estimate/i.test((a.textContent||"").trim()))a.href="tel:+19162251015";
+   });
+ }
+ syncContactLinks();window.addEventListener("load",syncContactLinks);
+ setTimeout(syncContactLinks,600);
  if(cfg.isHome){
+   var heroAction=document.querySelector("section.arq-hero .arq-hero-actions a.arq-quiet-link");
+   if(heroAction){heroAction.href="tel:+19162251015";heroAction.innerHTML="(916) 225-1015 <span aria-hidden='true'>↗</span>";heroAction.setAttribute("aria-label","Call 5 Star Constructions at (916) 225-1015");}
    var gallery=document.getElementById("fsc-ux-gallery");
    var material=document.querySelector("section.material-feature");
    if(gallery&&material){material.insertAdjacentElement("beforebegin",gallery);material.hidden=true;}
@@ -71,6 +80,10 @@ ready(function(){
      filters.querySelectorAll("button").forEach(function(b){var active=b===btn;b.classList.toggle("active",active);b.setAttribute("aria-pressed",active?"true":"false");});
      gallery.querySelectorAll(".fsc-ux-gallery-card").forEach(function(card){card.hidden=chosen!=="all"&&card.getAttribute("data-fsc-category")!==chosen;});
    });
+ }
+ if(location.pathname.indexOf("/bathroom-gallery")!==-1){
+   var desc=document.querySelector(".client-gallery-intro > p:not(.gallery-disclosure)");
+   if(desc&&/real bathroom transformations/i.test(desc.textContent))desc.textContent="Explore bathroom design directions and before-and-after inspiration from our remodeling gallery.";
  }
 });
 })();
