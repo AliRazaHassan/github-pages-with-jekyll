@@ -196,3 +196,127 @@ body.fsc-adu-showcase-active #fsc-adu-v2{display:none}
 #fsc-real-adu .fsc-adu-external-grid{grid-template-columns:1fr}
 #fsc-real-adu .fsc-adu-external-case{padding:22px}
 }
+
+/* v1.4 — genuine third-party interactive ADU 3D architecture, not a photo slider. */
+body.fsc-adu-showcase-active #fsc-real-adu{
+ display:block!important;position:relative;z-index:1;clear:both;
+ width:100%;max-width:none;overflow:clip;
+}
+body.fsc-adu-showcase-active footer,
+body.fsc-adu-showcase-active .site-footer{clear:both;position:relative}
+#fsc-real-adu .fsc-adu-3d-section{
+ background:#fff;
+ padding:clamp(45px,5vw,72px) max(22px,calc((100vw - 1320px)/2)) 70px;
+}
+#fsc-real-adu .fsc-adu-3d-heading{
+ display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:23px;
+}
+#fsc-real-adu .fsc-adu-3d-heading h2{
+ font:400 clamp(35px,4.2vw,60px)/1.1 var(--display,Georgia,serif);
+ color:#092c4b;letter-spacing:-.035em;margin:11px 0;
+}
+#fsc-real-adu .fsc-adu-3d-heading h2 em{font-weight:400;color:#527086}
+#fsc-real-adu .fsc-adu-3d-heading p{
+ color:#667986;font-size:13px;line-height:1.6;max-width:680px;margin:0;
+}
+#fsc-real-adu .fsc-adu-3d-source{
+ display:inline-flex;align-items:center;justify-content:center;
+ color:#092c4b;font-size:12px;font-weight:750;
+ text-decoration:none;border:1px solid #bfd0d9;border-radius:7px;
+ padding:13px 16px;background:#f8fafb;white-space:nowrap;
+}
+#fsc-real-adu .fsc-adu-3d-selector{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:12px;margin-bottom:16px;
+}
+#fsc-real-adu .fsc-adu-3d-selector button{
+ display:flex;flex-direction:column;text-align:left;gap:6px;
+ border:1px solid #d6e0e5;border-radius:10px;background:#f8fafb;
+ color:#092c4b;cursor:pointer;padding:16px 18px;
+ min-width:0;transition:border-color .15s,background .15s;
+}
+#fsc-real-adu .fsc-adu-3d-selector button:hover{border-color:#8aa8b9;background:#eef4f7}
+#fsc-real-adu .fsc-adu-3d-selector button.is-current{
+ border:2px solid #092c4b;background:#eaf0f4;padding:15px 17px;
+}
+#fsc-real-adu .fsc-adu-3d-selector button>span{
+ color:#bd1b2a;letter-spacing:.16em;font-size:10px;font-weight:800;
+}
+#fsc-real-adu .fsc-adu-3d-selector button>strong{
+ color:#092c4b;font:400 clamp(20px,2.1vw,27px)/1.1 var(--display,Georgia,serif);
+}
+#fsc-real-adu .fsc-adu-3d-selector button>small{font-size:11px;color:#5e7889;line-height:1.4}
+#fsc-real-adu .fsc-adu-3d-frame{
+ position:relative;width:100%;height:clamp(410px,47vw,640px);
+ overflow:hidden;background:#e5ebed;border:1px solid #d9e2e7;border-radius:15px;
+}
+#fsc-real-adu #fsc-adu-sketchfab{
+ display:block;width:100%;height:100%;border:0;background:#e5ebed;
+}
+#fsc-real-adu .fsc-adu-3d-no-webgl{
+ position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+ flex-direction:column;gap:12px;padding:22px;background:linear-gradient(145deg,#e7eef1,#f7f8f5);text-align:center;
+}
+#fsc-real-adu .fsc-adu-3d-no-webgl[hidden],
+#fsc-real-adu #fsc-adu-fallback[hidden]{display:none!important}
+#fsc-real-adu .fsc-adu-3d-no-webgl>strong{font:400 24px/1.3 var(--display,Georgia,serif);color:#092c4b}
+#fsc-real-adu .fsc-adu-3d-no-webgl>p{color:#657887;font-size:13px}
+#fsc-real-adu .fsc-adu-3d-no-webgl>button{
+ background:#092c4b;color:#fff;border:0;border-radius:7px;
+ font-size:13px;font-weight:700;padding:13px 20px;cursor:pointer;
+}
+#fsc-real-adu .fsc-adu-3d-toolbar{
+ display:flex;justify-content:space-between;align-items:center;gap:20px;
+ padding:17px 2px 15px;flex-wrap:wrap;
+}
+#fsc-real-adu .fsc-adu-3d-toolbar p{margin:0;color:#677b89;font-size:12px;line-height:1.5}
+#fsc-real-adu .fsc-adu-3d-toolbar p a{color:#092c4b}
+#fsc-real-adu .fsc-adu-3d-toolbar button{
+ background:transparent;border:0;border-bottom:1px solid #092c4b;
+ padding:5px 0;color:#092c4b;font-weight:700;font-size:12px;cursor:pointer;
+}
+#fsc-real-adu #fsc-adu-fallback{
+ background:#f8faf9;padding:18px 0 5px;border-top:1px solid #dfe7e6;margin-bottom:20px;
+}
+#fsc-real-adu #fsc-adu-fallback>p{
+ color:#536c79;font-size:12px;line-height:1.6;margin:8px 0 18px;
+}
+#fsc-real-adu #fsc-adu-fallback:not([hidden]) #fsc-adu-v2{display:block!important}
+#fsc-real-adu #fsc-adu-fallback #fsc-adu-v2 .fsc-adu-intro,
+#fsc-real-adu #fsc-adu-fallback #fsc-adu-v2 .fsc-adu-models,
+#fsc-real-adu #fsc-adu-fallback #fsc-adu-v2 .fsc-adu-process,
+#fsc-real-adu #fsc-adu-fallback #fsc-adu-v2 .fsc-adu-bottom{display:none!important}
+#fsc-real-adu #fsc-adu-fallback .fsc-adu-stage{padding:12px 0 26px!important}
+#fsc-real-adu .fsc-adu-3d-cta{
+ display:flex;justify-content:space-between;align-items:center;gap:28px;
+ padding:33px 30px;background:#092c4b;color:#fff;border-radius:12px;
+}
+#fsc-real-adu .fsc-adu-3d-cta h3{
+ font:400 clamp(27px,2.8vw,40px)/1.15 var(--display,Georgia,serif);
+ color:#fff;margin:0 0 10px;
+}
+#fsc-real-adu .fsc-adu-3d-cta h3 em{font-weight:400;color:#d8e4ec}
+#fsc-real-adu .fsc-adu-3d-cta p{font-size:12px;line-height:1.65;color:#d4e0e8;margin:0;max-width:580px}
+#fsc-real-adu .fsc-adu-3d-cta>div:last-child{display:flex;flex-direction:column;gap:10px;min-width:235px}
+#fsc-real-adu .fsc-adu-3d-cta a{
+ text-decoration:none!important;background:#fff;color:#092c4b!important;
+ font-size:12px;font-weight:750;border-radius:7px;padding:14px 18px;text-align:center;
+}
+#fsc-real-adu .fsc-adu-3d-cta a:last-child{border:1px solid #fff9;background:transparent;color:#fff!important}
+#fsc-real-adu .fsc-adu-external-section{border-top:1px solid #e5eaed}
+@media(max-width:900px){
+ #fsc-real-adu .fsc-adu-3d-heading{flex-direction:column;align-items:start}
+ #fsc-real-adu .fsc-adu-3d-source{white-space:normal}
+ #fsc-real-adu .fsc-adu-3d-cta{flex-direction:column;align-items:stretch}
+}
+@media(max-width:650px){
+ #fsc-real-adu .fsc-adu-3d-section{padding:35px 17px 55px}
+ #fsc-real-adu .fsc-adu-3d-selector{grid-template-columns:1fr;gap:7px}
+ #fsc-real-adu .fsc-adu-3d-selector button{padding:12px 15px}
+ #fsc-real-adu .fsc-adu-3d-selector button.is-current{padding:11px 14px}
+ #fsc-real-adu .fsc-adu-3d-selector button>strong{font-size:23px}
+ #fsc-real-adu .fsc-adu-3d-frame{height:420px;border-radius:11px}
+ #fsc-real-adu .fsc-adu-3d-toolbar{align-items:flex-start}
+ #fsc-real-adu .fsc-adu-3d-cta{padding:24px 21px}
+ #fsc-real-adu .fsc-adu-3d-cta>div:last-child{min-width:0}
+}
