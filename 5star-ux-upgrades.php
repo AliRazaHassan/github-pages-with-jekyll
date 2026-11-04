@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.6
+ * Version: 1.1.7
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -58,8 +58,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.6');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.6', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.7');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.7', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -203,12 +203,21 @@ add_action('admin_post_fsc_ux_save_mail_settings', function() {
 add_action('admin_post_fsc_ux_test_mail', function() {
     if (!current_user_can('manage_options')) wp_die('Forbidden', '', ['response'=>403]);
     check_admin_referer('fsc_ux_test_mail');
+    add_filter('wp_mail_from', 'fsc_ux_notification_sender', 100);
+    add_filter('wp_mail_from_name', 'fsc_ux_notification_sender_name', 100);
     $sent = wp_mail('contact@5starconstructionsca.com', '5 Star website mail delivery test', 'This is a website notification delivery test requested by the site owner. No customer enquiry was submitted.');
+    remove_filter('wp_mail_from', 'fsc_ux_notification_sender', 100);
+    remove_filter('wp_mail_from_name', 'fsc_ux_notification_sender_name', 100);
     update_option('fsc_ux_mail_test_result', ['time'=>current_time('mysql'), 'ok'=>(bool)$sent], false);
     wp_safe_redirect(admin_url('options-general.php?page=fsc-ux-mail&tested=1'));
     exit;
 });
 
+function fsc_ux_notification_sender($from) { return 'website-notices@5starconstructionsca.com'; }
+function fsc_ux_notification_sender_name($name) { return '5 Star Constructions Website'; }
+
+// The default PHP mail transport may still be filtered by the recipient.
+// Deliverability is not marked verified until the authenticated Mail API succeeds.
 add_action('rest_api_init', function() {
     register_rest_route('fsc/v1', '/inquiry', [
         'methods' => 'POST',
@@ -270,7 +279,13 @@ function fsc_ux_receive_inquiry(WP_REST_Request $request) {
         return new WP_Error('storage','Your enquiry could not be saved. Please call (916) 225-1015.',['status'=>503]);
     }
     $authenticated_mail = (bool)get_option('fsc_ux_mail_api_token', '');
+    // Keep the sender aligned with the active 5 Star domain mailbox rather
+    // than WordPress's generic server noreply identity, which was flagged spam.
+    add_filter('wp_mail_from', 'fsc_ux_notification_sender', 100);
+    add_filter('wp_mail_from_name', 'fsc_ux_notification_sender_name', 100);
     $sent = wp_mail('contact@5starconstructionsca.com', 'New 5 Star website project inquiry', implode("\n", $lines), $headers);
+    remove_filter('wp_mail_from', 'fsc_ux_notification_sender', 100);
+    remove_filter('wp_mail_from_name', 'fsc_ux_notification_sender_name', 100);
     $verified_submission = $authenticated_mail && (bool)$sent;
     update_post_meta($lead_id, '_fsc_mail_status', $verified_submission ? 'accepted_by_hostinger_api' : 'delivery_unverified');
     return new WP_REST_Response([
