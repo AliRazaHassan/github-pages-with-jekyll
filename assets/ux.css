@@ -72,3 +72,6 @@ body.fsc-ux-dialog-open{overflow:hidden}
 .fsc-ux-gallery-disclosure{font-size:11px;color:#71847a;line-height:1.5;margin-top:18px}
 @media(max-width:1050px){.fsc-ux-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#fsc-ux-dialog{bottom:8px;left:8px;width:calc(100vw - 16px);height:min(720px,calc(100dvh - 16px));border-radius:16px}#fsc-ux-launch{bottom:12px;left:12px}#fsc-ux-gallery{padding:55px 16px}.fsc-ux-gallery-heading{display:block}.fsc-ux-gallery-link{margin-top:10px}.fsc-ux-gallery-grid{grid-template-columns:1fr}.fsc-ux-gallery-card>img,.fsc-ux-adu-art{height:230px}.fsc-ux-lead-grid{grid-template-columns:1fr}.fsc-ux-lead-grid .fsc-ux-wide{grid-column:auto}}
+
+/* Remove unverified placeholder dates; keep the substantive review text visible. */
+.five-star-reviews .review-meta small{display:none!important}
