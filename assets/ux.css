@@ -315,3 +315,136 @@ body.home .section-head .kicker,body.home .intro-band .kicker{color:#bd1b2a}
 @media(max-width:600px){
   #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card>img{height:245px!important;}
 }
+
+/* Focused site structure: preserve templates in source while removing repeated content. */
+body.fsc-streamlined-home section.intro-band,
+body.fsc-streamlined-home section.selected.section,
+body.fsc-streamlined-home section.process.section,
+body.fsc-streamlined-home section.material-feature,
+body.fsc-streamlined-home section.client-review-cta,
+body.fsc-focused-contact section.page-intro,
+body.fsc-focused-contact section.enquiry-layout,
+body.fsc-focused-adu .five-adu-grid:empty,
+body.fsc-streamlined-home .five-star-reviews .review-link[hidden]{
+  display:none!important;
+}
+body.fsc-focused-contact section.five-star-enquiry{
+  padding-block:clamp(65px,7vw,95px)!important;
+}
+body.fsc-focused-contact .contact-direct{
+  border-top:1px solid #082b5020;
+  padding-block:clamp(45px,5vw,65px)!important;
+}
+body.fsc-focused-adu .five-adu-wrap,
+body.fsc-focused-adu .five-star-adu-empty{
+  max-width:1130px;
+  margin:0 auto;
+  padding:clamp(45px,5vw,85px) 24px;
+}
+body.fsc-focused-adu .five-star-adu-empty{padding-top:0;}
+body.fsc-focused-adu .five-star-adu-empty .button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:14px 24px;
+  background:#082b50;
+  color:#fff;
+  border-radius:7px;
+}
+body.fsc-streamlined-home .expertise .service-list{
+  display:flex;
+  flex-direction:column;
+  margin-top:25px;
+  border-top:1px solid #082b5026;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service{
+  display:grid;
+  grid-template-columns:56px minmax(0,1fr) 40px;
+  gap:25px;
+  align-items:center;
+  padding:26px 0;
+  border-bottom:1px solid #082b5026;
+  color:#082b50!important;
+  text-decoration:none!important;
+  transition:background .2s ease,padding .2s ease;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service:hover{
+  background:#eef2f5;
+  padding-inline:14px;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service-num{
+  font-size:12px;
+  color:#bd1b2a;
+  letter-spacing:.1em;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service-copy{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service-copy strong{
+  font-family:var(--display,Georgia,serif);
+  font-weight:400;
+  font-size:clamp(25px,2.8vw,38px);
+  line-height:1.2;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service-copy small{
+  color:#5d6b78;
+  font-size:13px;
+  line-height:1.6;
+}
+body.fsc-streamlined-home .expertise .fsc-ux-service-arrow{
+  font-size:24px;
+  justify-self:end;
+}
+#fsc-ux-final-cta{
+  padding:clamp(64px,8vw,115px) 5.2%;
+  background:#082b50;
+  color:#fff;
+}
+#fsc-ux-final-cta .fsc-ux-final-inner{
+  max-width:1370px;
+  margin:0 auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:55px;
+}
+#fsc-ux-final-cta .fsc-ux-eyebrow{color:#e59aa0;font-size:11px;letter-spacing:.19em}
+#fsc-ux-final-cta h2{
+  font-family:var(--display,Georgia,serif);
+  font-size:clamp(35px,4.2vw,61px);
+  font-weight:400;
+  line-height:1.1;
+  letter-spacing:-.03em;
+  color:#fff;
+  margin:13px 0 16px;
+  max-width:700px;
+}
+#fsc-ux-final-cta h2 em{color:#e6edf4}
+#fsc-ux-final-cta p{
+  color:#cfdae4;font-size:15px;line-height:1.65;max-width:630px;margin:0;
+}
+#fsc-ux-final-cta .fsc-ux-final-actions{
+  display:flex;flex-direction:column;gap:12px;
+  flex:0 0 auto;min-width:250px;
+}
+#fsc-ux-final-cta a{
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  min-height:50px;padding:13px 22px;border-radius:7px;
+  font-size:13px;font-weight:700;text-decoration:none;
+  transition:background .2s ease;
+}
+#fsc-ux-final-cta .fsc-ux-final-primary{background:#fff;color:#082b50}
+#fsc-ux-final-cta .fsc-ux-final-primary:hover{background:#e6eaf0}
+#fsc-ux-final-cta .fsc-ux-final-secondary{border:1px solid #ffffff7d;color:#fff}
+#fsc-ux-final-cta .fsc-ux-final-secondary:hover{background:#ffffff18}
+@media(max-width:760px){
+ #fsc-ux-final-cta .fsc-ux-final-inner{display:block}
+ #fsc-ux-final-cta .fsc-ux-final-actions{margin-top:28px;min-width:0}
+ body.fsc-streamlined-home .expertise .fsc-ux-service{
+   gap:14px;grid-template-columns:35px minmax(0,1fr) 23px;padding:21px 0;
+ }
+ body.fsc-streamlined-home .expertise .fsc-ux-service-copy strong{font-size:25px}
+ body.fsc-streamlined-home .expertise .fsc-ux-service-copy small{font-size:12px}
+}
