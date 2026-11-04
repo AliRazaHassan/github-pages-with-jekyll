@@ -21,7 +21,7 @@ function init(){
    cards.forEach(function(c){var yes=c.dataset.aduRealModel===id;c.classList.toggle("selected",yes);c.setAttribute("aria-pressed",String(yes));});
    title.textContent=m.name;
    details.textContent=m.area+" sq ft  ·  "+m.beds+" bedroom"+(m.beds>1?"s":"")+"  ·  "+m.baths+" bathroom";
-   source.href=m.source;ask.href="/atelier/contact/?adu_concept="+encodeURIComponent(m.id)+"#consultation";
+   source.href="https://www.blueheavenconstructions.com/adu-models/model-"+m.id;ask.href="/atelier/contact/?adu_concept="+encodeURIComponent(m.id)+"#consultation";
    main.style.visibility="visible";
    thumbs.textContent="";
    var items=[
