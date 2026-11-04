@@ -165,3 +165,34 @@ body.fsc-adu-showcase-active #fsc-adu-v2{display:none}
 #fsc-real-adu .fsc-real-cta{padding-block:48px}
 #fsc-real-adu .fsc-real-cta>div:last-child{min-width:0}
 }
+
+/* Independent licensed ADU photography & documented third-party projects */
+#fsc-real-adu .fsc-real-photo-gallery{grid-template-columns:repeat(3,minmax(0,1fr));}
+#fsc-real-adu .fsc-adu-licensed-photo{padding:0;cursor:default;}
+#fsc-real-adu .fsc-adu-licensed-photo>a{display:block;overflow:hidden;aspect-ratio:4/3;background:#e4e9e7}
+#fsc-real-adu .fsc-adu-licensed-photo>a>img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .3s ease;}
+#fsc-real-adu .fsc-adu-licensed-photo>a:hover img{transform:scale(1.04)}
+#fsc-real-adu .fsc-adu-licensed-photo .fsc-real-card-body{display:flex;flex-direction:column;padding:20px 21px 23px}
+#fsc-real-adu .fsc-adu-licensed-photo .fsc-real-card-body strong{font-size:clamp(23px,2.1vw,32px)}
+#fsc-real-adu .fsc-adu-license{font-size:11px;line-height:1.6;color:#65727c;margin-top:9px}
+#fsc-real-adu .fsc-adu-license a{color:#123e5a;text-underline-offset:2px}
+#fsc-real-adu .fsc-adu-external-section{background:#fff;padding:75px max(22px,calc((100vw - 1320px)/2)) 80px}
+#fsc-real-adu .fsc-adu-external-heading{max-width:790px;margin-bottom:28px}
+#fsc-real-adu .fsc-adu-external-heading h2{font:400 clamp(36px,4vw,55px)/1.14 var(--display,Georgia,serif);letter-spacing:-.035em;color:#082b50;margin:13px 0}
+#fsc-real-adu .fsc-adu-external-heading h2 em{font-weight:400;color:#547084}
+#fsc-real-adu .fsc-adu-external-heading p{font-size:14px;color:#657987;line-height:1.6}
+#fsc-real-adu .fsc-adu-external-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+#fsc-real-adu .fsc-adu-external-case{border:1px solid #d9e2e5;border-radius:11px;padding:26px 28px;background:#f8f8f5}
+#fsc-real-adu .fsc-adu-external-case h3{font:400 30px/1.2 var(--display,Georgia,serif);color:#082b50;margin:11px 0}
+#fsc-real-adu .fsc-adu-external-case p{font-size:13px;color:#627784;margin:7px 0}
+#fsc-real-adu .fsc-adu-external-case a{display:inline-block;color:#0c3c5b;font-size:12px;font-weight:750;text-underline-offset:4px;margin-top:16px}
+#fsc-real-adu .fsc-real-concept-disclosure{padding-bottom:44px}
+@media(max-width:920px){
+#fsc-real-adu .fsc-real-photo-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+#fsc-real-adu .fsc-real-photo-gallery{grid-template-columns:1fr;gap:15px}
+#fsc-real-adu .fsc-adu-external-section{padding:54px 18px 62px}
+#fsc-real-adu .fsc-adu-external-grid{grid-template-columns:1fr}
+#fsc-real-adu .fsc-adu-external-case{padding:22px}
+}
