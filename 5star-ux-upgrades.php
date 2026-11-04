@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.0.9
+ * Version: 1.1.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -13,8 +13,8 @@ function fsc_ux_is_front() {
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.9');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.9', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.0');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.0', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -294,27 +294,19 @@ add_action('wp_footer', function() {
 <?php if (fsc_ux_is_front()): ?>
 <section id="fsc-ux-gallery" class="fsc-ux-gallery" aria-labelledby="fsc-ux-gallery-title">
   <div class="fsc-ux-gallery-inner">
-    <div class="fsc-ux-gallery-heading"><div><span class="fsc-ux-eyebrow">DESIGN INSPIRATION / GALLERY</span><h2 id="fsc-ux-gallery-title">Explore the <em>possibilities.</em></h2><p>Discover kitchen, bathroom, whole-home and ADU ideas. See the full gallery for before-and-after inspiration.</p></div><a href="/atelier/projects/" class="fsc-ux-gallery-link">Explore the full gallery ↗</a></div>
-    <div class="fsc-ux-filters" role="group" aria-label="Gallery categories">
-      <button type="button" class="active" data-fsc-filter="all" aria-pressed="true">All</button>
-      <button type="button" data-fsc-filter="kitchen" aria-pressed="false">Kitchen</button>
-      <button type="button" data-fsc-filter="bathroom" aria-pressed="false">Bathroom</button>
-      <button type="button" data-fsc-filter="whole" aria-pressed="false">Whole home</button>
-      <button type="button" data-fsc-filter="adu" aria-pressed="false">ADU</button>
-    </div>
+    <div class="fsc-ux-gallery-heading"><div><span class="fsc-ux-eyebrow">DESIGN INSPIRATION / GALLERY</span><h2 id="fsc-ux-gallery-title">Explore the <em>possibilities.</em></h2><p>A few visual ideas for your next home transformation.</p></div></div>
     <div class="fsc-ux-carousel-bar">
-      <p id="fsc-ux-carousel-help">Swipe or use the arrows to explore.</p>
+      <p id="fsc-ux-carousel-help">Swipe or use the arrows to view more images.</p>
       <div class="fsc-ux-carousel-controls" aria-label="Gallery carousel controls">
-        <span id="fsc-ux-carousel-count" aria-live="polite" aria-atomic="true">01 / 04</span>
-        <button type="button" class="fsc-ux-carousel-prev" aria-label="Previous gallery project" aria-controls="fsc-ux-carousel-track" disabled>←</button>
-        <button type="button" class="fsc-ux-carousel-next" aria-label="Next gallery project" aria-controls="fsc-ux-carousel-track">→</button>
+        <span id="fsc-ux-carousel-count" aria-live="polite" aria-atomic="true">01 / 03</span>
+        <button type="button" class="fsc-ux-carousel-prev" aria-label="Previous gallery image" aria-controls="fsc-ux-carousel-track" disabled>←</button>
+        <button type="button" class="fsc-ux-carousel-next" aria-label="Next gallery image" aria-controls="fsc-ux-carousel-track">→</button>
       </div>
     </div>
-    <div id="fsc-ux-carousel-track" class="fsc-ux-gallery-grid" role="region" aria-roledescription="carousel" aria-label="Remodeling design inspiration" aria-describedby="fsc-ux-carousel-help" tabindex="0">
-      <a data-fsc-category="kitchen" href="/atelier/projects/kitchen/" class="fsc-ux-gallery-card"><img loading="lazy" src="<?php echo $asset; ?>kitchen-after-960.webp" alt="Illustrative natural wood kitchen design with island"/><span>KITCHEN REMODELING</span><strong>Spaces to gather</strong><small>Explore kitchen concepts ↗</small></a>
-      <a data-fsc-category="bathroom" href="/bathroom-gallery/" class="fsc-ux-gallery-card"><img loading="lazy" src="<?php echo $asset; ?>bath-after-960.webp" alt="Illustrative natural stone bathroom design"/><span>BATHROOM REMODELING</span><strong>Calmer daily rituals</strong><small>View bathroom gallery ↗</small></a>
-      <a data-fsc-category="whole" href="/atelier/projects/living/" class="fsc-ux-gallery-card"><img loading="lazy" src="<?php echo $asset; ?>living-960.webp" alt="Illustrative warm minimalist living space"/><span>WHOLE-HOME REMODELING</span><strong>Room to live beautifully</strong><small>Explore whole-home concepts ↗</small></a>
-      <a data-fsc-category="adu" href="/adu-models/" class="fsc-ux-gallery-card fsc-ux-adu"><div class="fsc-ux-adu-art" aria-hidden="true"><span>ADU</span></div><span>ADU DESIGN &amp; BUILD</span><strong>More possibilities at home</strong><small>Explore ADU models ↗</small></a>
+    <div id="fsc-ux-carousel-track" class="fsc-ux-gallery-grid" role="region" aria-roledescription="carousel" aria-label="Remodeling design inspiration photos" aria-describedby="fsc-ux-carousel-help" tabindex="0">
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Image 1 of 3: kitchen inspiration"><img loading="lazy" src="<?php echo $asset; ?>kitchen-after-960.webp" alt="Illustrative natural wood kitchen with island" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Image 2 of 3: bathroom inspiration"><img loading="lazy" src="<?php echo $asset; ?>bath-after-960.webp" alt="Illustrative stone bathroom design" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Image 3 of 3: whole-home inspiration"><img loading="lazy" src="<?php echo $asset; ?>living-960.webp" alt="Illustrative modern living room design" /></div>
     </div>
     <p class="fsc-ux-gallery-disclosure">Images shown are illustrative design inspiration, not verified photographs of completed 5 Star client projects.</p>
   </div>
