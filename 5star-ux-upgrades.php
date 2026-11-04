@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -13,12 +13,40 @@ function fsc_ux_is_front() {
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.2');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.2', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.3');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.3', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
     ]) . ';', 'before');
+});
+
+add_action('init', function() {
+    register_post_type('fsc_project_lead', [
+        'labels' => ['name'=>'Project enquiries','singular_name'=>'Project enquiry','menu_name'=>'Project enquiries'],
+        'public' => false,
+        'publicly_queryable' => false,
+        'exclude_from_search' => true,
+        'show_ui' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => false,
+        'supports' => ['title','editor'],
+        'menu_icon' => 'dashicons-email-alt',
+    ]);
+});
+
+// Send any legacy Blue Heaven-addressed 5 Star notifications to the new company inbox.
+add_filter('wp_mail', function($args) {
+    if (isset($args['to'])) {
+        if (is_array($args['to'])) {
+            $args['to'] = array_map(function($address) {
+                return str_ireplace('service@blueheavenconstructions.com', 'contact@5starconstructionsca.com', $address);
+            }, $args['to']);
+        } elseif (is_string($args['to'])) {
+            $args['to'] = str_ireplace('service@blueheavenconstructions.com', 'contact@5starconstructionsca.com', $args['to']);
+        }
+    }
+    return $args;
 });
 
 add_action('rest_api_init', function() {
@@ -72,11 +100,22 @@ function fsc_ux_receive_inquiry(WP_REST_Request $request) {
     ];
     $headers = ['Content-Type: text/plain; charset=UTF-8'];
     if (is_email($email)) { $headers[] = 'Reply-To: ' . $name . ' <' . $email . '>'; }
-    $sent = wp_mail('contact@5starconstructionsca.com', 'New 5 Star website project inquiry', implode("\n", $lines), $headers);
-    if (!$sent) {
-        return new WP_Error('delivery','Email could not be handed to the mail service. Please call (916) 225-1015 or email contact@5starconstructionsca.com.',['status'=>503]);
+    $lead_id = wp_insert_post([
+        'post_type' => 'fsc_project_lead',
+        'post_status' => 'private',
+        'post_title' => 'Project enquiry – ' . $name . ' – ' . current_time('mysql'),
+        'post_content' => implode("\n", $lines),
+    ], true);
+    if (is_wp_error($lead_id) || !$lead_id) {
+        return new WP_Error('storage','Your enquiry could not be saved. Please call (916) 225-1015.',['status'=>503]);
     }
-    return new WP_REST_Response(['ok'=>true,'message'=>'Your request has been submitted.'], 200);
+    $sent = wp_mail('contact@5starconstructionsca.com', 'New 5 Star website project inquiry', implode("\n", $lines), $headers);
+    return new WP_REST_Response([
+        'ok' => true,
+        'stored' => true,
+        'notification_sent' => (bool)$sent,
+        'message' => $sent ? 'Enquiry saved and notification passed to mail service.' : 'Enquiry saved. Mail notification could not be confirmed.',
+    ], 200);
 }
 
 add_action('wp_footer', function() {
