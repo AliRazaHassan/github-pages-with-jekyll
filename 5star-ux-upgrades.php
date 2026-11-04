@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -11,10 +11,19 @@ function fsc_ux_is_front() {
     return is_front_page() || is_home() || is_page(5);
 }
 
+// Consistent page classes allow CSS to remove redundant sections without editing theme templates.
+add_filter('body_class', function($classes) {
+    if (fsc_ux_is_front()) $classes[] = 'fsc-streamlined-home';
+    $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
+    if (is_page('contact') || $path === 'atelier/contact') $classes[] = 'fsc-focused-contact';
+    if (is_page('adu-models') || $path === 'adu-models') $classes[] = 'fsc-focused-adu';
+    return $classes;
+});
+
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.1');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.1', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.2');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.2', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -318,6 +327,15 @@ add_action('wp_footer', function() {
       <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 12 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/gallery/bathroom-gallery-lightbox-24/Bathroom-Gallery-Lightbox-24-1.jpg" alt="Bathroom gallery inspiration from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
     </div>
     <p class="fsc-ux-gallery-disclosure">Images courtesy of Revive Design and Renovation, provided for design inspiration. These are not presented as completed 5 Star Constructions projects.</p>
+  </div>
+</section>
+<section id="fsc-ux-final-cta" class="fsc-ux-final-cta" aria-labelledby="fsc-ux-cta-title">
+  <div class="fsc-ux-final-inner">
+    <div><span class="fsc-ux-eyebrow">START YOUR REMODEL</span><h2 id="fsc-ux-cta-title">Ready to talk about <em>your project?</em></h2><p>Kitchen, bathroom, and whole-home remodeling in the greater Sacramento area. Tell us what you need and our team can discuss your next step.</p></div>
+    <div class="fsc-ux-final-actions">
+      <a class="fsc-ux-final-primary" href="tel:+19162251015">Call (916) 225-1015 ↗</a>
+      <a class="fsc-ux-final-secondary" href="/atelier/contact/#consultation">Send project details ↗</a>
+    </div>
   </div>
 </section>
 <?php endif; ?>
