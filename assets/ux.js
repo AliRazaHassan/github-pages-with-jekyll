@@ -51,7 +51,7 @@ ready(function(){
      var resp=await fetch(cfg.endpoint||"/wp-json/fsc/v1/inquiry",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
      var json=await resp.json().catch(function(){return {};});
      if(!resp.ok||!json.ok)throw Error(json.message||"The request could not be submitted.");
-     feedback.className="ok";feedback.textContent="Your request has been submitted to our mail service. Our team will follow up when available.";
+     feedback.className="ok";feedback.textContent=json.notification_sent?"Your request was saved and our email notification was queued.":"Your request was saved, but email notification was not confirmed. Please call if urgent.";
      addMessage("bot","Thank you, "+payload.name+"! Your project request was submitted. If you need an urgent response, call (916) 225-1015.");
      leadForm.reset();setTimeout(back,900);
    }catch(error){fail(error.message||"Could not submit. Please call (916) 225-1015 or email contact@5starconstructionsca.com.");}
@@ -92,7 +92,7 @@ ready(function(){
        var response=await fetch(cfg.endpoint||"/wp-json/fsc/v1/inquiry",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
        var output=await response.json().catch(function(){return {};});
        if(!response.ok||!output.ok)throw Error(output.message||"Could not submit.");
-       if(status){status.textContent="Your enquiry has been submitted to our mail service. If urgent, please call (916) 225-1015.";}
+       if(status){status.textContent=output.notification_sent?"Your enquiry was saved and email notification was queued.":"Your enquiry was saved. Email delivery is not confirmed; call (916) 225-1015 if urgent.";}
        contactForm.reset();contactStarted=Math.floor(Date.now()/1000);
      }catch(err){if(status)status.textContent=(err.message||"Submission failed.")+" You can call (916) 225-1015 or email contact@5starconstructionsca.com.";}
      finally{if(submit){submit.disabled=false;submit.textContent="Send project enquiry ↗";}}
