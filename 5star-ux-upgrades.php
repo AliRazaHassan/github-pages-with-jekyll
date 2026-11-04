@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.0.8
+ * Version: 1.0.9
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -13,8 +13,8 @@ function fsc_ux_is_front() {
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.8');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.8', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.0.9');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.0.9', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -114,6 +114,7 @@ function fsc_ux_mail_settings_page() {
       <h1>5 Star Website Mail Delivery</h1>
       <p>Send website project enquiries through an authenticated Hostinger Mail API mailbox. Notifications are addressed to <strong>contact@5starconstructionsca.com</strong>.</p>
       <p><strong>API configuration:</strong> <?php echo $configured ? 'Configured' : 'Not configured'; ?></p>
+      <p>To activate authenticated delivery: in <a href="https://hpanel.hostinger.com/" target="_blank" rel="noopener noreferrer">Hostinger hPanel</a>, open Emails → Agentic Mail → API, create a token restricted to <strong>website-notices@5starconstructionsca.com</strong>, and paste it below. Keep the token private. The sender mailbox ID is prefilled.</p>
       <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
         <?php wp_nonce_field('fsc_ux_save_mail_settings'); ?>
         <input type="hidden" name="action" value="fsc_ux_save_mail_settings"/>
