@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.4
+ * Version: 1.1.5
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -38,10 +38,28 @@ add_action('template_redirect', function() {
     });
 }, 2);
 
+// Render core service links in initial homepage HTML, even when JavaScript is blocked.
+// This fixes an empty .service-list in the custom theme, without touching its files.
+add_action('template_redirect', function() {
+    if (!fsc_ux_is_front() || is_admin()) return;
+    ob_start(function($html) {
+        $needle = '<div class="service-list"></div>';
+        if (strpos($html, $needle) === false) return $html;
+        $replacement = <<<'HTML'
+<div class="service-list">
+<a class="fsc-ux-service" href="/atelier/services/kitchen/"><span class="fsc-ux-service-num">01</span><span class="fsc-ux-service-copy"><strong>Kitchen Remodeling</strong><small>Layouts, cabinetry, finishes and everyday function.</small></span><span class="fsc-ux-service-arrow" aria-hidden="true">↗</span></a>
+<a class="fsc-ux-service" href="/atelier/services/bathroom/"><span class="fsc-ux-service-num">02</span><span class="fsc-ux-service-copy"><strong>Bathroom Remodeling</strong><small>Showers, tubs, surfaces and smarter storage.</small></span><span class="fsc-ux-service-arrow" aria-hidden="true">↗</span></a>
+<a class="fsc-ux-service" href="/atelier/services/whole-home/"><span class="fsc-ux-service-num">03</span><span class="fsc-ux-service-copy"><strong>Whole-Home Remodeling</strong><small>Plan connected spaces and a cohesive renovation.</small></span><span class="fsc-ux-service-arrow" aria-hidden="true">↗</span></a>
+</div>
+HTML;
+        return str_replace($needle, $replacement, $html);
+    });
+}, 3);
+
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.4');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.4', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.5');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.5', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
