@@ -83,6 +83,7 @@ ready(function(){
        handle.textContent="↔";
        media.appendChild(handle);
      }
+     media.appendChild(handle); // Keep the handle above both comparison image layers.
      handle.setAttribute("aria-hidden","true");
      var original=media.querySelector("input.project-compare-range");
      var slider=document.createElement("input");
