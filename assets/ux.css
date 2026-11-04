@@ -75,3 +75,23 @@ body.fsc-ux-dialog-open{overflow:hidden}
 
 /* Remove unverified placeholder dates; keep the substantive review text visible. */
 .five-star-reviews .review-meta small{display:none!important}
+
+/* Persistent featured-project compare control: draggable all the way to either edge */
+.project-card-media{position:relative;isolation:isolate}
+.project-card-media .project-card-before,
+.project-card-media .project-card-after{pointer-events:none}
+.project-card-media input.fsc-comparison-fixed{
+  position:absolute!important;inset:0!important;width:100%!important;
+  height:100%!important;opacity:0!important;margin:0!important;
+  z-index:99!important;cursor:ew-resize!important;pointer-events:auto!important;
+  touch-action:pan-y!important;accent-color:#223c35;
+}
+.project-card-media .project-compare-handle{
+  position:absolute!important;top:50%!important;transform:translate(-50%,-50%)!important;
+  pointer-events:none!important;z-index:98!important;
+  display:flex;align-items:center;justify-content:center;
+  width:34px;height:34px;padding:0!important;line-height:1!important;
+  border-radius:50%;background:#fff;color:#19382e;border:1px solid #d2dfd8;
+  box-shadow:0 2px 13px #0b211e42;font-size:16px;
+}
+.project-card-media:focus-within{outline:2px solid #327f69;outline-offset:3px}
