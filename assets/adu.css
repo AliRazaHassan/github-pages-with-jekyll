@@ -320,3 +320,74 @@ body.fsc-adu-showcase-active .site-footer{clear:both;position:relative}
  #fsc-real-adu .fsc-adu-3d-cta{padding:24px 21px}
  #fsc-real-adu .fsc-adu-3d-cta>div:last-child{min-width:0}
 }
+
+/* v1.5: no branded third-party embeds or click-throughs; on-site true 3D WebGL. */
+#fsc-real-adu #fsc-adu-own-canvas{
+  display:block;width:100%!important;height:100%!important;max-width:none;
+  touch-action:none;cursor:grab;outline:none;background:transparent;
+}
+#fsc-real-adu #fsc-adu-own-canvas:active{cursor:grabbing}
+#fsc-real-adu #fsc-adu-own-canvas[hidden]{display:none!important}
+#fsc-real-adu .fsc-adu-own-overlay{
+  position:absolute;left:17px;top:15px;z-index:1;
+  display:flex;flex-direction:column;gap:3px;pointer-events:none;
+  background:#ffffffd9;border:1px solid #d2dce1;border-radius:8px;
+  padding:11px 13px;box-shadow:0 4px 14px #082b5010;
+}
+#fsc-real-adu .fsc-adu-own-overlay span{
+  color:#082b50;letter-spacing:.16em;font-size:10px;font-weight:850
+}
+#fsc-real-adu .fsc-adu-own-overlay small{
+  font-size:9px;color:#5e7583;letter-spacing:.06em;
+}
+#fsc-real-adu .fsc-adu-own-brand{
+  display:inline-flex;align-items:center;gap:7px;
+  color:#092c4b;white-space:nowrap;background:#f1f5f7;
+  border:1px solid #cfdee5;border-radius:8px;
+  padding:11px 14px;font-size:11px;letter-spacing:.11em;font-weight:800;
+}
+#fsc-real-adu .fsc-adu-own-brand span{color:#bb2939;font-size:18px}
+#fsc-real-adu .fsc-adu-loading{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:22px;color:#0b3a53;letter-spacing:.07em;
+  font-size:13px;font-weight:700;background:linear-gradient(140deg,#e7f0f0,#f6f6f2);
+}
+#fsc-real-adu .fsc-adu-loading[hidden]{display:none!important}
+#fsc-real-adu .fsc-adu-3d-toolbar{
+  padding:16px 0 4px;
+  gap:11px;align-items:center;
+}
+#fsc-real-adu .fsc-adu-orbit-actions{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px
+}
+#fsc-real-adu .fsc-adu-orbit-actions button{
+  display:inline-flex;justify-content:center;align-items:center;gap:5px;
+  background:#f3f7f7;border:1px solid #cbdce3;color:#103a52;
+  cursor:pointer;font-size:12px;font-weight:750;
+  border-radius:7px;min-height:40px;padding:10px 14px;
+  transition:background .15s ease,border .15s ease;
+}
+#fsc-real-adu .fsc-adu-orbit-actions button:hover{background:#e8f0f4;border-color:#91afbf}
+#fsc-real-adu .fsc-adu-orbit-actions button[aria-pressed="true"]{
+  background:#092c4b;border-color:#092c4b;color:#fff;
+}
+#fsc-real-adu .fsc-adu-3d-hint{
+  color:#627783;font-size:12px;line-height:1.7;
+  margin:6px 0 22px;
+}
+#fsc-real-adu .fsc-adu-3d-frame{
+  background:linear-gradient(150deg,#dce9e5,#ebf1ef)!important;
+}
+#fsc-real-adu #fsc-adu-fallback:not([hidden]) #fsc-adu-v2{display:block!important}
+#fsc-real-adu .fsc-adu-3d-cta{margin-top:0}
+@media(max-width:900px){
+  #fsc-real-adu .fsc-adu-own-brand{white-space:normal}
+}
+@media(max-width:650px){
+  #fsc-real-adu .fsc-adu-own-brand{font-size:9px;letter-spacing:.06em;padding:9px}
+  #fsc-real-adu .fsc-adu-orbit-actions button{padding:8px 10px;min-height:37px;font-size:11px}
+  #fsc-real-adu .fsc-adu-3d-toolbar{justify-content:flex-start}
+  #fsc-real-adu .fsc-adu-own-overlay{padding:8px 10px;left:11px;top:11px}
+  #fsc-real-adu .fsc-adu-own-overlay span{font-size:8px}
+  #fsc-real-adu .fsc-adu-own-overlay small{font-size:8px}
+}
