@@ -135,7 +135,7 @@ body.fsc-ux-dialog-open{overflow:hidden}
 }
 #fsc-ux-gallery .fsc-ux-gallery-grid::-webkit-scrollbar{display:none}
 #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card{
- flex:0 0 calc((100% - 2 * 17px) / 2.3);min-width:0;scroll-snap-align:start;
+ flex:0 0 43%;max-width:43%;min-width:0;scroll-snap-align:start;
  transition:transform .2s ease,box-shadow .2s ease;
 }
 #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card:not([hidden]):hover{
@@ -145,7 +145,7 @@ body.fsc-ux-dialog-open{overflow:hidden}
 #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-adu-art{height:265px}
 @media(max-width:1000px){
  #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card{
-  flex-basis:calc((100% - 17px) / 1.65);
+  flex-basis:60%;max-width:60%;
  }
  #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card>img,
  #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-adu-art{height:235px}
@@ -159,7 +159,7 @@ body.fsc-ux-dialog-open{overflow:hidden}
  }
  #fsc-ux-gallery #fsc-ux-carousel-count{font-size:10px;margin-right:2px}
  #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card{
-  flex-basis:84%;
+  flex-basis:84%;max-width:84%;
  }
  #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card>img,
  #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-adu-art{height:225px}
