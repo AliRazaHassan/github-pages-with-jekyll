@@ -64,6 +64,92 @@ ready(function(){
    });
  }
 
+
+ // Featured project comparisons: replace fragile native/delegated drag handlers with
+ // pointer-captured controls, keeping keyboard interaction and the last chosen split.
+ function initFeaturedProjectSliders(){
+   document.querySelectorAll(".project-card-media").forEach(function(media){
+     if(media.dataset.fscFixedCompare==="1")return;
+     var before=media.querySelector(".project-card-before img");
+     var after=media.querySelector(".project-card-after img");
+     if(!before||!after)return;
+     media.dataset.fscFixedCompare="1";
+     var card=media.closest(".project-card");
+     var title=card&&card.querySelector("h3")?card.querySelector("h3").textContent.trim():"remodeling project";
+     var handle=media.querySelector(".project-compare-handle");
+     if(!handle){
+       handle=document.createElement("span");
+       handle.className="project-compare-handle";
+       handle.textContent="↔";
+       media.appendChild(handle);
+     }
+     handle.setAttribute("aria-hidden","true");
+     var original=media.querySelector("input.project-compare-range");
+     var slider=document.createElement("input");
+     slider.type="range";slider.className="project-compare-range fsc-comparison-fixed";
+     slider.min="0";slider.max="100";slider.step="1";slider.value="50";
+     slider.setAttribute("aria-label","Compare before and after: "+title);
+     slider.setAttribute("aria-valuetext","50 percent of the before image visible");
+     slider.style.cssText="position:absolute;inset:0;display:block;width:100%;height:100%;margin:0;opacity:0;z-index:99;cursor:ew-resize;touch-action:pan-y;appearance:none;-webkit-appearance:none;";
+     if(original)original.replaceWith(slider);else media.appendChild(slider);
+     var current=50,activePointer=null;
+     function setSplit(value){
+       var v=Math.max(0,Math.min(100,Number(value)));
+       if(!Number.isFinite(v))return;
+       current=Math.round(v);
+       slider.value=String(current);
+       slider.setAttribute("aria-valuenow",String(current));
+       slider.setAttribute("aria-valuetext",current+" percent of the before image visible");
+       var right=(100-current)+"%";
+       before.style.clipPath="inset(0 "+right+" 0 0)";
+       before.style.webkitClipPath="inset(0 "+right+" 0 0)";
+       handle.style.left="clamp(18px, "+current+"%, calc(100% - 18px))";
+       media.style.setProperty("--compare",current+"%");
+       media.style.setProperty("--split",current+"%");
+     }
+     function pointerPercent(e){
+       var b=media.getBoundingClientRect();
+       return b.width ? (e.clientX-b.left)/b.width*100 : current;
+     }
+     slider.addEventListener("pointerdown",function(e){
+       if(e.button!==0&&e.pointerType==="mouse")return;
+       activePointer=e.pointerId;
+       e.preventDefault();e.stopImmediatePropagation();
+       try{slider.focus({preventScroll:true})}catch(_){slider.focus()}
+       try{slider.setPointerCapture(e.pointerId)}catch(_){}
+       setSplit(pointerPercent(e));
+     },true);
+     slider.addEventListener("pointermove",function(e){
+       if(activePointer!==e.pointerId)return;
+       e.preventDefault();e.stopImmediatePropagation();
+       setSplit(pointerPercent(e));
+     },true);
+     function endPointer(e){
+       if(activePointer!==e.pointerId)return;
+       e.preventDefault();e.stopImmediatePropagation();
+       if(e.type==="pointerup")setSplit(pointerPercent(e));
+       activePointer=null;
+       try{if(slider.hasPointerCapture(e.pointerId))slider.releasePointerCapture(e.pointerId)}catch(_){}
+     }
+     slider.addEventListener("pointerup",endPointer,true);
+     slider.addEventListener("pointercancel",endPointer,true);
+     slider.addEventListener("lostpointercapture",function(){activePointer=null;});
+     slider.addEventListener("input",function(e){
+       e.stopImmediatePropagation();
+       if(activePointer===null)setSplit(slider.value);
+     },true);
+     slider.addEventListener("change",function(e){e.stopImmediatePropagation();setSplit(slider.value)},true);
+     slider.addEventListener("keydown",function(e){
+       if(e.key==="Home"){e.preventDefault();setSplit(0)}
+       else if(e.key==="End"){e.preventDefault();setSplit(100)}
+       else if(e.key==="ArrowLeft"||e.key==="ArrowDown"){e.preventDefault();setSplit(current-1)}
+       else if(e.key==="ArrowRight"||e.key==="ArrowUp"){e.preventDefault();setSplit(current+1)}
+     },true);
+     setSplit(50);
+   });
+ }
+ initFeaturedProjectSliders();
+ window.addEventListener("load",initFeaturedProjectSliders,{once:true});
  var contactForm=document.getElementById("five-star-enquiry-form");
  if(contactForm){
    var contactStarted=Math.floor(Date.now()/1000);
