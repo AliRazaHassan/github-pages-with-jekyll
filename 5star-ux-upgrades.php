@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.3
+ * Version: 1.1.4
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -20,10 +20,28 @@ add_filter('body_class', function($classes) {
     return $classes;
 });
 
+// Correct legacy hard-coded contact template copy before output is delivered.
+// Narrowly scoped to the Contact page; no theme files, stored submissions or
+// WordPress administrator details are changed.
+add_action('template_redirect', function() {
+    if (is_admin()) return;
+    $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
+    if (!is_page('contact') && $path !== 'atelier/contact') return;
+    ob_start(function($html) {
+        if (!is_string($html) || $html === '') return $html;
+        return strtr($html, [
+            'mailto:service@blueheavenconstructions.com' => 'mailto:contact@5starconstructionsca.com',
+            'href="#verified-reviews" rel="noopener noreferrer" target="_blank"' => 'href="tel:+19162251015"',
+            'Our optional project planner below prepares a local brief. To request a consultation, contact the team through Blue Heaven Construction, which is also owned by the business.' => 'Use the project enquiry form above or call the 5 Star Constructions team to discuss your remodel.',
+            'Direct consultation requests go to the existing Blue Heaven Construction team; your private design brief stays on your device until you choose to share it.' => 'Project enquiries are saved for the 5 Star Constructions team. Email notifications depend on configured mail delivery.',
+        ]);
+    });
+}, 2);
+
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.3');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.3', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.4');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.4', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
