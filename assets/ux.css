@@ -95,3 +95,76 @@ body.fsc-ux-dialog-open{overflow:hidden}
   box-shadow:0 2px 13px #0b211e42;font-size:16px;
 }
 .project-card-media:focus-within{outline:2px solid #327f69;outline-offset:3px}
+
+/* Homepage inspiration gallery — swipeable, accessible carousel (v1.0.5). */
+#fsc-ux-gallery .fsc-ux-carousel-bar{
+ display:flex;align-items:center;justify-content:space-between;gap:20px;
+ margin:0 0 15px;
+}
+#fsc-ux-gallery #fsc-ux-carousel-help{
+ font-size:12px;line-height:1.5;color:#677d71;margin:0;
+}
+#fsc-ux-gallery .fsc-ux-carousel-controls{
+ display:flex;align-items:center;gap:9px;margin-left:auto;
+}
+#fsc-ux-gallery #fsc-ux-carousel-count{
+ font-size:12px;letter-spacing:.08em;color:#546c60;font-variant-numeric:tabular-nums;
+ margin-right:10px;white-space:nowrap;
+}
+#fsc-ux-gallery .fsc-ux-carousel-controls button{
+ display:flex;align-items:center;justify-content:center;
+ width:43px;height:43px;flex:0 0 43px;border-radius:50%;
+ border:1px solid #ceded4;background:#fff;color:#284d42;
+ font:500 23px/1 inherit;cursor:pointer;transition:background .18s ease,color .18s ease,opacity .18s ease;
+}
+#fsc-ux-gallery .fsc-ux-carousel-controls button:not(:disabled):hover{
+ background:#264c40;color:#fff;
+}
+#fsc-ux-gallery .fsc-ux-carousel-controls button:disabled{
+ opacity:.33;cursor:not-allowed;
+}
+#fsc-ux-gallery .fsc-ux-carousel-controls button:focus-visible,
+#fsc-ux-gallery .fsc-ux-gallery-grid:focus-visible{
+ outline:3px solid #397b65;outline-offset:3px;
+}
+#fsc-ux-gallery .fsc-ux-gallery-grid{
+ display:flex;grid-template-columns:none;align-items:stretch;gap:17px;
+ overflow-x:auto;overflow-y:hidden;scroll-behavior:smooth;scroll-snap-type:x mandatory;
+ overscroll-behavior-inline:contain;scrollbar-width:none;
+ -webkit-overflow-scrolling:touch;padding:4px 2px 18px;
+}
+#fsc-ux-gallery .fsc-ux-gallery-grid::-webkit-scrollbar{display:none}
+#fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card{
+ flex:0 0 calc((100% - 2 * 17px) / 2.3);min-width:0;scroll-snap-align:start;
+ transition:transform .2s ease,box-shadow .2s ease;
+}
+#fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card:not([hidden]):hover{
+ transform:translateY(-3px);box-shadow:0 10px 25px #1831261f;
+}
+#fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card>img,
+#fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-adu-art{height:265px}
+@media(max-width:1000px){
+ #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card{
+  flex-basis:calc((100% - 17px) / 1.65);
+ }
+ #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card>img,
+ #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-adu-art{height:235px}
+}
+@media(max-width:600px){
+ #fsc-ux-gallery .fsc-ux-carousel-bar{gap:8px}
+ #fsc-ux-gallery #fsc-ux-carousel-help{max-width:155px;font-size:11px}
+ #fsc-ux-gallery .fsc-ux-carousel-controls{gap:6px}
+ #fsc-ux-gallery .fsc-ux-carousel-controls button{
+  width:37px;height:37px;flex-basis:37px;font-size:21px;
+ }
+ #fsc-ux-gallery #fsc-ux-carousel-count{font-size:10px;margin-right:2px}
+ #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card{
+  flex-basis:84%;
+ }
+ #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-gallery-card>img,
+ #fsc-ux-gallery .fsc-ux-gallery-grid .fsc-ux-adu-art{height:225px}
+}
+@media(prefers-reduced-motion:reduce){
+ #fsc-ux-gallery .fsc-ux-gallery-grid{scroll-behavior:auto}
+ #fsc-ux-gallery .fsc-ux-gallery-card{transition:none!important}
+}
