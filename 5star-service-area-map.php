@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Who We Serve Map
  * Description: Homepage service areas with city/county switcher and interactive OpenStreetMap.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -13,6 +13,11 @@ function fsc_who_we_serve_visible() {
     return is_front_page() || is_home() || is_page('atelier') || is_page(5) || $path === '' || $path === 'atelier';
 }
 
+add_action('wp_enqueue_scripts', function() {
+    if (!fsc_who_we_serve_visible()) return;
+    wp_enqueue_style('fsc-leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4');
+    wp_enqueue_script('fsc-leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', true);
+});
 add_action('wp_footer', function() {
     if (!fsc_who_we_serve_visible()) return;
     $cities = [
@@ -57,10 +62,14 @@ add_action('wp_footer', function() {
 #fsc-serve button.fsc-place:hover,#fsc-serve button.fsc-place.active{background:#dce8dd;color:#1d3740}
 #fsc-serve .fsc-more{font-size:11px;padding:9px 6px;color:#727272}
 #fsc-serve .fsc-map{height:295px;position:relative;border-radius:12px;overflow:hidden;background:#dce7dd;box-shadow:0 2px 14px rgba(20,44,25,.06)}
-#fsc-serve .fsc-map iframe{position:absolute;inset:0;border:0;width:100%;height:100%;filter:saturate(.75) contrast(.97);background:#e2e9df}
-#fsc-serve .fsc-map:after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(205,220,207,.09)}
-#fsc-serve .fsc-map-caption{position:absolute;z-index:2;top:14px;left:14px;background:#fffffff2;border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;box-shadow:0 2px 14px #0002}
-#fsc-serve .fsc-map-link{position:absolute;z-index:2;bottom:12px;right:12px;background:#fffffff2;padding:8px 11px;border-radius:7px;color:#243b4b;font-size:11px;text-decoration:none;box-shadow:0 2px 12px #0002}
+#fsc-serve .fsc-leaflet{position:absolute;inset:0;width:100%;height:100%;background:#dce7dd;z-index:1}
+#fsc-serve .fsc-leaflet .leaflet-container{font-family:inherit}
+#fsc-serve .fsc-map-fallback{position:absolute;inset:0;z-index:1;background:#dce7dd;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;color:#243c3c;font-size:13px}
+#fsc-serve .fsc-map-fallback[hidden]{display:none!important}
+#fsc-serve .leaflet-control-attribution{font-size:10px}
+#fsc-serve .fsc-map:after{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(205,220,207,.04);z-index:1}
+#fsc-serve .fsc-map-caption{position:absolute;z-index:1000;top:14px;left:50px;background:#fffffff2;border-radius:8px;padding:9px 11px;font-size:12px;font-weight:600;box-shadow:0 2px 14px #0002}
+#fsc-serve .fsc-map-link{position:absolute;z-index:1000;bottom:22px;right:12px;background:#fffffff2;padding:8px 11px;border-radius:7px;color:#243b4b;font-size:11px;text-decoration:none;box-shadow:0 2px 12px #0002}
 #fsc-serve [hidden]{display:none!important}
 @media(max-width:930px){#fsc-serve{padding:54px 22px}#fsc-serve .fsc-layout{grid-template-columns:1fr}#fsc-serve .fsc-map{height:280px}#fsc-serve .fsc-tags-card{margin-top:0}}
 @media(max-width:480px){#fsc-serve{padding:45px 16px}#fsc-serve h2{font-size:33px}#fsc-serve .fsc-map{height:240px}#fsc-serve .fsc-tags-card{padding:11px}#fsc-serve button.fsc-place{font-size:10px;padding:7px 8px}}
@@ -95,7 +104,7 @@ add_action('wp_footer', function() {
       </div>
     </div>
     <div class="fsc-map" aria-label="Interactive map showing the Sacramento area">
-      <iframe title="Interactive Sacramento service-area map" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.openstreetmap.org/export/embed.html?bbox=-121.71%2C38.40%2C-121.27%2C38.78&amp;layer=mapnik&amp;marker=38.5816%2C-121.4944"></iframe>
+      <div id="fsc-leaflet-map" class="fsc-leaflet" role="application" aria-label="Interactive service area map with zoom and drag controls"></div><div class="fsc-map-fallback" hidden>Map could not load. Use “Open larger map” to view the location.</div>
       <div class="fsc-map-caption" aria-live="polite">Sacramento, CA</div>
       <a class="fsc-map-link" target="_blank" rel="noopener noreferrer" href="https://www.openstreetmap.org/?mlat=38.5816&amp;mlon=-121.4944#map=12/38.5816/-121.4944">Open larger map ↗</a>
     </div>
@@ -109,15 +118,26 @@ add_action('wp_footer', function() {
   var panels=[root.querySelector('#fsc-cities-panel'),root.querySelector('#fsc-counties-panel')];
   function toggle(i){for(var j=0;j<2;j++){tabs[j].setAttribute('aria-selected',String(i===j));panels[j].hidden=i!==j;}}
   tabs[0].addEventListener('click',function(){toggle(0)});tabs[1].addEventListener('click',function(){toggle(1)});
-  var iframe=root.querySelector('iframe'),caption=root.querySelector('.fsc-map-caption'),link=root.querySelector('.fsc-map-link');
+  var caption=root.querySelector('.fsc-map-caption'),link=root.querySelector('.fsc-map-link');
+  var map=null,marker=null;
+  try {
+    if (!window.L || !root.querySelector('#fsc-leaflet-map')) throw Error('Leaflet map library unavailable');
+    map=L.map(root.querySelector('#fsc-leaflet-map'),{scrollWheelZoom:false,zoomControl:true}).setView([38.5816,-121.4944],11);
+    var tiles=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      maxZoom:18,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    marker=L.marker([38.5816,-121.4944]).addTo(map);
+    tiles.on('tileerror',function(){root.querySelector('.fsc-map-fallback').hidden=false;});
+  } catch(error) {
+    root.querySelector('.fsc-map-fallback').hidden=false;
+  }
   root.querySelectorAll('button.fsc-place').forEach(function(btn){btn.addEventListener('click',function(){
     var lat=Number(btn.dataset.lat),lon=Number(btn.dataset.lon),nm=btn.dataset.name;
     if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
-    var spread=nm.indexOf('County')!==-1?0.5:0.18;
-    var b=[lon-spread,lat-spread*.73,lon+spread,lat+spread*.73].map(function(n){return n.toFixed(5)}).join(',');
-    iframe.src='https://www.openstreetmap.org/export/embed.html?bbox='+encodeURIComponent(b)+'&layer=mapnik&marker='+encodeURIComponent(lat+','+lon);
-    caption.textContent=nm+', CA';iframe.title='Interactive map of '+nm+', California';
-    link.href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map='+(spread>.3?9:12)+'/'+lat+'/'+lon;
+    var zoom=nm.indexOf('County')!==-1?9:12;
+    if(map){map.setView([lat,lon],zoom,{animate:true});marker.setLatLng([lat,lon]);}
+    caption.textContent=nm+', CA';
+    link.href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map='+zoom+'/'+lat+'/'+lon;
     root.querySelectorAll('button.fsc-place').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');
   })});
   function reposition(){
@@ -128,6 +148,7 @@ add_action('wp_footer', function() {
     var main=document.querySelector('main');if(main)main.appendChild(root);
   }
   reposition();
+  if(map){setTimeout(function(){map.invalidateSize()},120);}
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
