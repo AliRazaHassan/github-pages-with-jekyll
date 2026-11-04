@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — ADU 3D Concept Showcase
  * Description: Three lightweight original interactive ADU concept models and floor-plan previews.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -18,20 +18,27 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.0.0');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.0.0', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.0.1');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.0.1', true);
 });
 
-// Preserve a concept choice when a visitor opens the existing contact enquiry form.
-add_action('wp_footer', function() {
+// Preserve a selected concept in the existing Contact form without relying on JS.
+add_action('template_redirect', function() {
+    if (is_admin()) return;
     $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     if ($path !== 'atelier/contact') return;
     $choice = isset($_GET['adu_concept']) ? sanitize_key(wp_unslash($_GET['adu_concept'])) : '';
     $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest'];
     if (!isset($names[$choice])) return;
-    $text = 'I am interested in the ' . $names[$choice] . ' ADU concept. Please discuss property feasibility, planning requirements and the next steps.';
-    echo '<script>document.addEventListener("DOMContentLoaded",function(){var form=document.getElementById("five-star-enquiry-form");if(!form)return;var service=form.elements.service;if(service)service.value="Other / ask about availability";var message=form.elements.message;if(message&&!message.value.trim())message.value='.wp_json_encode($text).';});</script>'."\n";
-}, 19);
+    $message = esc_textarea('I am interested in the ' . $names[$choice] . ' ADU concept. Please discuss property feasibility, planning requirements and the next steps.');
+    ob_start(function($html) use ($message) {
+        if (!is_string($html) || $html === '') return $html;
+        $html = preg_replace_callback('/(<textarea\b(?=[^>]*\bname=["\']message["\'])[^>]*>)([\s\S]*?)(<\/textarea>)/i', function($m) use ($message) {
+            return $m[1] . $message . $m[3];
+        }, $html, 1);
+        return str_replace('<option>Other / ask about availability</option>', '<option selected>Other / ask about availability</option>', $html);
+    });
+}, 5);
 add_action('wp_footer', function() {
     if (!fsc_adu_showcase_is_page()) return;
 ?>
