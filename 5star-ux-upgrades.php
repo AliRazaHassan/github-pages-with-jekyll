@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -13,8 +13,8 @@ function fsc_ux_is_front() {
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.0');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.0', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.1');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.1', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -294,21 +294,30 @@ add_action('wp_footer', function() {
 <?php if (fsc_ux_is_front()): ?>
 <section id="fsc-ux-gallery" class="fsc-ux-gallery" aria-labelledby="fsc-ux-gallery-title">
   <div class="fsc-ux-gallery-inner">
-    <div class="fsc-ux-gallery-heading"><div><span class="fsc-ux-eyebrow">DESIGN INSPIRATION / GALLERY</span><h2 id="fsc-ux-gallery-title">Explore the <em>possibilities.</em></h2><p>A few visual ideas for your next home transformation.</p></div></div>
+    <div class="fsc-ux-gallery-heading"><div><span class="fsc-ux-eyebrow">BATHROOM DESIGN INSPIRATION</span><h2 id="fsc-ux-gallery-title">Beautiful spaces, <em>better living.</em></h2><p>Explore bathroom remodeling inspiration for your next project.</p></div></div>
     <div class="fsc-ux-carousel-bar">
-      <p id="fsc-ux-carousel-help">Swipe or use the arrows to view more images.</p>
-      <div class="fsc-ux-carousel-controls" aria-label="Gallery carousel controls">
-        <span id="fsc-ux-carousel-count" aria-live="polite" aria-atomic="true">01 / 03</span>
-        <button type="button" class="fsc-ux-carousel-prev" aria-label="Previous gallery image" aria-controls="fsc-ux-carousel-track" disabled>←</button>
-        <button type="button" class="fsc-ux-carousel-next" aria-label="Next gallery image" aria-controls="fsc-ux-carousel-track">→</button>
+      <p id="fsc-ux-carousel-help">Swipe or use the arrows to view more photos.</p>
+      <div class="fsc-ux-carousel-controls" aria-label="Bathroom gallery carousel controls">
+        <span id="fsc-ux-carousel-count" aria-live="polite" aria-atomic="true">01 / 12</span>
+        <button type="button" class="fsc-ux-carousel-prev" aria-label="Previous bathroom photo" aria-controls="fsc-ux-carousel-track" disabled>←</button>
+        <button type="button" class="fsc-ux-carousel-next" aria-label="Next bathroom photo" aria-controls="fsc-ux-carousel-track">→</button>
       </div>
     </div>
-    <div id="fsc-ux-carousel-track" class="fsc-ux-gallery-grid" role="region" aria-roledescription="carousel" aria-label="Remodeling design inspiration photos" aria-describedby="fsc-ux-carousel-help" tabindex="0">
-      <div class="fsc-ux-gallery-card" role="group" aria-label="Image 1 of 3: kitchen inspiration"><img loading="lazy" src="<?php echo $asset; ?>kitchen-after-960.webp" alt="Illustrative natural wood kitchen with island" /></div>
-      <div class="fsc-ux-gallery-card" role="group" aria-label="Image 2 of 3: bathroom inspiration"><img loading="lazy" src="<?php echo $asset; ?>bath-after-960.webp" alt="Illustrative stone bathroom design" /></div>
-      <div class="fsc-ux-gallery-card" role="group" aria-label="Image 3 of 3: whole-home inspiration"><img loading="lazy" src="<?php echo $asset; ?>living-960.webp" alt="Illustrative modern living room design" /></div>
+    <div id="fsc-ux-carousel-track" class="fsc-ux-gallery-grid" role="region" aria-roledescription="carousel" aria-label="Bathroom inspiration photo carousel" aria-describedby="fsc-ux-carousel-help" tabindex="0">
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 1 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-1.jpg" alt="Bathroom design inspiration photograph 1 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 2 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-2.jpg" alt="Bathroom design inspiration photograph 2 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 3 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-3.jpg" alt="Bathroom design inspiration photograph 3 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 4 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-4.jpg" alt="Bathroom design inspiration photograph 4 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 5 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-5.jpg" alt="Bathroom design inspiration photograph 5 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 6 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-6.jpg" alt="Bathroom design inspiration photograph 6 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 7 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-7.jpg" alt="Bathroom design inspiration photograph 7 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 8 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-8.jpg" alt="Bathroom design inspiration photograph 8 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 9 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-9.jpg" alt="Bathroom design inspiration photograph 9 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 10 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-10.jpg" alt="Bathroom design inspiration photograph 10 from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 11 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2026/04/Home-Slide-Bathroom-4-7-v2.jpg" alt="Modern bathroom remodeling inspiration from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
+      <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom image 12 of 12"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/gallery/bathroom-gallery-lightbox-24/Bathroom-Gallery-Lightbox-24-1.jpg" alt="Bathroom gallery inspiration from Revive Design and Renovation" loading="lazy" decoding="async" draggable="false" referrerpolicy="no-referrer-when-downgrade" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
     </div>
-    <p class="fsc-ux-gallery-disclosure">Images shown are illustrative design inspiration, not verified photographs of completed 5 Star client projects.</p>
+    <p class="fsc-ux-gallery-disclosure">Images courtesy of Revive Design and Renovation, provided for design inspiration. These are not presented as completed 5 Star Constructions projects.</p>
   </div>
 </section>
 <?php endif; ?>
