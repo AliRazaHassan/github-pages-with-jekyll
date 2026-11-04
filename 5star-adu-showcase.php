@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: 5 Star Constructions — Published ADU Model Showcase
- * Description: Six published ADU model designs, original affiliated images and floor plans, plus an optional illustrative 3D viewer.
- * Version: 1.2.1
+ * Plugin Name: 5 Star Constructions — Independent ADU Inspiration
+ * Description: Independent completed ADU case studies and licensed reference photographs, with an optional conceptual 3D viewer.
+ * Version: 1.3.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -18,9 +18,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.2.1');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.2.1', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.2.1', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.3.0');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.3.0', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.3.0', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
@@ -29,7 +29,7 @@ add_action('template_redirect', function() {
     $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     if ($path !== 'atelier/contact') return;
     $choice = isset($_GET['adu_concept']) ? sanitize_key(wp_unslash($_GET['adu_concept'])) : '';
-    $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest','s1'=>'Model S1','a1'=>'Model A1','a2'=>'Model A2','a3'=>'Model A3','b3'=>'Model B3','r4'=>'Model R4'];
+    $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest','detached'=>'Detached ADU inspiration','garage'=>'Garage conversion inspiration','courtyardadu'=>'Backyard ADU inspiration'];
     if (!isset($names[$choice])) return;
     $message = esc_textarea('I am interested in the ' . $names[$choice] . ' ADU concept. Please discuss property feasibility, planning requirements and the next steps.');
     ob_start(function($html) use ($message) {
@@ -43,41 +43,35 @@ add_action('template_redirect', function() {
 add_action('wp_footer', function() {
     if (!fsc_adu_showcase_is_page()) return;
     ?>
-<section id="fsc-real-adu" class="fsc-real-adu" data-models="[{&quot;id&quot;:&quot;s1&quot;,&quot;name&quot;:&quot;Model S1&quot;,&quot;area&quot;:328,&quot;beds&quot;:1,&quot;baths&quot;:1,&quot;cover&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-s1/card.webp&quot;,&quot;plan&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-s1/gallery-02.webp&quot;,&quot;modern&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/styles/modern/compact/01.webp&quot;,&quot;source&quot;:&quot;https://www.blueheavenconstructions.com/adu-models/model-s1&quot;,&quot;floorAlt&quot;:&quot;Interior or plan imagery&quot;},{&quot;id&quot;:&quot;a1&quot;,&quot;name&quot;:&quot;Model A1&quot;,&quot;area&quot;:462,&quot;beds&quot;:1,&quot;baths&quot;:1,&quot;cover&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a1/card.webp&quot;,&quot;plan&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a1/floor-01.webp&quot;,&quot;modern&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/styles/modern/compact/02.webp&quot;,&quot;source&quot;:&quot;https://www.blueheavenconstructions.com/adu-models/model-a1&quot;,&quot;floorAlt&quot;:&quot;Illustrative floor plan&quot;},{&quot;id&quot;:&quot;a2&quot;,&quot;name&quot;:&quot;Model A2&quot;,&quot;area&quot;:500,&quot;beds&quot;:1,&quot;baths&quot;:1,&quot;cover&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a2/card.webp&quot;,&quot;plan&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a2/floor-01.webp&quot;,&quot;modern&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/styles/modern/compact/04.webp&quot;,&quot;source&quot;:&quot;https://www.blueheavenconstructions.com/adu-models/model-a2&quot;,&quot;floorAlt&quot;:&quot;Illustrative floor plan&quot;},{&quot;id&quot;:&quot;a3&quot;,&quot;name&quot;:&quot;Model A3&quot;,&quot;area&quot;:594,&quot;beds&quot;:1,&quot;baths&quot;:1,&quot;cover&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a3/card.webp&quot;,&quot;plan&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a3/floor-01.webp&quot;,&quot;modern&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/styles/modern/mid/01.webp&quot;,&quot;source&quot;:&quot;https://www.blueheavenconstructions.com/adu-models/model-a3&quot;,&quot;floorAlt&quot;:&quot;Illustrative floor plan&quot;},{&quot;id&quot;:&quot;b3&quot;,&quot;name&quot;:&quot;Model B3&quot;,&quot;area&quot;:702,&quot;beds&quot;:2,&quot;baths&quot;:1,&quot;cover&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-b3/card.webp&quot;,&quot;plan&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-b3/gallery-01.webp&quot;,&quot;modern&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/styles/modern/mid/03.webp&quot;,&quot;source&quot;:&quot;https://www.blueheavenconstructions.com/adu-models/model-b3&quot;,&quot;floorAlt&quot;:&quot;Interior or plan imagery&quot;},{&quot;id&quot;:&quot;r4&quot;,&quot;name&quot;:&quot;Model R4&quot;,&quot;area&quot;:780,&quot;beds&quot;:1,&quot;baths&quot;:1,&quot;cover&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-r4/card.webp&quot;,&quot;plan&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-r4/floor-01.webp&quot;,&quot;modern&quot;:&quot;https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/styles/modern/mid/07.webp&quot;,&quot;source&quot;:&quot;https://www.blueheavenconstructions.com/adu-models/model-r4&quot;,&quot;floorAlt&quot;:&quot;Illustrative floor plan&quot;}]" aria-labelledby="fsc-real-title">
- <div class="fsc-real-intro">
-  <span class="fsc-real-eyebrow">ADU MODEL COLLECTION · AFFILIATED DESIGN CATALOGUE</span>
-  <h1 id="fsc-real-title">Explore real <em>ADU designs.</em></h1>
-  <p>Browse published accessory dwelling unit models, including exterior renders and original plan imagery from our affiliated Blue Heaven Constructions catalogue.</p>
-  <p class="fsc-real-disclaimer"><strong>Published model designs, not completed project photographs.</strong> Renderings and floor plans are design references. Exact configurations, price, permitting and build feasibility require a property assessment.</p>
- </div>
- <div class="fsc-real-grid">
-  <button type="button" class="fsc-real-card" data-adu-real-model="s1" aria-pressed="true"><img loading="lazy" decoding="async" src="https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-s1/card.webp" alt="Model S1 catalogue exterior rendering"/><span class="fsc-real-card-body"><span class="fsc-real-card-kicker">PUBLISHED ADU DESIGN</span><strong>Model S1</strong><small>328 sq ft · 1 bed · 1 bath</small><span class="fsc-real-card-view">Explore this model ↗</span></span></button>
-<button type="button" class="fsc-real-card" data-adu-real-model="a1" aria-pressed="false"><img loading="lazy" decoding="async" src="https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a1/card.webp" alt="Model A1 catalogue exterior rendering"/><span class="fsc-real-card-body"><span class="fsc-real-card-kicker">PUBLISHED ADU DESIGN</span><strong>Model A1</strong><small>462 sq ft · 1 bed · 1 bath</small><span class="fsc-real-card-view">Explore this model ↗</span></span></button>
-<button type="button" class="fsc-real-card" data-adu-real-model="a2" aria-pressed="false"><img loading="lazy" decoding="async" src="https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a2/card.webp" alt="Model A2 catalogue exterior rendering"/><span class="fsc-real-card-body"><span class="fsc-real-card-kicker">PUBLISHED ADU DESIGN</span><strong>Model A2</strong><small>500 sq ft · 1 bed · 1 bath</small><span class="fsc-real-card-view">Explore this model ↗</span></span></button>
-<button type="button" class="fsc-real-card" data-adu-real-model="a3" aria-pressed="false"><img loading="lazy" decoding="async" src="https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-a3/card.webp" alt="Model A3 catalogue exterior rendering"/><span class="fsc-real-card-body"><span class="fsc-real-card-kicker">PUBLISHED ADU DESIGN</span><strong>Model A3</strong><small>594 sq ft · 1 bed · 1 bath</small><span class="fsc-real-card-view">Explore this model ↗</span></span></button>
-<button type="button" class="fsc-real-card" data-adu-real-model="b3" aria-pressed="false"><img loading="lazy" decoding="async" src="https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-b3/card.webp" alt="Model B3 catalogue exterior rendering"/><span class="fsc-real-card-body"><span class="fsc-real-card-kicker">PUBLISHED ADU DESIGN</span><strong>Model B3</strong><small>702 sq ft · 2 bed · 1 bath</small><span class="fsc-real-card-view">Explore this model ↗</span></span></button>
-<button type="button" class="fsc-real-card" data-adu-real-model="r4" aria-pressed="false"><img loading="lazy" decoding="async" src="https://bhc-project-storage.s3.eu-north-1.amazonaws.com/images/adu/models/model-r4/card.webp" alt="Model R4 catalogue exterior rendering"/><span class="fsc-real-card-body"><span class="fsc-real-card-kicker">PUBLISHED ADU DESIGN</span><strong>Model R4</strong><small>780 sq ft · 1 bed · 1 bath</small><span class="fsc-real-card-view">Explore this model ↗</span></span></button>
- </div>
- <div class="fsc-real-detail">
-   <div class="fsc-real-detail-media">
-    <div class="fsc-real-main-wrap"><img id="fsc-real-main-photo" alt="Selected ADU model exterior" loading="eager"/></div>
-    <div id="fsc-real-thumbs" class="fsc-real-thumbs" role="group" aria-label="Explore original model drawings and styles"></div>
-   </div>
-   <div class="fsc-real-detail-copy">
-    <span class="fsc-real-eyebrow">ORIGINAL DESIGN REFERENCE</span>
-    <h2 id="fsc-real-model-name">Model S1</h2>
-    <p id="fsc-real-model-stats">328 sq ft · 1 bedroom · 1 bathroom</p>
-    <p>Choose another model above to view its published visual references. We can discuss adapting a layout to your lot, design priorities and local regulations.</p>
-    <a id="fsc-real-ask" class="fsc-real-primary" href="/atelier/contact/?adu_concept=s1#consultation">Discuss this ADU design ↗</a>
-    <a id="fsc-real-source" class="fsc-real-source" href="https://www.blueheavenconstructions.com/adu-models/model-s1" target="_blank" rel="noopener">View original model specifications ↗</a>
-    <small>Images and model data attributed to Blue Heaven Constructions, the affiliated business. Construction status and buildability are not independently confirmed.</small>
-   </div>
- </div>
- <div class="fsc-real-cta">
-  <div><span class="fsc-real-eyebrow">YOUR PROPERTY, YOUR ADU</span><h2>Let's turn a design into <em>a realistic plan.</em></h2><p>Talk with the team about your available space and the ADU designs that might suit your property.</p></div>
-  <div><a href="/atelier/contact/#consultation">Request an ADU consultation ↗</a><a href="tel:+19162251015">Call (916) 225-1015</a></div>
- </div>
- <details class="fsc-real-concept-disclosure" id="fsc-adu-prototype-disclosure"><summary>Explore an illustrative 3D geometry viewer <small>(not an official model)</small></summary><p>This interactive geometry is a generic visualization only and is not linked to the published designs above.</p></details>
+<section id="fsc-real-adu" class="fsc-real-adu" aria-labelledby="fsc-real-title">
+  <div class="fsc-real-intro">
+    <span class="fsc-real-eyebrow">INDEPENDENT ADU INSPIRATION · REAL BUILDS</span>
+    <h1 id="fsc-real-title">Discover real <em>ADU possibilities.</em></h1>
+    <p>See photographed accessory dwelling units and independently documented completed California projects. Compare styles, layouts and uses before requesting a property-specific consultation.</p>
+    <p class="fsc-real-disclaimer"><strong>Third-party inspiration, not 5 Star Constructions projects.</strong> The buildings below were photographed or documented by independent creators/builders. They are reference examples, not our completed work, available 5 Star plans, or construction guarantees.</p>
+  </div>
+  <div class="fsc-real-grid fsc-real-photo-gallery" aria-label="Freely licensed photographs of actual accessory dwelling units">
+<article class="fsc-real-card fsc-adu-licensed-photo"><a href="https://commons.wikimedia.org/wiki/File:Exterior_of_a_Snap_ADU_Build.jpg" target="_blank" rel="noopener noreferrer"><img loading="eager" decoding="async" src="https://commons.wikimedia.org/wiki/Special:FilePath/Exterior_of_a_Snap_ADU_Build.jpg?width=1000" alt="A real finished ADU exterior, Oceanside, California"/></a><div class="fsc-real-card-body"><span class="fsc-real-card-kicker">REAL-WORLD PHOTO REFERENCE</span><strong>Completed Detached ADU</strong><small>A real finished ADU exterior, Oceanside, California</small><div class="fsc-adu-license">Photo: <a href="https://commons.wikimedia.org/wiki/File:Exterior_of_a_Snap_ADU_Build.jpg" target="_blank" rel="noopener noreferrer">SnapADU</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> · unmodified photo</div></div></article>
+<article class="fsc-real-card fsc-adu-licensed-photo"><a href="https://commons.wikimedia.org/wiki/File:Craftsman_with_Backyard_Cottage_(Converted_Garage).jpg" target="_blank" rel="noopener noreferrer"><img loading="lazy" decoding="async" src="https://commons.wikimedia.org/wiki/Special:FilePath/Craftsman_with_Backyard_Cottage_%28Converted_Garage%29.jpg?width=1000" alt="Existing garage converted into a backyard secondary suite"/></a><div class="fsc-real-card-body"><span class="fsc-real-card-kicker">REAL-WORLD PHOTO REFERENCE</span><strong>Backyard Cottage Conversion</strong><small>Existing garage converted into a backyard secondary suite</small><div class="fsc-adu-license">Photo: <a href="https://commons.wikimedia.org/wiki/File:Craftsman_with_Backyard_Cottage_(Converted_Garage).jpg" target="_blank" rel="noopener noreferrer">Sightline Institute</a> · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a> · unmodified photo</div></div></article>
+<article class="fsc-real-card fsc-adu-licensed-photo"><a href="https://commons.wikimedia.org/wiki/File:ADU_Alley_St_Albans_L7_Davidson_(6124624998).jpg" target="_blank" rel="noopener noreferrer"><img loading="lazy" decoding="async" src="https://commons.wikimedia.org/wiki/Special:FilePath/ADU_Alley_St_Albans_L7_Davidson_%286124624998%29.jpg?width=1000" alt="Attached and above-garage ADU buildings, Davidson, North Carolina"/></a><div class="fsc-real-card-body"><span class="fsc-real-card-kicker">REAL-WORLD PHOTO REFERENCE</span><strong>Neighborhood ADU Example</strong><small>Attached and above-garage ADU buildings, Davidson, North Carolina</small><div class="fsc-adu-license">Photo: <a href="https://commons.wikimedia.org/wiki/File:ADU_Alley_St_Albans_L7_Davidson_(6124624998).jpg" target="_blank" rel="noopener noreferrer">Brett VA</a> · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a> · unmodified photo</div></div></article>
+  </div>
+  <section class="fsc-adu-external-section" aria-labelledby="fsc-adu-external-title">
+    <div class="fsc-adu-external-heading"><span class="fsc-real-eyebrow">ACTUAL BUILT PROJECT REFERENCES</span><h2 id="fsc-adu-external-title">Explore documented <em>ADU projects.</em></h2><p>Independent builders publish these completed projects. Original project pages provide photos and further details.</p></div>
+    <div class="fsc-adu-external-grid">
+<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>Hillside Terrace Detached ADU</h3><p>Vista, California</p><p>3 bedrooms · 2 bathrooms · 1,000 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View project on Nucave Construction ↗</a></article>
+<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>Oceanside Pacifica ADU</h3><p>Oceanside, California</p><p>1 bedroom · 1 bathroom · 498 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View project on Nucave Construction ↗</a></article>
+<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>Studio ADU</h3><p>Rocklin, California</p><p>344 sq ft · 1 bathroom</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View project on IMKAT Construction ↗</a></article>
+<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>624 SQFT ADU</h3><p>Sacramento, California</p><p>2 bedrooms · 1 bathroom · 624 sq ft</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View project on IMKAT Construction ↗</a></article>
+    </div>
+  </section>
+  <div class="fsc-real-cta">
+    <div><span class="fsc-real-eyebrow">DISCUSS YOUR PROPERTY</span><h2>Your ADU starts with <em>your site.</em></h2><p>Share your lot size, proposed use and preferred layout. Our team can discuss next steps for the Sacramento area.</p></div>
+    <div><a href="/atelier/contact/?adu_concept=detached#consultation">Request an ADU consultation ↗</a><a href="tel:+19162251015">Call (916) 225-1015</a></div>
+  </div>
+  <details class="fsc-real-concept-disclosure" id="fsc-adu-prototype-disclosure">
+    <summary>Optional 3D concept explorer <small>— generic geometry, not a real project model</small></summary>
+    <p>The optional viewer illustrates possible room zoning; it is not a digital model of the photographed or linked completed ADUs.</p>
+  </details>
 </section>
     <?php
 }, 16);
