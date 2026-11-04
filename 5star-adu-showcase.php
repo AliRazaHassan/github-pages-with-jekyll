@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: 5 Star Constructions — Interactive ADU 3D Viewer
- * Description: Primary Sketchfab interactive 3D ADU architectural models, with credited real-world projects and lightweight fallback.
- * Version: 1.4.0
+ * Plugin Name: 5 Star Constructions — Branded ADU 3D Viewer
+ * Description: First-party interactive ADU concept viewer with orbit, zoom, interior cutaway and accessible fallback.
+ * Version: 1.5.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -18,9 +18,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.4.0');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.4.0', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.4.0', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.0');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.0', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.0', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
@@ -46,56 +46,67 @@ function fsc_adu_render_3d_showcase() {
     $rendered=true;
     ?>
 <section id="fsc-real-adu" class="fsc-real-adu fsc-adu-3d-page" aria-labelledby="fsc-real-title">
- <div class="fsc-real-intro">
-  <span class="fsc-real-eyebrow">INTERACTIVE ADU ARCHITECTURE / 3D EXPERIENCE</span>
-  <h1 id="fsc-real-title">Explore ADUs <em>in 3D.</em></h1>
-  <p>Rotate, zoom and inspect independent architectural ADU models in an interactive 3D viewer. Choose a design and explore its shape and layout—not a photo slideshow.</p>
-  <p class="fsc-real-disclaimer"><strong>Independent third-party 3D designs.</strong> These models were published by Volstrukt on Sketchfab. They are not completed 5 Star Constructions projects, approved California plans or photographs of built homes.</p>
- </div>
- <section class="fsc-adu-3d-section" aria-label="Interactive three-dimensional architectural viewer">
-  <div class="fsc-adu-3d-heading">
-   <div>
-    <span class="fsc-real-eyebrow">01 / INTERACTIVE MODEL</span>
-    <h2 id="fsc-adu-3d-title">The Driftwood <em>ADU</em></h2>
-    <p id="fsc-adu-3d-description">24 × 24 ft architectural ADU model · Explore by dragging to rotate and scrolling to zoom.</p>
-   </div>
-   <a id="fsc-adu-open-model" class="fsc-adu-3d-source" href="https://sketchfab.com/3d-models/the-driftwood-24-x-24-adu-model-bca7d791d8d041f2a3e95f70ed6a3bfd" target="_blank" rel="noopener noreferrer">Open original 3D model ↗</a>
+  <div class="fsc-real-intro">
+    <span class="fsc-real-eyebrow">5 STAR CONSTRUCTIONS / INTERACTIVE ADU DESIGN</span>
+    <h1 id="fsc-real-title">Explore ADUs <em>in 3D.</em></h1>
+    <p>Explore architectural possibilities in a full interactive 3D space. Rotate the home, zoom in, remove the roof to view interior zones, and discover a layout that fits your goals.</p>
+    <p class="fsc-real-disclaimer"><strong>Original 3D concept visualizations.</strong> These are illustrative design studies, not completed client projects, CAD plans or permit-ready models. Actual ADU layouts, measurements and feasibility depend on your property.</p>
   </div>
-  <div class="fsc-adu-3d-selector" role="group" aria-label="Choose a 3D ADU model">
-   <button type="button" data-fsc-sketchfab-model="driftwood" class="is-current" aria-pressed="true"><span>01</span><strong>The Driftwood</strong><small>24 × 24 ft · ADU concept</small></button>
-   <button type="button" data-fsc-sketchfab-model="meadows" aria-pressed="false"><span>02</span><strong>The Meadows</strong><small>24 × 24 ft · 2 bed / 2 bath concept</small></button>
-   <button type="button" data-fsc-sketchfab-model="pacific" aria-pressed="false"><span>03</span><strong>The Pacific</strong><small>32 × 32 ft · 2 bed / 1 bath concept</small></button>
-  </div>
-  <div class="fsc-adu-3d-frame" id="fsc-adu-3d-frame">
-   <iframe id="fsc-adu-sketchfab" title="Interactive 3D ADU architectural model by Volstrukt" src="https://sketchfab.com/models/bca7d791d8d041f2a3e95f70ed6a3bfd/embed?autostart=0&amp;ui_infos=1&amp;ui_controls=1&amp;ui_watermark=1" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
-   <div id="fsc-adu-3d-no-webgl" class="fsc-adu-3d-no-webgl" hidden>
-     <strong>3D viewer is not supported in this browser.</strong>
-     <p>Use the lightweight viewer below, or open the original model in another browser.</p>
-     <button type="button" id="fsc-adu-3d-open-fallback">Open lightweight 3D model</button>
-   </div>
-  </div>
-  <div class="fsc-adu-3d-toolbar">
-   <p>Drag the model to rotate · Scroll / pinch to zoom · Model by <a href="https://sketchfab.com/volstrukt" target="_blank" rel="noopener noreferrer">Volstrukt</a></p>
-   <button type="button" id="fsc-adu-lightweight-toggle" aria-expanded="false" aria-controls="fsc-adu-fallback">Use lightweight 3D viewer</button>
-  </div>
-  <div id="fsc-adu-fallback" hidden>
-   <p><strong>Lightweight 3D concept:</strong> This is a separately generated illustrative house model, not an exact 3D copy of Volstrukt's published designs.</p>
-  </div>
-  <div class="fsc-adu-3d-cta"><div><h3>Like a design? Let's discuss <em>your property.</em></h3><p>Our team can assess your lot, intended use and local requirements before discussing a tailored ADU plan.</p></div><div><a href="/atelier/contact/?adu_concept=detached#consultation">Request ADU consultation ↗</a><a href="tel:+19162251015">Call (916) 225-1015</a></div></div>
- </section>
- <div class="fsc-adu-external-section">
-  <div class="fsc-adu-external-heading">
-   <span class="fsc-real-eyebrow">02 / REAL-WORLD REFERENCE PROJECTS</span>
-   <h2>Completed ADU <em>examples.</em></h2>
-   <p>These completed projects belong to independent builders. They're separate from the architectural 3D models above, and are linked for factual inspiration—not shown as 5 Star's own builds.</p>
-  </div>
-  <div class="fsc-adu-external-grid">
-   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>Hillside Terrace Detached ADU</h3><p>Vista, CA · 3 bedrooms · 2 bathrooms · Approx. 1,000 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View Nucave's completed projects ↗</a></article>
-   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>Oceanside Pacifica ADU</h3><p>Oceanside, CA · 1 bedroom · 1 bathroom · Approx. 498 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View original builder's gallery ↗</a></article>
-   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>Studio ADU</h3><p>Rocklin, CA · Approx. 344 sq ft</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View IMKAT's projects ↗</a></article>
-   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>624 sq ft ADU</h3><p>Sacramento, CA · 2 bedrooms · 1 bathroom</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View original project gallery ↗</a></article>
-  </div>
- </div>
+  <section class="fsc-adu-3d-section" aria-label="5 Star interactive 3D architectural model viewer">
+    <div class="fsc-adu-3d-heading">
+      <div><span class="fsc-real-eyebrow">YOUR ADU, YOUR SPACE</span>
+        <h2 id="fsc-adu-3d-title">Modern <em>Studio</em></h2>
+        <p id="fsc-adu-3d-description">Approx. 420 sq ft · Studio / 1 bath concept. Drag to rotate or use the controls below.</p>
+      </div>
+      <span class="fsc-adu-own-brand"><span aria-hidden="true">✦</span> 5 STAR INTERACTIVE 3D</span>
+    </div>
+    <div class="fsc-adu-3d-selector" role="group" aria-label="Choose an ADU design concept">
+      <button type="button" data-fsc-3d-model="studio" class="is-current" aria-pressed="true">
+        <span>01 / COMPACT</span><strong>Modern Studio</strong><small>Approx. 420 sq ft · Studio / 1 bath</small>
+      </button>
+      <button type="button" data-fsc-3d-model="courtyard" aria-pressed="false">
+        <span>02 / ONE BEDROOM</span><strong>Courtyard One</strong><small>Approx. 600 sq ft · 1 bed / 1 bath</small>
+      </button>
+      <button type="button" data-fsc-3d-model="family" aria-pressed="false">
+        <span>03 / TWO BEDROOM</span><strong>Family Nest</strong><small>Approx. 820 sq ft · 2 beds / 1 bath</small>
+      </button>
+    </div>
+    <div class="fsc-adu-3d-frame" id="fsc-adu-3d-frame">
+      <canvas id="fsc-adu-own-canvas" tabindex="0" aria-label="Interactive three-dimensional ADU concept. Drag to rotate, scroll or pinch to zoom."></canvas>
+      <div id="fsc-adu-3d-loading" class="fsc-adu-loading" aria-live="polite">Preparing your 3D home…</div>
+      <div class="fsc-adu-own-overlay" aria-hidden="true"><span>5 STAR CONSTRUCTIONS</span><small>3D DESIGN STUDY · NOT TO SCALE</small></div>
+      <div id="fsc-adu-3d-no-webgl" class="fsc-adu-3d-no-webgl" hidden>
+        <strong>Lightweight 3D mode</strong>
+        <p>Your browser can't display the detailed 3D scene. The compatible interactive concept viewer is available below.</p>
+        <button type="button" id="fsc-adu-3d-open-fallback">Open lightweight 3D viewer</button>
+      </div>
+    </div>
+    <div class="fsc-adu-3d-toolbar" role="group" aria-label="3D view controls">
+      <div class="fsc-adu-orbit-actions">
+        <button type="button" data-fsc-3d-action="left" aria-label="Rotate left"><span aria-hidden="true">↶</span> Left</button>
+        <button type="button" data-fsc-3d-action="right" aria-label="Rotate right">Right <span aria-hidden="true">↷</span></button>
+        <button type="button" data-fsc-3d-action="zoom-in">＋ Zoom</button>
+        <button type="button" data-fsc-3d-action="zoom-out">－ Zoom</button>
+      </div>
+      <div class="fsc-adu-orbit-actions">
+        <button type="button" data-fsc-3d-action="roof" aria-pressed="false">Roof off</button>
+        <button type="button" data-fsc-3d-action="reset">Reset view</button>
+      </div>
+    </div>
+    <p class="fsc-adu-3d-hint">Drag or swipe the home to orbit · Use mouse wheel/pinch to zoom · Switch designs above. No external site opens.</p>
+    <div id="fsc-adu-fallback" hidden>
+      <p>Compatible stylized 3D concept viewer. This is an illustrative model, not a scan of a completed building.</p>
+    </div>
+    <div class="fsc-adu-3d-cta">
+      <div><h3>Have a property in mind? <em>Let's talk ADUs.</em></h3>
+        <p>Share your property size and priorities, and our team can discuss local rules, possibilities and next steps.</p>
+      </div>
+      <div>
+        <a id="fsc-adu-own-consult" href="/atelier/contact/?adu_concept=studio#consultation">Request ADU consultation ↗</a>
+        <a href="tel:+19162251015">Call (916) 225-1015</a>
+      </div>
+    </div>
+  </section>
 </section>
     <?php
 }
