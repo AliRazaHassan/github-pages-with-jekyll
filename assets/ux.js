@@ -198,6 +198,11 @@ ready(function(){
    if(heroAction){heroAction.href="tel:+19162251015";heroAction.innerHTML="(916) 225-1015 <span aria-hidden='true'>↗</span>";heroAction.setAttribute("aria-label","Call 5 Star Constructions at (916) 225-1015");}
    // Home audit cleanup: make core services discoverable even if the custom theme's
    // blank .service-list remains unpopulated, and relocate a single conversion CTA.
+   var trustBand=document.querySelector("section.five-star-trust-strip");
+   var expertiseSection=document.querySelector("section.expertise");
+   if(trustBand&&expertiseSection)trustBand.insertAdjacentElement("afterend",expertiseSection);
+   var serviceAreas=document.getElementById("fsc-serve");
+   if(serviceAreas&&expertiseSection)expertiseSection.insertAdjacentElement("afterend",serviceAreas);
    var services=document.querySelector("section.expertise .service-list");
    if(services&&!services.querySelector("a,article")){
      var options=[
@@ -224,8 +229,11 @@ ready(function(){
    if(reviewNote)reviewNote.textContent="Feedback originally published for the affiliated Blue Heaven Constructions team.";
    var gallery=document.getElementById("fsc-ux-gallery");
    var material=document.querySelector("section.material-feature");
-   if(gallery&&material){material.insertAdjacentElement("beforebegin",gallery);material.hidden=true;}
-   else if(gallery){var anchor=document.querySelector("section.expertise");if(anchor)anchor.insertAdjacentElement("afterend",gallery);}
+   var comparison=document.querySelector("section.transformation-section");
+   if(gallery&&comparison){comparison.insertAdjacentElement("afterend",gallery);}
+   else if(gallery&&material){material.insertAdjacentElement("beforebegin",gallery);}
+   else if(gallery&&expertiseSection){expertiseSection.insertAdjacentElement("afterend",gallery);}
+   if(material)material.hidden=true;
    var redundant=document.querySelector("section.client-review-cta");if(redundant)redundant.hidden=true;
    var track=gallery?gallery.querySelector("#fsc-ux-carousel-track"):null;
    var prev=gallery?gallery.querySelector(".fsc-ux-carousel-prev"):null;
