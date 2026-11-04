@@ -260,3 +260,22 @@ body.fsc-ux-dialog-open{overflow:hidden}
  #fsc-serve .fsc-map{height:275px!important}
  #fsc-ux-gallery .fsc-ux-gallery-card>strong{font-size:24px!important}
 }
+
+/* Homepage visual continuity: original dark storytelling sections follow 5 Star navy. */
+body.home .arq-hero-overlay{
+ background:linear-gradient(90deg,#061d37e8 0%,#0b2b4a9e 43%,#0b2b4a22 86%),
+            linear-gradient(0deg,#06182fbc,transparent 26%)!important;
+}
+body.home .transformation-section{
+ background:#082b50!important;color:#fff!important;
+ border-top:1px solid #ffffff1a;border-bottom:1px solid #ffffff1a;
+}
+body.home .transformation-section .transformation-copy h2,
+body.home .transformation-section .transformation-copy h2 em{color:#fff!important}
+body.home .transformation-section .transformation-copy p{color:#d2ddeb!important}
+body.home .transformation-section .compare-tabs button[aria-selected="true"]{
+ border-bottom-color:#bd1b2a!important;color:#fff!important;
+}
+body.home .transformation-section .compare-tabs button{color:#cad5df!important}
+body.home .section-head h2{color:#082b50}
+body.home .section-head .kicker,body.home .intro-band .kicker{color:#bd1b2a}
