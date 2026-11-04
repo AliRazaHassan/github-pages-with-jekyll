@@ -196,6 +196,32 @@ ready(function(){
  if(cfg.isHome){
    var heroAction=document.querySelector("section.arq-hero .arq-hero-actions a.arq-quiet-link");
    if(heroAction){heroAction.href="tel:+19162251015";heroAction.innerHTML="(916) 225-1015 <span aria-hidden='true'>↗</span>";heroAction.setAttribute("aria-label","Call 5 Star Constructions at (916) 225-1015");}
+   // Home audit cleanup: make core services discoverable even if the custom theme's
+   // blank .service-list remains unpopulated, and relocate a single conversion CTA.
+   var services=document.querySelector("section.expertise .service-list");
+   if(services&&!services.querySelector("a,article")){
+     var options=[
+       {number:"01",title:"Kitchen Remodeling",desc:"Layouts, cabinets, finishes and everyday function.",href:"/atelier/services/kitchen/"},
+       {number:"02",title:"Bathroom Remodeling",desc:"Showers, tubs, surfaces and smarter storage.",href:"/atelier/services/bathroom/"},
+       {number:"03",title:"Whole-Home Remodeling",desc:"Plan connected spaces and a cohesive renovation.",href:"/atelier/services/whole-home/"}
+     ];
+     services.innerHTML=options.map(function(s){
+       return '<a class="fsc-ux-service" href="'+s.href+'"><span class="fsc-ux-service-num">'+s.number+'</span><span class="fsc-ux-service-copy"><strong>'+s.title+'</strong><small>'+s.desc+'</small></span><span class="fsc-ux-service-arrow" aria-hidden="true">↗</span></a>';
+     }).join("");
+     var expertiseDesc=document.querySelector("section.expertise .section-head>p");
+     if(expertiseDesc)expertiseDesc.textContent="Kitchen, bathroom and whole-home remodeling services across the Sacramento area.";
+   }
+   var reviews=document.querySelector("section.five-star-reviews");
+   var lastCTA=document.querySelector("#fsc-ux-final-cta");
+   if(reviews&&lastCTA)reviews.insertAdjacentElement("afterend",lastCTA);
+   else if(lastCTA)document.querySelector("main")?.appendChild(lastCTA);
+   var reviewLoop=document.querySelector("section.five-star-reviews a.review-link[href='#verified-reviews']");
+   if(reviewLoop)reviewLoop.hidden=true;
+   // Review display is clearly attributed to the affiliated team, not falsely sold as 5 Star reviews.
+   var reviewHead=document.querySelector(".five-star-reviews .reviews-heading h2");
+   if(reviewHead)reviewHead.textContent="Homeowners share their experience.";
+   var reviewNote=document.querySelector(".five-star-reviews .reviews-heading p");
+   if(reviewNote)reviewNote.textContent="Feedback originally published for the affiliated Blue Heaven Constructions team.";
    var gallery=document.getElementById("fsc-ux-gallery");
    var material=document.querySelector("section.material-feature");
    if(gallery&&material){material.insertAdjacentElement("beforebegin",gallery);material.hidden=true;}
@@ -245,6 +271,34 @@ ready(function(){
      if(window.ResizeObserver){new ResizeObserver(updateCarousel).observe(track);}
      requestAnimationFrame(updateCarousel);
      window.addEventListener("load",updateCarousel,{once:true});
+   }
+ }
+
+ // Contact should have one actual form, not an unrelated three-step offline draft that
+ // can look like a submitted enquiry. Legacy planner markup remains in theme, hidden.
+ if(document.body.classList.contains("fsc-focused-contact")){
+   var direct=document.querySelector(".contact-direct .kicker");
+   if(direct)direct.textContent="NEED A QUICK ANSWER?";
+   var directTitle=document.querySelector(".contact-direct h2");
+   if(directTitle)directTitle.innerHTML="Prefer to talk?<br><em>Call our team.</em>";
+   var directText=document.querySelector(".contact-direct p:not(.arq-contact-assurance)");
+   if(directText)directText.textContent="Use the form above or speak with our team about your project.";
+   var directSmall=document.querySelector(".contact-direct .arq-contact-assurance");
+   if(directSmall)directSmall.textContent="Your enquiry is saved securely for the 5 Star team. Email notification delivery may depend on mail service configuration.";
+ }
+ // The ADU catalogue currently has no models. Remove the broken self-link instead
+ // of advertising a non-existent collection, and give users a working next step.
+ if(document.body.classList.contains("fsc-focused-adu")){
+   var aduTitle=document.querySelector(".five-adu-wrap h1");
+   if(aduTitle)aduTitle.textContent="ADU Design & Construction";
+   var aduIntro=document.querySelector(".five-adu-wrap p");
+   if(aduIntro)aduIntro.textContent="Thinking about an accessory dwelling unit? Contact our team to discuss your property, your goals and available design options.";
+   var aduEmpty=document.querySelector(".five-star-adu-empty");
+   if(aduEmpty){
+     var msg=aduEmpty.querySelector("p");
+     if(msg)msg.textContent="The ADU model catalogue is being updated. You can still request a property-specific consultation now.";
+     var link=aduEmpty.querySelector("a");
+     if(link){link.href="tel:+19162251015";link.textContent="Call (916) 225-1015 ↗";}
    }
  }
  if(location.pathname.indexOf("/bathroom-gallery")!==-1){
