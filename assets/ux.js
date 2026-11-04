@@ -309,6 +309,30 @@ ready(function(){
      if(link){link.href="tel:+19162251015";link.textContent="Call (916) 225-1015 ↗";}
    }
  }
+ // The Services index previously contained headings only. Add direct routes to
+ // the site's three live remodeling service pages; no extra editorial filler.
+ if(/^\/atelier\/services\/?$/.test(location.pathname)){
+   var servicesMain=document.querySelector("main");
+   if(servicesMain&&!servicesMain.querySelector(".fsc-ux-service-index")){
+     var index=document.createElement("section");
+     index.className="fsc-ux-service-index";
+     index.setAttribute("aria-label","5 Star remodeling services");
+     index.innerHTML='<div class="fsc-ux-service-index-inner">'
+       +'<a href="/atelier/services/kitchen/"><span>01 / KITCHEN</span><strong>Kitchen Remodeling</strong><small>Layout, cabinetry and finishes</small><b aria-hidden="true">↗</b></a>'
+       +'<a href="/atelier/services/bathroom/"><span>02 / BATHROOM</span><strong>Bathroom Remodeling</strong><small>Showers, tubs and complete renovations</small><b aria-hidden="true">↗</b></a>'
+       +'<a href="/atelier/services/whole-home/"><span>03 / WHOLE HOME</span><strong>Whole-Home Remodeling</strong><small>Connected spaces and cohesive updates</small><b aria-hidden="true">↗</b></a>'
+       +'</div><p>Ready to discuss your project? <a href="tel:+19162251015">Call (916) 225-1015</a> or <a href="/atelier/contact/#consultation">send project details</a>.</p>';
+     servicesMain.appendChild(index);
+   }
+ }
+ // Portfolio categories not backed by a core live service page are temporarily
+ // hidden rather than deleted, pending verified case studies.
+ if(/^\/atelier\/projects\/?$/.test(location.pathname)){
+   document.querySelectorAll(".revive-gallery-group").forEach(function(group){
+     var label=(group.querySelector(".revive-group-title .kicker")||{}).textContent||"";
+     if(/COMMERCIAL REMODELING|TENANT IMPROVEMENTS/i.test(label))group.hidden=true;
+   });
+ }
  if(location.pathname.indexOf("/bathroom-gallery")!==-1){
    var desc=document.querySelector(".client-gallery-intro > p:not(.gallery-disclosure)");
    if(desc&&/real bathroom transformations/i.test(desc.textContent))desc.textContent="Explore bathroom design directions and before-and-after inspiration from our remodeling gallery.";
