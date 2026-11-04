@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: 5 Star Constructions — Independent ADU Inspiration
- * Description: Independent completed ADU case studies and licensed reference photographs, with an optional conceptual 3D viewer.
- * Version: 1.3.1
+ * Plugin Name: 5 Star Constructions — Interactive ADU 3D Viewer
+ * Description: Primary Sketchfab interactive 3D ADU architectural models, with credited real-world projects and lightweight fallback.
+ * Version: 1.4.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -18,9 +18,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.3.1');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.3.1', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.3.1', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.4.0');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.4.0', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.4.0', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
@@ -40,44 +40,72 @@ add_action('template_redirect', function() {
         return str_replace('<option>Other / ask about availability</option>', '<option selected>Other / ask about availability</option>', $html);
     });
 }, 5);
-add_action('wp_footer', function() {
-    if (!fsc_adu_showcase_is_page()) return;
+function fsc_adu_render_3d_showcase() {
+    static $rendered=false;
+    if ($rendered || !fsc_adu_showcase_is_page()) return;
+    $rendered=true;
     ?>
-<section id="fsc-real-adu" class="fsc-real-adu" aria-labelledby="fsc-real-title">
-  <div class="fsc-real-intro">
-    <span class="fsc-real-eyebrow">INDEPENDENT ADU INSPIRATION · REAL BUILDS</span>
-    <h1 id="fsc-real-title">Discover real <em>ADU possibilities.</em></h1>
-    <p>See photographed accessory dwelling units and independently documented completed California projects. Compare styles, layouts and uses before requesting a property-specific consultation.</p>
-    <p class="fsc-real-disclaimer"><strong>Third-party inspiration, not 5 Star Constructions projects.</strong> The buildings below were photographed or documented by independent creators/builders. They are reference examples, not our completed work, available 5 Star plans, or construction guarantees.</p>
+<section id="fsc-real-adu" class="fsc-real-adu fsc-adu-3d-page" aria-labelledby="fsc-real-title">
+ <div class="fsc-real-intro">
+  <span class="fsc-real-eyebrow">INTERACTIVE ADU ARCHITECTURE / 3D EXPERIENCE</span>
+  <h1 id="fsc-real-title">Explore ADUs <em>in 3D.</em></h1>
+  <p>Rotate, zoom and inspect independent architectural ADU models in an interactive 3D viewer. Choose a design and explore its shape and layout—not a photo slideshow.</p>
+  <p class="fsc-real-disclaimer"><strong>Independent third-party 3D designs.</strong> These models were published by Volstrukt on Sketchfab. They are not completed 5 Star Constructions projects, approved California plans or photographs of built homes.</p>
+ </div>
+ <section class="fsc-adu-3d-section" aria-label="Interactive three-dimensional architectural viewer">
+  <div class="fsc-adu-3d-heading">
+   <div>
+    <span class="fsc-real-eyebrow">01 / INTERACTIVE MODEL</span>
+    <h2 id="fsc-adu-3d-title">The Driftwood <em>ADU</em></h2>
+    <p id="fsc-adu-3d-description">24 × 24 ft architectural ADU model · Explore by dragging to rotate and scrolling to zoom.</p>
+   </div>
+   <a id="fsc-adu-open-model" class="fsc-adu-3d-source" href="https://sketchfab.com/3d-models/the-driftwood-24-x-24-adu-model-bca7d791d8d041f2a3e95f70ed6a3bfd" target="_blank" rel="noopener noreferrer">Open original 3D model ↗</a>
   </div>
-  <div class="fsc-real-grid fsc-real-photo-gallery" aria-label="Freely licensed photographs of actual accessory dwelling units">
-<article class="fsc-real-card fsc-adu-licensed-photo"><a href="https://commons.wikimedia.org/wiki/File:Exterior_of_a_Snap_ADU_Build.jpg" target="_blank" rel="noopener noreferrer"><img loading="eager" decoding="async" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Exterior_of_a_Snap_ADU_Build.jpg/960px-Exterior_of_a_Snap_ADU_Build.jpg" alt="A real finished ADU exterior, Oceanside, California"/></a><div class="fsc-real-card-body"><span class="fsc-real-card-kicker">REAL-WORLD PHOTO REFERENCE</span><strong>Completed Detached ADU</strong><small>A real finished ADU exterior, Oceanside, California</small><div class="fsc-adu-license">Photo: <a href="https://commons.wikimedia.org/wiki/File:Exterior_of_a_Snap_ADU_Build.jpg" target="_blank" rel="noopener noreferrer">SnapADU</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> · unmodified photo</div></div></article>
-<article class="fsc-real-card fsc-adu-licensed-photo"><a href="https://commons.wikimedia.org/wiki/File:Craftsman_with_Backyard_Cottage_(Converted_Garage).jpg" target="_blank" rel="noopener noreferrer"><img loading="lazy" decoding="async" src="https://upload.wikimedia.org/wikipedia/commons/c/c4/Craftsman_with_Backyard_Cottage_%28Converted_Garage%29.jpg" alt="Existing garage converted into a backyard secondary suite"/></a><div class="fsc-real-card-body"><span class="fsc-real-card-kicker">REAL-WORLD PHOTO REFERENCE</span><strong>Backyard Cottage Conversion</strong><small>Existing garage converted into a backyard secondary suite</small><div class="fsc-adu-license">Photo: <a href="https://commons.wikimedia.org/wiki/File:Craftsman_with_Backyard_Cottage_(Converted_Garage).jpg" target="_blank" rel="noopener noreferrer">Sightline Institute</a> · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a> · unmodified photo</div></div></article>
-<article class="fsc-real-card fsc-adu-licensed-photo"><a href="https://commons.wikimedia.org/wiki/File:ADU_Alley_St_Albans_L7_Davidson_(6124624998).jpg" target="_blank" rel="noopener noreferrer"><img loading="lazy" decoding="async" src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/02/ADU_Alley_St_Albans_L7_Davidson_%286124624998%29.jpg/960px-ADU_Alley_St_Albans_L7_Davidson_%286124624998%29.jpg" alt="Attached and above-garage ADU buildings, Davidson, North Carolina"/></a><div class="fsc-real-card-body"><span class="fsc-real-card-kicker">REAL-WORLD PHOTO REFERENCE</span><strong>Neighborhood ADU Example</strong><small>Attached and above-garage ADU buildings, Davidson, North Carolina</small><div class="fsc-adu-license">Photo: <a href="https://commons.wikimedia.org/wiki/File:ADU_Alley_St_Albans_L7_Davidson_(6124624998).jpg" target="_blank" rel="noopener noreferrer">Brett VA</a> · <a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a> · unmodified photo</div></div></article>
+  <div class="fsc-adu-3d-selector" role="group" aria-label="Choose a 3D ADU model">
+   <button type="button" data-fsc-sketchfab-model="driftwood" class="is-current" aria-pressed="true"><span>01</span><strong>The Driftwood</strong><small>24 × 24 ft · ADU concept</small></button>
+   <button type="button" data-fsc-sketchfab-model="meadows" aria-pressed="false"><span>02</span><strong>The Meadows</strong><small>24 × 24 ft · 2 bed / 2 bath concept</small></button>
+   <button type="button" data-fsc-sketchfab-model="pacific" aria-pressed="false"><span>03</span><strong>The Pacific</strong><small>32 × 32 ft · 2 bed / 1 bath concept</small></button>
   </div>
-  <section class="fsc-adu-external-section" aria-labelledby="fsc-adu-external-title">
-    <div class="fsc-adu-external-heading"><span class="fsc-real-eyebrow">ACTUAL BUILT PROJECT REFERENCES</span><h2 id="fsc-adu-external-title">Explore documented <em>ADU projects.</em></h2><p>Independent builders publish these completed projects. Original project pages provide photos and further details.</p></div>
-    <div class="fsc-adu-external-grid">
-<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>Hillside Terrace Detached ADU</h3><p>Vista, California</p><p>3 bedrooms · 2 bathrooms · 1,000 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View project on Nucave Construction ↗</a></article>
-<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>Oceanside Pacifica ADU</h3><p>Oceanside, California</p><p>1 bedroom · 1 bathroom · 498 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View project on Nucave Construction ↗</a></article>
-<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>Studio ADU</h3><p>Rocklin, California</p><p>344 sq ft · 1 bathroom</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View project on IMKAT Construction ↗</a></article>
-<article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">INDEPENDENT COMPLETED BUILD</span><h3>624 SQFT ADU</h3><p>Sacramento, California</p><p>2 bedrooms · 1 bathroom · 624 sq ft</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View project on IMKAT Construction ↗</a></article>
-    </div>
-  </section>
-  <div class="fsc-real-cta">
-    <div><span class="fsc-real-eyebrow">DISCUSS YOUR PROPERTY</span><h2>Your ADU starts with <em>your site.</em></h2><p>Share your lot size, proposed use and preferred layout. Our team can discuss next steps for the Sacramento area.</p></div>
-    <div><a href="/atelier/contact/?adu_concept=detached#consultation">Request an ADU consultation ↗</a><a href="tel:+19162251015">Call (916) 225-1015</a></div>
+  <div class="fsc-adu-3d-frame" id="fsc-adu-3d-frame">
+   <iframe id="fsc-adu-sketchfab" title="Interactive 3D ADU architectural model by Volstrukt" src="https://sketchfab.com/models/bca7d791d8d041f2a3e95f70ed6a3bfd/embed?autostart=0&amp;ui_infos=1&amp;ui_controls=1&amp;ui_watermark=1" loading="lazy" allow="autoplay; fullscreen; xr-spatial-tracking" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+   <div id="fsc-adu-3d-no-webgl" class="fsc-adu-3d-no-webgl" hidden>
+     <strong>3D viewer is not supported in this browser.</strong>
+     <p>Use the lightweight viewer below, or open the original model in another browser.</p>
+     <button type="button" id="fsc-adu-3d-open-fallback">Open lightweight 3D model</button>
+   </div>
   </div>
-  <details class="fsc-real-concept-disclosure" id="fsc-adu-prototype-disclosure">
-    <summary>Optional 3D concept explorer <small>— generic geometry, not a real project model</small></summary>
-    <p>The optional viewer illustrates possible room zoning; it is not a digital model of the photographed or linked completed ADUs.</p>
-  </details>
+  <div class="fsc-adu-3d-toolbar">
+   <p>Drag the model to rotate · Scroll / pinch to zoom · Model by <a href="https://sketchfab.com/volstrukt" target="_blank" rel="noopener noreferrer">Volstrukt</a></p>
+   <button type="button" id="fsc-adu-lightweight-toggle" aria-expanded="false" aria-controls="fsc-adu-fallback">Use lightweight 3D viewer</button>
+  </div>
+  <div id="fsc-adu-fallback" hidden>
+   <p><strong>Lightweight 3D concept:</strong> This is a separately generated illustrative house model, not an exact 3D copy of Volstrukt's published designs.</p>
+  </div>
+  <div class="fsc-adu-3d-cta"><div><h3>Like a design? Let's discuss <em>your property.</em></h3><p>Our team can assess your lot, intended use and local requirements before discussing a tailored ADU plan.</p></div><div><a href="/atelier/contact/?adu_concept=detached#consultation">Request ADU consultation ↗</a><a href="tel:+19162251015">Call (916) 225-1015</a></div></div>
+ </section>
+ <div class="fsc-adu-external-section">
+  <div class="fsc-adu-external-heading">
+   <span class="fsc-real-eyebrow">02 / REAL-WORLD REFERENCE PROJECTS</span>
+   <h2>Completed ADU <em>examples.</em></h2>
+   <p>These completed projects belong to independent builders. They're separate from the architectural 3D models above, and are linked for factual inspiration—not shown as 5 Star's own builds.</p>
+  </div>
+  <div class="fsc-adu-external-grid">
+   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>Hillside Terrace Detached ADU</h3><p>Vista, CA · 3 bedrooms · 2 bathrooms · Approx. 1,000 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View Nucave's completed projects ↗</a></article>
+   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>Oceanside Pacifica ADU</h3><p>Oceanside, CA · 1 bedroom · 1 bathroom · Approx. 498 sq ft</p><a href="https://www.nucave.com/projects/" target="_blank" rel="noopener noreferrer">View original builder's gallery ↗</a></article>
+   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>Studio ADU</h3><p>Rocklin, CA · Approx. 344 sq ft</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View IMKAT's projects ↗</a></article>
+   <article class="fsc-adu-external-case"><span class="fsc-real-card-kicker">THIRD-PARTY BUILT PROJECT</span><h3>624 sq ft ADU</h3><p>Sacramento, CA · 2 bedrooms · 1 bathroom</p><a href="https://imkatconstruction.com/bay-area/adu-projects/" target="_blank" rel="noopener noreferrer">View original project gallery ↗</a></article>
+  </div>
+ </div>
 </section>
     <?php
-}, 16);
+}
+add_action('get_footer','fsc_adu_render_3d_showcase',16);
+add_action('wp_footer','fsc_adu_render_3d_showcase',16);
 
-add_action('wp_footer', function() {
-    if (!fsc_adu_showcase_is_page()) return;
+function fsc_adu_render_fallback_model() {
+    static $rendered=false;
+    if ($rendered || !fsc_adu_showcase_is_page()) return;
+    $rendered=true;
 ?>
 <section id="fsc-adu-v2" class="fsc-adu" aria-labelledby="fsc-adu-title">
   <div class="fsc-adu-intro">
@@ -165,4 +193,6 @@ add_action('wp_footer', function() {
   <div class="fsc-adu-bottom"><div><span class="fsc-adu-small-label">LET'S TALK ABOUT YOUR ADU</span><h2>Room for what's next.</h2><p>Explore the possibilities with the 5 Star Constructions team.</p></div><div><a href="tel:+19162251015">Call (916) 225-1015</a><a href="/atelier/contact/#consultation">Request a free consultation ↗</a></div></div>
 </section>
 <?php
-}, 17);
+}
+add_action('get_footer','fsc_adu_render_fallback_model',17);
+add_action('wp_footer','fsc_adu_render_fallback_model',17);
