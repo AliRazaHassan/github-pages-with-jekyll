@@ -121,7 +121,7 @@ add_action('wp_footer', function() {
     root.querySelectorAll('button.fsc-place').forEach(function(b){b.classList.remove('active')});btn.classList.add('active');
   })});
   function reposition(){
-    var target=document.querySelector('#services,section.services,section[id*=services]');
+    var target=document.querySelector('section.expertise,#services,section.services,section[id*=services]');
     if(!target){var heads=[].slice.call(document.querySelectorAll('main h2,main h3,section h2,section h3,main p,section p'));var h=heads.find(function(e){return /^(our services|services|what we do)$/i.test((e.textContent||'').trim())});target=h?h.closest('section'):null;}
     if(target&&target!==root&&!root.contains(target)&&target.parentElement){target.insertAdjacentElement('afterend',root);return;}
     var footer=document.querySelector('footer');if(footer&&footer.parentElement){footer.insertAdjacentElement('beforebegin',root);return;}
