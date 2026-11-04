@@ -58,10 +58,51 @@ ready(function(){
    finally{submit.disabled=false;submit.textContent="Send project request";}
  });
  function syncContactLinks(){
-   document.querySelectorAll('a[href^="mailto:service@blueheavenconstructions.com"]').forEach(function(a){a.href="mailto:contact@5starconstructionsca.com";if(/@/.test(a.textContent))a.textContent="contact@5starconstructionsca.com";});
+   document.querySelectorAll('a[href^="mailto:service@blueheavenconstructions.com"]').forEach(function(a){a.href=a.href.replace("service@blueheavenconstructions.com","contact@5starconstructionsca.com");if(/@/.test(a.textContent))a.textContent="contact@5starconstructionsca.com";});
    document.querySelectorAll("a").forEach(function(a){
      if(/^get a free estimate/i.test((a.textContent||"").trim()))a.href="tel:+19162251015";
    });
+ }
+
+ var contactForm=document.getElementById("five-star-enquiry-form");
+ if(contactForm){
+   var contactStarted=Math.floor(Date.now()/1000);
+   var status=contactForm.querySelector(".five-star-form-status");
+   contactForm.addEventListener("submit",async function(event){
+     event.preventDefault();event.stopImmediatePropagation();
+     if(!contactForm.checkValidity()){contactForm.reportValidity();return;}
+     var formData=new FormData(contactForm);
+     var rawService=String(formData.get("service")||"");
+     var serviceMap={"Whole-house remodeling":"Whole-home remodeling","Commercial remodeling":"Other remodeling","Other / ask about availability":"Other remodeling"};
+     var payload={
+       service:serviceMap[rawService]||rawService,
+       name:String(formData.get("name")||"").trim(),
+       email:String(formData.get("email")||"").trim(),
+       phone:String(formData.get("phone")||"").trim(),
+       location:String(formData.get("location")||"").trim(),
+       timing:"Contact page enquiry",
+       details:"Requested service: "+rawService+"\n"+String(formData.get("message")||""),
+       consent:formData.get("consent")!==null,
+       website:String(formData.get("website")||""),
+       started_at:contactStarted
+     };
+     var submit=contactForm.querySelector('button[type="submit"]');if(submit){submit.disabled=true;submit.textContent="Sending enquiry…";}
+     if(status){status.textContent="Submitting your request…";}
+     try{
+       var response=await fetch(cfg.endpoint||"/wp-json/fsc/v1/inquiry",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+       var output=await response.json().catch(function(){return {};});
+       if(!response.ok||!output.ok)throw Error(output.message||"Could not submit.");
+       if(status){status.textContent="Your enquiry has been submitted to our mail service. If urgent, please call (916) 225-1015.";}
+       contactForm.reset();contactStarted=Math.floor(Date.now()/1000);
+     }catch(err){if(status)status.textContent=(err.message||"Submission failed.")+" You can call (916) 225-1015 or email contact@5starconstructionsca.com.";}
+     finally{if(submit){submit.disabled=false;submit.textContent="Send project enquiry ↗";}}
+   },true);
+   var contactActions=document.querySelector(".contact-direct-actions a.button");
+   if(contactActions){contactActions.href="tel:+19162251015";}
+   var contactIntro=document.querySelector(".contact-direct p:not(.arq-contact-assurance)");
+   if(contactIntro){contactIntro.textContent="Use the enquiry form above to tell us about your project, or call the 5 Star Constructions team directly."; }
+   var contactAssurance=document.querySelector(".contact-direct .arq-contact-assurance");
+   if(contactAssurance){contactAssurance.textContent="Project enquiries go to the 5 Star Constructions team. Your optional design brief stays on your device unless you choose to share it."; }
  }
  syncContactLinks();window.addEventListener("load",syncContactLinks);
  setTimeout(syncContactLinks,600);
