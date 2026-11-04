@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.1.9
+ * Version: 1.2.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -58,8 +58,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.1.9');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.1.9', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.0');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.0', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -299,6 +299,33 @@ add_action('rest_api_init',function(){
     ]);
     register_rest_route('fsc/v1','/mail-setup-complete',[
         'methods'=>'GET','callback'=>'fsc_ux_mail_setup_complete','permission_callback'=>'__return_true'
+    ]);
+});
+
+// Single owner-requested authenticated API self-check. Sends no customer data.
+// Public route is one-use and only sends to the site's own contact mailbox.
+add_action('rest_api_init', function() {
+    register_rest_route('fsc/v1', '/authenticated-mail-check', [
+        'methods' => 'GET',
+        'permission_callback' => '__return_true',
+        'callback' => function() {
+            $configured=(bool)get_option('fsc_ux_mail_api_token', '');
+            if (!$configured) return new WP_REST_Response(['configured'=>false,'test'=>'unavailable'],200);
+            $state=get_option('fsc_ux_api_qa_20261105', '');
+            if ($state==='') {
+                update_option('fsc_ux_api_qa_20261105','started',false);
+                $sent=fsc_ux_mail_api_send('5 Star authenticated mail transport QA','Owner-requested API delivery test. No client information is included.');
+                $state=is_wp_error($sent)?('failed:'.$sent->get_error_code()):'accepted_by_hostinger_api';
+                update_option('fsc_ux_api_qa_20261105',$state,false);
+            }
+            return new WP_REST_Response([
+                'configured'=>true,
+                'sender'=>'website-notices@5starconstructionsca.com',
+                'recipient'=>'contact@5starconstructionsca.com',
+                'test'=>$state,
+                'last_admin_test'=>get_option('fsc_ux_mail_test_result', [])
+            ],200);
+        }
     ]);
 });
 
