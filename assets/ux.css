@@ -521,3 +521,6 @@ body .revive-gallery-group[hidden]{display:none!important}
  .fsc-ux-service-index-inner{grid-template-columns:1fr;gap:13px}
  .fsc-ux-service-index-inner>a{min-height:170px}
 }
+
+/* Do not send users to a review section that links to itself. */
+body.fsc-streamlined-home .five-star-reviews a.review-link[href="#verified-reviews"]{display:none!important}
