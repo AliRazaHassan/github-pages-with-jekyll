@@ -201,12 +201,11 @@ ready(function(){
    if(gallery&&material){material.insertAdjacentElement("beforebegin",gallery);material.hidden=true;}
    else if(gallery){var anchor=document.querySelector("section.expertise");if(anchor)anchor.insertAdjacentElement("afterend",gallery);}
    var redundant=document.querySelector("section.client-review-cta");if(redundant)redundant.hidden=true;
-   var filters=gallery?gallery.querySelector(".fsc-ux-filters"):null;
    var track=gallery?gallery.querySelector("#fsc-ux-carousel-track"):null;
    var prev=gallery?gallery.querySelector(".fsc-ux-carousel-prev"):null;
    var next=gallery?gallery.querySelector(".fsc-ux-carousel-next"):null;
    var counter=gallery?gallery.querySelector("#fsc-ux-carousel-count"):null;
-   if(track&&prev&&next&&filters&&counter){
+   if(track&&prev&&next&&counter){
      var reducedMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
      function visibleCards(){return Array.from(track.querySelectorAll(".fsc-ux-gallery-card:not([hidden])"));}
      function stride(){
@@ -221,7 +220,7 @@ ready(function(){
        next.disabled=visible.length<2||max<3||pos>=max-3;
        var current=visible.length?Math.min(visible.length,Math.max(1,Math.round(pos/stride())+1)):0;
        counter.textContent=String(current).padStart(2,"0")+" / "+String(visible.length).padStart(2,"0");
-       track.setAttribute("aria-label","Remodeling design inspiration carousel; "+current+" of "+visible.length);
+       track.setAttribute("aria-label","Remodeling design inspiration image carousel; "+current+" of "+visible.length);
      }
      function moveGallery(direction){
        if((direction<0&&prev.disabled)||(direction>0&&next.disabled))return;
@@ -244,20 +243,6 @@ ready(function(){
      },{passive:true});
      window.addEventListener("resize",updateCarousel,{passive:true});
      if(window.ResizeObserver){new ResizeObserver(updateCarousel).observe(track);}
-     filters.addEventListener("click",function(e){
-       var btn=e.target.closest("[data-fsc-filter]");if(!btn)return;
-       var chosen=btn.getAttribute("data-fsc-filter");
-       filters.querySelectorAll("button").forEach(function(b){
-         var active=b===btn;b.classList.toggle("active",active);
-         b.setAttribute("aria-pressed",active?"true":"false");
-       });
-       gallery.querySelectorAll(".fsc-ux-gallery-card").forEach(function(card){
-         card.hidden=chosen!=="all"&&card.getAttribute("data-fsc-category")!==chosen;
-       });
-       track.scrollTo({left:0,behavior:"auto"});
-       requestAnimationFrame(updateCarousel);
-       setTimeout(updateCarousel,100);
-     });
      requestAnimationFrame(updateCarousel);
      window.addEventListener("load",updateCarousel,{once:true});
    }
