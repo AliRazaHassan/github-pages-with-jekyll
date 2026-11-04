@@ -448,3 +448,76 @@ body.fsc-streamlined-home .expertise .fsc-ux-service-arrow{
  body.fsc-streamlined-home .expertise .fsc-ux-service-copy strong{font-size:25px}
  body.fsc-streamlined-home .expertise .fsc-ux-service-copy small{font-size:12px}
 }
+
+/* Focused Services directory and portfolio cleanup. */
+body .revive-gallery-group[hidden]{display:none!important}
+.fsc-ux-service-index{
+  background:#f8f6f1;
+  padding:28px 5.2% clamp(62px,7vw,100px);
+  color:#082b50;
+}
+.fsc-ux-service-index-inner{
+  max-width:1300px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:17px;
+}
+.fsc-ux-service-index-inner>a{
+  display:flex;
+  flex-direction:column;
+  min-height:240px;
+  padding:31px 28px 25px;
+  border:1px solid #082b5024;
+  background:#fff;
+  text-decoration:none!important;
+  border-radius:10px;
+  color:#082b50;
+  position:relative;
+}
+.fsc-ux-service-index-inner>a:hover{
+  box-shadow:0 12px 30px #082b5016;
+  border-color:#082b5059;
+}
+.fsc-ux-service-index-inner>a>span{
+  color:#bd1b2a;
+  font-size:10px;
+  letter-spacing:.15em;
+  font-weight:700;
+}
+.fsc-ux-service-index-inner>a>strong{
+  font-family:var(--display,Georgia,serif);
+  margin-top:25px;
+  font-size:clamp(25px,2.6vw,37px);
+  font-weight:400;
+  line-height:1.2;
+}
+.fsc-ux-service-index-inner>a>small{
+  display:block;
+  margin-top:13px;
+  color:#5d6b78;
+  font-size:13px;
+  line-height:1.55;
+}
+.fsc-ux-service-index-inner>a>b{
+  position:absolute;
+  bottom:16px;
+  right:23px;
+  font-weight:400;
+  font-size:23px;
+}
+.fsc-ux-service-index>p{
+  max-width:1300px;
+  margin:30px auto 0;
+  font-size:14px;
+  color:#5d6b78;
+}
+.fsc-ux-service-index>p a{
+  color:#082b50;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+@media(max-width:930px){
+ .fsc-ux-service-index-inner{grid-template-columns:1fr;gap:13px}
+ .fsc-ux-service-index-inner>a{min-height:170px}
+}
