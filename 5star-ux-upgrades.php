@@ -49,6 +49,120 @@ add_filter('wp_mail', function($args) {
     return $args;
 });
 
+
+// Authenticated Hostinger Mail API transport for website notifications.
+// The token is saved in private WordPress settings and never committed to source code.
+function fsc_ux_mail_api_send($subject, $message) {
+    $token = (string)get_option('fsc_ux_mail_api_token', '');
+    $mailbox_id = (string)get_option('fsc_ux_mailbox_id', '');
+    if ($token === '' || !preg_match('/^AC[A-Za-z0-9]+$/', $mailbox_id)) {
+        return new WP_Error('not_configured', 'Hostinger Mail API is not configured.');
+    }
+    $payload = [
+        'to' => ['contact@5starconstructionsca.com'],
+        'displayName' => '5 Star Website Enquiries',
+        'subject' => sanitize_text_field($subject),
+        'text' => is_string($message) ? wp_strip_all_tags($message) : '',
+    ];
+    $response = wp_remote_post('https://api.mail.hostinger.com/api/v1/mailboxes/' . rawurlencode($mailbox_id) . '/send', [
+        'headers' => [
+            'Authorization' => 'Bearer ' . $token,
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+        ],
+        'body' => wp_json_encode($payload),
+        'timeout' => 20,
+        'redirection' => 0,
+        'sslverify' => true,
+    ]);
+    if (is_wp_error($response)) {
+        error_log('5 Star mail API transport failed: ' . $response->get_error_code());
+        return new WP_Error('transport_failed', 'Mail transport connection failed.');
+    }
+    $status = (int)wp_remote_retrieve_response_code($response);
+    if ($status !== 204) {
+        error_log('5 Star mail API returned HTTP ' . $status);
+        return new WP_Error('send_failed', 'Authenticated mail API returned HTTP ' . $status);
+    }
+    return true;
+}
+
+// Reroute only first-party 5 Star website notifications to the authenticated mail API.
+// Leave unrelated WordPress/password-reset mail unchanged.
+add_filter('pre_wp_mail', function($pre, $atts) {
+    $recipient = isset($atts['to']) ? $atts['to'] : '';
+    if (is_array($recipient)) {
+        if (count($recipient) !== 1) return $pre;
+        $recipient = reset($recipient);
+    }
+    if (!is_string($recipient)) return $pre;
+    if (strtolower(trim($recipient)) !== 'contact@5starconstructionsca.com') return $pre;
+    if (!(string)get_option('fsc_ux_mail_api_token', '')) return $pre;
+    $sent = fsc_ux_mail_api_send((string)($atts['subject'] ?? '5 Star website enquiry'), $atts['message'] ?? '');
+    return is_wp_error($sent) ? false : true;
+}, 20, 2);
+
+add_action('admin_menu', function() {
+    add_options_page('5 Star Mail Delivery', '5 Star Mail Delivery', 'manage_options', 'fsc-ux-mail', 'fsc_ux_mail_settings_page');
+});
+function fsc_ux_mail_settings_page() {
+    if (!current_user_can('manage_options')) return;
+    $configured = (bool)get_option('fsc_ux_mail_api_token', '');
+    $last = get_option('fsc_ux_mail_test_result', []);
+    ?>
+    <div class="wrap" style="max-width:780px">
+      <h1>5 Star Website Mail Delivery</h1>
+      <p>Send website project enquiries through an authenticated Hostinger Mail API mailbox. Notifications are addressed to <strong>contact@5starconstructionsca.com</strong>.</p>
+      <p><strong>API configuration:</strong> <?php echo $configured ? 'Configured' : 'Not configured'; ?></p>
+      <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+        <?php wp_nonce_field('fsc_ux_save_mail_settings'); ?>
+        <input type="hidden" name="action" value="fsc_ux_save_mail_settings"/>
+        <table class="form-table"><tbody>
+          <tr><th><label for="fsc-mailbox-id">Sender mailbox resource ID</label></th>
+          <td><input type="text" name="fsc_mailbox_id" id="fsc-mailbox-id" class="regular-text" value="<?php echo esc_attr(get_option('fsc_ux_mailbox_id', '')); ?>" autocomplete="off" required/></td></tr>
+          <tr><th><label for="fsc-api-token">Hostinger Mail API token</label></th>
+          <td><input type="password" name="fsc_api_token" id="fsc-api-token" class="regular-text" value="" autocomplete="new-password" placeholder="<?php echo $configured ? 'Configured — leave empty to keep' : 'Paste a mailbox-scoped token'; ?>"/>
+          <p class="description">Token is not displayed again. Use a token scoped to the website notification mailbox only.</p></td></tr>
+        </tbody></table>
+        <?php submit_button('Save Mail API Settings'); ?>
+      </form>
+      <hr/>
+      <h2>Send a test notification</h2>
+      <p>The test goes only to the 5 Star contact mailbox. Afterward verify its Inbox and Junk folder and the Hostinger delivery logs.</p>
+      <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+        <?php wp_nonce_field('fsc_ux_test_mail'); ?>
+        <input type="hidden" name="action" value="fsc_ux_test_mail"/>
+        <?php submit_button('Send a test notification', 'secondary'); ?>
+      </form>
+      <?php if (is_array($last) && !empty($last['time'])): ?>
+       <p><strong>Last test:</strong> <?php echo esc_html($last['time']); ?> — <?php echo !empty($last['ok']) ? 'Accepted by mail transport' : 'Transport returned failure'; ?></p>
+      <?php endif; ?>
+    </div>
+    <?php
+}
+add_action('admin_post_fsc_ux_save_mail_settings', function() {
+    if (!current_user_can('manage_options')) wp_die('Forbidden', '', ['response'=>403]);
+    check_admin_referer('fsc_ux_save_mail_settings');
+    $id = sanitize_text_field(wp_unslash($_POST['fsc_mailbox_id'] ?? ''));
+    if (!preg_match('/^AC[A-Za-z0-9]+$/', $id)) wp_die('Invalid mailbox ID');
+    update_option('fsc_ux_mailbox_id', $id, false);
+    $token = trim((string)wp_unslash($_POST['fsc_api_token'] ?? ''));
+    if ($token !== '') {
+        if (strlen($token) < 32 || strlen($token) > 1000 || preg_match('/\s/', $token)) wp_die('Invalid token');
+        update_option('fsc_ux_mail_api_token', $token, false);
+    }
+    wp_safe_redirect(admin_url('options-general.php?page=fsc-ux-mail&saved=1'));
+    exit;
+});
+add_action('admin_post_fsc_ux_test_mail', function() {
+    if (!current_user_can('manage_options')) wp_die('Forbidden', '', ['response'=>403]);
+    check_admin_referer('fsc_ux_test_mail');
+    $sent = wp_mail('contact@5starconstructionsca.com', '5 Star website mail delivery test', 'This is a website notification delivery test requested by the site owner. No customer enquiry was submitted.');
+    update_option('fsc_ux_mail_test_result', ['time'=>current_time('mysql'), 'ok'=>(bool)$sent], false);
+    wp_safe_redirect(admin_url('options-general.php?page=fsc-ux-mail&tested=1'));
+    exit;
+});
+
 add_action('rest_api_init', function() {
     register_rest_route('fsc/v1', '/inquiry', [
         'methods' => 'POST',
