@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Branded ADU 3D Viewer
  * Description: First-party interactive ADU concept viewer with orbit, zoom, interior cutaway and accessible fallback.
- * Version: 1.5.0
+ * Version: 1.5.1
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -12,15 +12,34 @@ function fsc_adu_showcase_is_page() {
     $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     return is_post_type_archive('five_adu') || $path === 'adu-models' || $path === 'atelier/adu-models';
 }
+// The legacy catalogue must stay active to serve /adu-models/, but its empty
+// placeholder and linked former-company copy are redundant in the new 3D page.
+// Remove ONLY those two known empty sections from the delivered page.
+add_action('template_redirect', function() {
+    if (!fsc_adu_showcase_is_page()) return;
+    ob_start(function($html) {
+        if (!is_string($html) || stripos($html, '</html>') === false) return $html;
+        $patterns = [
+            '~<section\b(?=[^>]*\bclass=["\x27][^"\x27]*\bfive-adu-wrap\b)[^>]*>[\s\S]*?</section>~i',
+            '~<section\b(?=[^>]*\bclass=["\x27][^"\x27]*\bfive-star-adu-empty\b)[^>]*>[\s\S]*?</section>~i',
+        ];
+        foreach ($patterns as $pattern) {
+            $updated = preg_replace($pattern, '', $html, 1);
+            if (is_string($updated)) $html = $updated;
+        }
+        return $html;
+    });
+}, 2);
+
 add_filter('body_class', function($classes) {
     if (fsc_adu_showcase_is_page()) $classes[] = 'fsc-adu-showcase-active';
     return $classes;
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.0');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.0', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.0', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.1');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.1', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.1', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
@@ -123,7 +142,7 @@ function fsc_adu_render_fallback_model() {
     <div class="fsc-adu-eyebrow"><span></span> 5 STAR CONSTRUCTIONS / ACCESSORY DWELLING UNITS</div>
     <div class="fsc-adu-heading">
       <div>
-        <h1 id="fsc-adu-title">More space. <em>More possibilities.</em></h1>
+        <h2 id="fsc-adu-title">More space. <em>More possibilities.</em></h2>
         <p>Explore three design concepts for a future ADU. Rotate each 3D concept, explore the floor plan, and talk with our team about what your property could support.</p>
       </div>
       <a class="fsc-adu-top-cta" href="tel:+19162251015">Call (916) 225-1015 <span aria-hidden="true">↗</span></a>
