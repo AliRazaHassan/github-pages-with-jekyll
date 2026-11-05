@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Branded ADU 3D Viewer
  * Description: First-party interactive ADU concept viewer with orbit, zoom, interior cutaway and accessible fallback.
- * Version: 1.6.0
+ * Version: 1.6.1
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -25,6 +25,49 @@ add_action('wp_head', function() {
     ]],JSON_UNESCAPED_SLASHES).'</script>'."\n";
     echo '<script id="fsc-adu-model-paths">window.fscADUModelUrls='.wp_json_encode($models,JSON_UNESCAPED_SLASHES).';</script>'."\n";
 }, 1);
+
+// One-time local mirror of the MIT-licensed Three.js viewer runtime.
+// Fixed whitelisted source URLs only; no client-controlled destination or URL.
+add_action('rest_api_init',function(){
+ register_rest_route('fsc-adu/v1','/import-vendor',[
+  'methods'=>'GET','permission_callback'=>'__return_true',
+  'callback'=>function(WP_REST_Request $req){
+   $assets=[
+    'three'=>['source'=>'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js','path'=>'vendor/build/three.module.js','min'=>800000,'max'=>2000000,'match'=>"const REVISION = '160'"],
+    'loader'=>['source'=>'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js','path'=>'vendor/examples/jsm/loaders/GLTFLoader.js','min'=>45000,'max'=>250000,'match'=>'class GLTFLoader'],
+    'utils'=>['source'=>'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/utils/BufferGeometryUtils.js','path'=>'vendor/examples/jsm/utils/BufferGeometryUtils.js','min'=>10000,'max'=>90000,'match'=>'mergeGeometries']
+   ];
+   $key=sanitize_key((string)$req->get_param('asset'));
+   if (!isset($assets[$key]))return new WP_Error('bad_asset','Asset not permitted.',['status'=>400]);
+   $up=wp_upload_dir();if(!empty($up['error']))return new WP_Error('bad_uploads','Uploads folder not available.',['status'=>500]);
+   $it=$assets[$key];$path=trailingslashit($up['basedir']).'5star-adu-models/'.$it['path'];
+   $url=trailingslashit($up['baseurl']).'5star-adu-models/'.$it['path'];
+   $valid=function($name)use($it){
+     if(!is_readable($name))return false;
+     $len=@filesize($name);
+     if($len<$it['min']||$len>$it['max'])return false;
+     $chunk=@file_get_contents($name,false,null,0,200000);
+     return is_string($chunk)&&strpos($chunk,$it['match'])!==false;
+   };
+   if ($valid($path))return new WP_REST_Response(['asset'=>$key,'status'=>'ready','bytes'=>filesize($path),'url'=>$url],200);
+   $lock='fsc_adu_vendor_lock_'.$key;
+   if(get_transient($lock))return new WP_Error('busy','Already being downloaded.',['status'=>429]);
+   set_transient($lock,1,MINUTE_IN_SECONDS);
+   if(!wp_mkdir_p(dirname($path)))return new WP_Error('no_directory','Could not create assets directory.',['status'=>500]);
+   require_once ABSPATH.'wp-admin/includes/file.php';
+   $temp=download_url($it['source'],30,false);
+   if(is_wp_error($temp)){delete_transient($lock);return new WP_REST_Response(['asset'=>$key,'status'=>'download_failed','reason'=>$temp->get_error_code()],502);}
+   if(!$valid($temp)){@unlink($temp);delete_transient($lock);return new WP_REST_Response(['asset'=>$key,'status'=>'invalid_js'],502);}
+   $done=@rename($temp,$path);if(!$done){$done=@copy($temp,$path);@unlink($temp);}
+   delete_transient($lock);
+   if(!$done||!$valid($path))return new WP_REST_Response(['asset'=>$key,'status'=>'write_failed'],500);
+   @chmod($path,0644);
+   @file_put_contents(trailingslashit($up['basedir']).'5star-adu-models/vendor/LICENSE-NOTICE.txt',
+     "Three.js r160 (MIT License) - Copyright 2010-2023 Three.js authors.\nOriginal: https://github.com/mrdoob/three.js/tree/r160\nFull license: https://github.com/mrdoob/three.js/blob/r160/LICENSE\nThe distributed .js modules retain their upstream license headers.\n");
+   return new WP_REST_Response(['asset'=>$key,'status'=>'imported','bytes'=>filesize($path),'url'=>$url],200);
+  }
+ ]);
+});
 
 function fsc_adu_showcase_is_page() {
     if (is_admin()) return false;
@@ -56,9 +99,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.6.0');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.6.0', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.6.0', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.6.1');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.6.1', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.6.1', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
