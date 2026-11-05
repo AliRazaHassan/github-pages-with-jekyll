@@ -1487,3 +1487,17 @@ body.home section.arq-closing .arq-art-label{
 @media(prefers-reduced-motion:reduce){
   body.home section.arq-closing .arq-closing-links a{transition:none!important}
 }
+
+/* Launch QA: keep customer-supplied content and direct users to real enquiry actions. */
+body.fsc-focused-contact #consultation{scroll-margin-top:98px}
+body.fsc-focused-contact .five-star-enquiry form{max-width:920px}
+body.fsc-streamlined-home .fsc-ux-service-index-inner>a:focus-visible{
+ outline:3px solid #bd1b2a;outline-offset:3px;
+}
+@media(min-width:700px) and (max-width:930px){
+ .fsc-ux-service-index-inner{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .fsc-ux-service-index-inner>a{min-height:205px}
+}
+@media(max-width:699px){
+ .fsc-ux-service-index-inner{grid-template-columns:1fr}
+}
