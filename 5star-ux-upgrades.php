@@ -2,10 +2,40 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
+
+// One-time cleanup of the obsolete Bathroom Gallery link under Projects.
+// Delete ONLY the verified WordPress nav-menu item; preserve the gallery page.
+add_action('init', function() {
+    $item = get_post(37);
+    if (!$item || $item->post_type !== 'nav_menu_item') return;
+    $parent = (int) get_post_meta(37, '_menu_item_menu_item_parent', true);
+    $url = (string) get_post_meta(37, '_menu_item_url', true);
+    $path = (string) wp_parse_url($url, PHP_URL_PATH);
+    if ($parent === 30 && untrailingslashit($path) === '/bathroom-gallery') {
+        wp_delete_post(37, true);
+    }
+}, 30);
+
+// Also prevent an outdated cached menu object from rendering the removed link.
+add_filter('wp_nav_menu_objects', function($items) {
+    $items = array_values(array_filter($items, function($item) {
+        return (int) $item->ID !== 37;
+    }));
+    $parent = null;
+    $has_children = false;
+    foreach ($items as $item) {
+        if ((int) $item->ID === 30) $parent = $item;
+        if ((int) $item->menu_item_parent === 30) $has_children = true;
+    }
+    if ($parent && !$has_children) {
+        $parent->classes = array_values(array_diff((array) $parent->classes, ['menu-item-has-children']));
+    }
+    return $items;
+}, 100);
 
 function fsc_ux_is_front() {
     return is_front_page() || is_home() || is_page(5);
@@ -58,8 +88,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.1');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.1', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.2');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.2', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
