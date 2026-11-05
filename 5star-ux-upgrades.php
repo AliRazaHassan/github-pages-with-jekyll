@@ -98,11 +98,11 @@ add_action('template_redirect', function() {
             $meta = '<meta name="description" content="'.esc_attr($description).'"/>';
             $replaced = preg_replace('/<meta\b(?=[^>]*\bname\s*=\s*["\\x27]description["\\x27])[^>]*>/i', $meta, $html, 1, $count);
             if ($replaced !== null) $html = $replaced;
-            if (empty($count)) $html = preg_replace('/<\\/head>/i', $meta.'</head>', $html, 1);
+            if (empty($count)) $html = preg_replace('~</head>~i', $meta.'</head>', $html, 1);
         }
         // WordPress custom ADU page is rendered without a canonical from the theme.
         if ($path === '/adu-models/' && !preg_match('/<link\b(?=[^>]*\brel\s*=\s*["\\x27]canonical["\\x27])[^>]*>/i', $html)) {
-            $html = preg_replace('/<\\/head>/i', '<link rel="canonical" href="'.esc_url(home_url('/adu-models/')).'"/></head>', $html, 1);
+            $html = preg_replace('~</head>~i', '<link rel="canonical" href="'.esc_url(home_url('/adu-models/')).'"/></head>', $html, 1);
         }
         // Existing contact dropdown under-represented services. No content/photos are removed.
         $html = str_replace(
