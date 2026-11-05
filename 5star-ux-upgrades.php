@@ -2,10 +2,153 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.3.3
+ * Version: 1.3.4
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
+
+// Site-wide launch cleanup: honor original/client-supplied imagery and content.
+// Update only obsolete navigation, contact destinations, truthful copy, and SEO.
+add_action('init', function() {
+    // Change only the known legacy ADU nav item, not other menu items.
+    $item = get_post(29);
+    if ($item && $item->post_type === 'nav_menu_item') {
+        $url = (string)get_post_meta(29, '_menu_item_url', true);
+        $host = strtolower((string)wp_parse_url($url, PHP_URL_HOST));
+        $path = untrailingslashit((string)wp_parse_url($url, PHP_URL_PATH));
+        if (in_array($host, ['blueheavenconstructions.com','www.blueheavenconstructions.com'], true) && $path === '/adu-models') {
+            update_post_meta(29, '_menu_item_url', home_url('/adu-models/'));
+        }
+    }
+}, 35);
+
+add_filter('wp_nav_menu_objects', function($items) {
+    foreach ($items as $item) {
+        $url = (string)($item->url ?? '');
+        $host = strtolower((string)wp_parse_url($url, PHP_URL_HOST));
+        $path = untrailingslashit((string)wp_parse_url($url, PHP_URL_PATH));
+        if (in_array($host, ['blueheavenconstructions.com','www.blueheavenconstructions.com'], true) && $path === '/adu-models') {
+            $item->url = home_url('/adu-models/');
+        }
+    }
+    return $items;
+}, 130);
+
+// Unique descriptions for currently published pages. Keep original titles and page copy.
+function fsc_ux_page_meta_description($path) {
+    $map = [
+        '/' => '5 Star Constructions provides kitchen, bathroom, whole-home and commercial remodeling across the Sacramento area. Discuss your project and request an estimate.',
+        '/atelier/about/' => 'Learn about 5 Star Constructions, our remodeling approach and how we plan kitchen, bathroom and home renovation projects in the Sacramento area.',
+        '/atelier/contact/' => 'Contact 5 Star Constructions to discuss your Sacramento-area kitchen, bathroom, whole-home, commercial or ADU project. Call (916) 225-1015.',
+        '/atelier/services/' => 'Explore kitchen remodeling, bathroom renovations, whole-house upgrades and commercial construction services from 5 Star Constructions.',
+        '/atelier/services/kitchen/' => 'Plan a kitchen remodel around storage, layout, cabinetry and everyday living. Discuss your Sacramento-area kitchen project with 5 Star Constructions.',
+        '/atelier/services/bathroom/' => 'Explore shower renovations, bathroom layouts, waterproofing, finishes and accessibility priorities with 5 Star Constructions.',
+        '/atelier/services/whole-home/' => 'Discuss whole-home remodeling, coordinated room layouts, renovation phases and material planning with 5 Star Constructions.',
+        '/atelier/services/commercial/' => 'Explore practical commercial remodeling and tenant improvement planning with 5 Star Constructions in the Sacramento area.',
+        '/adu-models/' => 'Explore three interactive 3D ADU design concepts. Rotate, zoom and view interior layouts before discussing ADU feasibility with 5 Star Constructions.',
+        '/bathroom-gallery/' => 'Browse bathroom remodeling inspiration, design directions and Before/After visuals. Discuss your bathroom goals with 5 Star Constructions.',
+        '/atelier/projects/' => 'Browse kitchen, bathroom and whole-home design studies, transformation ideas and remodeling inspiration from 5 Star Constructions.',
+        '/atelier/projects/kitchen/' => 'Explore the Gathering Place illustrative kitchen transformation concept, including an interactive Before/After and material inspiration.',
+        '/atelier/projects/bathroom/' => 'Explore the A Quieter Ritual illustrative bathroom remodeling concept with Before/After comparison and finish ideas.',
+        '/atelier/projects/living/' => 'Discover Space to Exhale, a whole-home design study focused on natural light, calmer interiors and connected living spaces.',
+        '/atelier/studio/' => 'Explore materials, texture, light and palette inspiration to discuss during your project planning with 5 Star Constructions.',
+        '/atelier/journal/' => 'Read practical renovation planning notes about kitchens, finish materials and whole-home design from 5 Star Constructions.',
+        '/atelier/journal/kitchen/' => 'How to plan a kitchen around daily routines, storage, priorities and your remodel consultation.',
+        '/atelier/journal/materials/' => 'How to compare timber, stone, finishes and real-life maintenance requirements when planning a home remodel.',
+        '/atelier/journal/whole-home/' => 'Ideas for connecting rooms, planning transitions and choosing cohesive finishes for whole-home renovation.',
+        '/atelier/privacy/' => 'Read how the 5 Star Constructions website handles project enquiries, browser-based design drafts and privacy requests.',
+    ];
+    return $map[$path] ?? null;
+}
+
+add_action('template_redirect', function() {
+    if (is_admin() || wp_doing_ajax() || is_feed()) return;
+    $path = '/'.trim((string)wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/').'/';
+    if ($path === '//') $path = '/';
+    ob_start(function($html) use ($path) {
+        if (!is_string($html) || stripos($html, '</html>') === false) return $html;
+        // Correct cached menu HTML as well as database-backed nav objects.
+        $html = str_ireplace(
+            ['https://www.blueheavenconstructions.com/adu-models', 'https://blueheavenconstructions.com/adu-models'],
+            home_url('/adu-models/'),
+            $html
+        );
+        $html = str_ireplace('mailto:service@blueheavenconstructions.com', 'mailto:contact@5starconstructionsca.com', $html);
+        $html = str_replace([
+            'Sacramento, CA · Shared contact channel with Blue Heaven Construction.',
+            'Shared contact channel with Blue Heaven Construction.',
+            'The existing Blue Heaven contact channel remains available for project discussions.',
+            'Explore the ADU designs available through our shared Blue Heaven Construction catalogue, then contact the team to discuss your property and priorities.',
+        ], [
+            'Serving Sacramento and surrounding communities.',
+            'Serving Sacramento and surrounding communities.',
+            'Discuss your project directly with the 5 Star Constructions team.',
+            'Explore 5 Star ADU design concepts, then discuss the possibilities for your property.',
+        ], $html);
+        // About page: do not rely on another company's customer contact system.
+        $html = str_replace(
+            '5 Star Constructions and Blue Heaven Construction are owned by the same business. Discuss your project directly with the 5 Star Constructions team.',
+            'Tell the 5 Star Constructions team about your remodeling goals. We can review your project details and discuss the next steps.',
+            $html
+        );
+
+        // Preserve existing images, project wording and user-supplied gallery content.
+        $description = fsc_ux_page_meta_description($path);
+        if ($description !== null && stripos($html, '<head') !== false) {
+            $meta = '<meta name="description" content="'.esc_attr($description).'"/>';
+            $replaced = preg_replace('/<meta\b(?=[^>]*\bname\s*=\s*["\\x27]description["\\x27])[^>]*>/i', $meta, $html, 1, $count);
+            if ($replaced !== null) $html = $replaced;
+            if (empty($count)) $html = preg_replace('/<\\/head>/i', $meta.'</head>', $html, 1);
+        }
+        // WordPress custom ADU page is rendered without a canonical from the theme.
+        if ($path === '/adu-models/' && !preg_match('/<link\b(?=[^>]*\brel\s*=\s*["\\x27]canonical["\\x27])[^>]*>/i', $html)) {
+            $html = preg_replace('/<\\/head>/i', '<link rel="canonical" href="'.esc_url(home_url('/adu-models/')).'"/></head>', $html, 1);
+        }
+        // Existing contact dropdown under-represented services. No content/photos are removed.
+        $html = str_replace(
+            '<option>Other / ask about availability</option>',
+            '<option>ADU design &amp; build</option><option>Commercial remodeling</option><option>Other / ask about availability</option>',
+            $html
+        );
+        return $html;
+    });
+}, 0);
+
+// Structured data contains only verified public details; no fabricated ratings,
+// completed-project claims, business address or opening hours.
+add_action('wp_head', function() {
+    if (is_admin() || !is_singular('page') && !is_front_page() && !is_home()) return;
+    $path = '/'.trim((string)wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/').'/';
+    if ($path === '//') $path = '/';
+    $business = [
+        '@context'=>'https://schema.org',
+        '@type'=>'GeneralContractor',
+        '@id'=>home_url('/#business'),
+        'name'=>'5 Star Constructions',
+        'url'=>home_url('/'),
+        'telephone'=>'+1-916-225-1015',
+        'areaServed'=>[['@type'=>'Place','name'=>'Sacramento, California']],
+    ];
+    $schemas = [$business];
+    $services = [
+      '/atelier/services/kitchen/' => 'Kitchen Remodeling',
+      '/atelier/services/bathroom/' => 'Bathroom Remodeling',
+      '/atelier/services/whole-home/' => 'Whole-House Remodeling',
+      '/atelier/services/commercial/' => 'Commercial Remodeling',
+    ];
+    if (isset($services[$path])) {
+        $schemas[] = [
+            '@context'=>'https://schema.org','@type'=>'Service',
+            'name'=>$services[$path],
+            'provider'=>['@id'=>home_url('/#business')],
+            'areaServed'=>'Sacramento, California',
+            'url'=>home_url($path),
+        ];
+    }
+    foreach ($schemas as $schema) {
+        echo '<script type="application/ld+json">'.wp_json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE).'</script>'."\n";
+    }
+}, 25);
 
 // One-time cleanup of the obsolete Bathroom Gallery link under Projects.
 // Delete ONLY the verified WordPress nav-menu item; preserve the gallery page.
@@ -120,8 +263,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.3');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.3', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.4');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.4', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
