@@ -469,7 +469,7 @@ add_action('wp_footer', function() {
       </div>
       <div class="fsc-ux-lightbox-stage">
         <button type="button" class="fsc-ux-lightbox-prev" aria-label="Previous enlarged image">←</button>
-        <img id="fsc-ux-lightbox-image" src="" alt="" draggable="false"/>
+        <img id="fsc-ux-lightbox-image" alt="" draggable="false"/>
         <button type="button" class="fsc-ux-lightbox-next" aria-label="Next enlarged image">→</button>
       </div>
       <div class="fsc-ux-lightbox-bottom">
