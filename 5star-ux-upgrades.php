@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.2.4
+ * Version: 1.2.5
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -88,8 +88,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.4');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.4', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.5');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.5', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -410,7 +410,7 @@ add_action('wp_footer', function() {
       <div class="fsc-ux-gallery-card" role="group" aria-label="Bathroom inspiration image 14 of 15"><img src="https://www.revivedesignandrenovation.com/wp-content/uploads/2024/05/Bathroom-Inspiration-Slide-10.jpg" alt="Bathroom remodeling design inspiration" loading="lazy" decoding="async" draggable="false" onerror="this.onerror=null;this.src='https://5starconstructionsca.com/wp-content/themes/arqora-studio/assets/responsive/bath-after-960.webp';" /></div>
       <div class="fsc-ux-gallery-card" role="group" aria-label="Whole-home inspiration image 15 of 15"><img src="https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&amp;fit=crop&amp;w=1000&amp;q=82" alt="Modern renovated interior with open living space" loading="lazy" decoding="async" draggable="false" /></div>
     </div>
-    <p class="fsc-ux-gallery-disclosure">Design inspiration only; photos do not represent completed 5 Star Constructions projects. Bathroom references: Revive Design and Renovation; additional references: Unsplash and Wikimedia Commons. ADU image credits: SnapADU (CC BY-SA 4.0), Sightline Institute (CC BY 2.0), Brett VA (CC BY 2.0).</p>
+    <p class="fsc-ux-gallery-disclosure">Design inspiration only; photos do not represent completed 5 Star Constructions projects. Bathroom references: Revive Design and Renovation; additional references: Unsplash and Wikimedia Commons. ADU photo credits (images displayed with gallery cropping): <a href="https://commons.wikimedia.org/wiki/File:Exterior_of_a_Snap_ADU_Build.jpg" target="_blank" rel="noopener noreferrer">SnapADU</a> (<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>), <a href="https://commons.wikimedia.org/wiki/File:Craftsman_with_Backyard_Cottage_(Converted_Garage).jpg" target="_blank" rel="noopener noreferrer">Sightline Institute</a> (<a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a>), <a href="https://commons.wikimedia.org/wiki/File:ADU_Alley_St_Albans_L7_Davidson_(6124624998).jpg" target="_blank" rel="noopener noreferrer">Brett VA</a> (<a href="https://creativecommons.org/licenses/by/2.0/" target="_blank" rel="noopener noreferrer">CC BY 2.0</a>).</p>
   </div>
 </section>
 <section id="fsc-ux-final-cta" class="fsc-ux-final-cta" aria-labelledby="fsc-ux-cta-title">
