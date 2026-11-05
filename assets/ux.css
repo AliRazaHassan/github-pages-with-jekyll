@@ -525,6 +525,11 @@ body .revive-gallery-group[hidden]{display:none!important}
 /* Do not send users to a review section that links to itself. */
 body.fsc-streamlined-home .five-star-reviews a.review-link[href="#verified-reviews"]{display:none!important}
 
+/* Suppress only the theme's extra header-level copy when the correctly
+   nested menu is present, avoiding two overlapping dropdowns. */
+body .five-star-header:has(#menu-item-28>.five-star-services-mega)>.five-star-services-mega{
+  display:none!important;pointer-events:none!important;
+}
 /* v1.2.9 — Services mega-menu is a real descendant of its nav trigger.
    No pointer gap: Services -> image card stays in the same hover boundary. */
 @media(min-width:1001px){
