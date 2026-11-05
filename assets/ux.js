@@ -559,6 +559,7 @@ ready(function(){
        +'<a href="/atelier/services/whole-home/"><span>03 / WHOLE HOME</span><strong>Whole-Home Remodeling</strong><small>Connected spaces and cohesive updates</small><b aria-hidden="true">↗</b></a>'
        +'</div><p>Ready to discuss your project? <a href="tel:+19162251015">Call (916) 225-1015</a> or <a href="/atelier/contact/#consultation">send project details</a>.</p>';
      servicesMain.appendChild(index);
+     ensureServiceIndexCoverage();
    }
  }
  // Portfolio categories not backed by a core live service page are temporarily
