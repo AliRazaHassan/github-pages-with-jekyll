@@ -3,6 +3,25 @@
 function ready(fn){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",fn);else fn();}
 ready(function(){
  var cfg=window.FSC_UX||{},root=document.getElementById("fsc-ux-root");if(!root)return;
+ // Keep the Services mega-menu anchored to its trigger at every desktop width.
+ // The theme still owns open/close behavior, so hover, focus and touch remain intact.
+ (function alignServicesMenu(){
+   var header=document.querySelector("header.five-star-header");
+   if(!header)return;
+   var trigger=header.querySelector("#menu-item-28");
+   var menu=header.querySelector(".five-star-services-mega");
+   if(!trigger||!menu)return;
+   function align(){
+     if(window.innerWidth<=1000)return;
+     var h=header.getBoundingClientRect(),t=trigger.getBoundingClientRect();
+     var width=Math.min(548,Math.max(280,window.innerWidth-36));
+     var left=Math.max(16,Math.min(h.width-width-16,t.left-h.left-12));
+     menu.style.setProperty("--fsc-services-menu-left",Math.round(left)+"px");
+   }
+   align();
+   window.addEventListener("resize",align,{passive:true});
+   window.addEventListener("load",align,{once:true});
+ })();
  var launch=document.getElementById("fsc-ux-launch"),dialog=document.getElementById("fsc-ux-dialog"),backdrop=document.getElementById("fsc-ux-backdrop"),closeBtn=document.getElementById("fsc-ux-close");
  var log=document.getElementById("fsc-ux-log"),questionForm=document.getElementById("fsc-ux-question"),questionInput=document.getElementById("fsc-ux-input"),leadForm=document.getElementById("fsc-ux-lead"),feedback=document.getElementById("fsc-ux-feedback"),quick=document.getElementById("fsc-ux-actions");
  var startedAt=0,selectedService="";
