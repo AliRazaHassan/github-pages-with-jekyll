@@ -27,7 +27,7 @@ ready(function(){
     family:{key:"family",title:"Family Nest",size:"Approx. 820 sq ft · 2 bedrooms / 1 bathroom",w:20,d:13,h:4.2,roof:"gable",exterior:0xd8e0db,trim:0x324b5f,wood:0x987b5f,glass:0x77a7bd,style:"sage"}
   };
   var chosen=configs.studio,THREE=null,renderer=null,scene=null,camera=null,building=null,roofGroup=null;
-  var yaw=-.71,elev=.56,radius=32,roofOff=false,drag=null,pending=false,resizeObserver=null;
+  var yaw=-.71,elev=.56,radius=32,roofOff=false,drag=null,pending=false,resizeObserver=null,loadGuard=null;
   function setLabel(){
     if(title)title.innerHTML=chosen.title.replace(" "," <em>")+" </em>";
     if(description)description.textContent=chosen.size+". Drag or swipe to rotate · Scroll or pinch to zoom.";
@@ -40,6 +40,7 @@ ready(function(){
     if(roofBtn){roofBtn.textContent=roofOff?"Roof on":"Roof off";roofBtn.setAttribute("aria-pressed",String(roofOff));}
   }
   function showFallback(){
+    if(loadGuard)window.clearTimeout(loadGuard);
     if(loading)loading.hidden=true;
     if(noWebGL)noWebGL.hidden=false;
     if(canvas)canvas.hidden=true;
@@ -80,6 +81,7 @@ ready(function(){
       ground.rotation.x=-Math.PI/2;ground.position.y=-.4;scene.add(ground);
       build(chosen);
       size();
+      if(loadGuard)window.clearTimeout(loadGuard);
       if(loading)loading.hidden=true;
       if(resizeObserver)resizeObserver.disconnect();
       if(window.ResizeObserver){resizeObserver=new ResizeObserver(size);resizeObserver.observe(frame);}
@@ -272,6 +274,8 @@ ready(function(){
     updateCamera();
   });
   window.addEventListener("pagehide",function(){if(renderer){renderer.dispose();renderer=null;}},{once:true});
+  // A blocked external 3D library must never trap visitors behind a spinner.
+  loadGuard=window.setTimeout(function(){if(loading&&!loading.hidden)showFallback();},10000);
   start();
 });
 })();
