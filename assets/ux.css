@@ -524,3 +524,126 @@ body .revive-gallery-group[hidden]{display:none!important}
 
 /* Do not send users to a review section that links to itself. */
 body.fsc-streamlined-home .five-star-reviews a.review-link[href="#verified-reviews"]{display:none!important}
+
+/* v1.2.3 — compact Services mega-menu aligned to the Services nav, never a giant hero overlay. */
+@media(min-width:1001px){
+  body .five-star-header{overflow:visible!important;isolation:isolate}
+  body .five-star-header .five-star-services-mega{
+    position:absolute!important;
+    top:calc(100% - 1px)!important;
+    left:var(--fsc-services-menu-left,255px)!important;
+    right:auto!important;
+    width:min(548px,calc(100vw - 36px))!important;
+    max-width:548px!important;
+    min-width:0!important;
+    max-height:290px!important;
+    height:auto!important;
+    margin:0!important;
+    padding:12px!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:repeat(2,105px)!important;
+    grid-auto-rows:105px!important;
+    gap:10px!important;
+    align-items:stretch!important;
+    border:1px solid #e0e4e8!important;
+    border-top:3px solid #bd1b2a!important;
+    border-radius:0 0 12px 12px!important;
+    background:#fff!important;
+    box-shadow:0 15px 35px #082b5025!important;
+    transform:none!important;
+    z-index:120!important;
+  }
+  body .five-star-header .five-star-services-mega>a{
+    position:relative!important;
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    height:105px!important;
+    max-height:105px!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    border-radius:9px!important;
+    background:#18364d!important;
+    text-decoration:none!important;
+  }
+  body .five-star-header .five-star-services-mega>a img{
+    display:block!important;
+    position:absolute!important;
+    width:100%!important;
+    height:100%!important;
+    inset:0!important;
+    margin:0!important;
+    object-fit:cover!important;
+    transition:transform .25s ease!important;
+  }
+  body .five-star-header .five-star-services-mega>a:before{
+    content:"";position:absolute;inset:32% 0 0;
+    background:linear-gradient(0deg,#061e37dd,transparent);
+    z-index:1;pointer-events:none;
+  }
+  body .five-star-header .five-star-services-mega>a>span{
+    display:block!important;
+    position:absolute!important;
+    bottom:12px!important;left:13px!important;right:33px!important;
+    z-index:2!important;
+    color:#fff!important;
+    font-size:13px!important;
+    line-height:1.2!important;
+    font-weight:750!important;
+    text-shadow:0 1px 3px #001b32a0;
+  }
+  body .five-star-header .five-star-services-mega>a>b{
+    position:absolute!important;
+    right:10px!important;bottom:10px!important;
+    z-index:2!important;
+    display:grid!important;place-items:center!important;
+    width:27px!important;height:27px!important;
+    font-size:15px!important;font-weight:400!important;
+    color:#fff!important;border:1px solid #ffffffa8!important;
+    border-radius:50%!important;
+  }
+  body .five-star-header .five-star-services-mega>a:hover img{transform:scale(1.055)!important}
+  body .five-star-header .five-star-menu>.menu-item-28.is-submenu-open>.sub-menu{
+    display:none!important;
+  }
+}
+@media(max-width:1000px){
+  /* Mobile uses the normal accessible Services submenu, not a large floating image grid. */
+  body .five-star-header .five-star-services-mega{display:none!important}
+  body .five-star-header .five-star-menu .sub-menu>li:empty{display:none!important}
+}
+/* Protect the homepage hero from entering offscreen or clipping its large title. */
+@media(min-width:761px){
+  body.home .arq-hero .arq-hero-content{
+    left:clamp(28px,5.2vw,112px)!important;
+    width:min(1050px,calc(100% - 70px))!important;
+    max-width:calc(100% - 70px)!important;
+    transform:translateY(-50%)!important;
+    translate:none!important;
+    padding:0!important;
+  }
+  body.home .arq-hero .arq-hero-content h1{
+    font-size:clamp(44px,4.4vw,90px)!important;
+    line-height:1.04!important;
+    max-width:100%!important;
+    letter-spacing:-.043em!important;
+    overflow-wrap:normal!important;
+  }
+  body.home .arq-hero .arq-hero-content h1 em{white-space:normal!important}
+}
+@media(max-width:760px){
+  body.home .arq-hero .arq-hero-content{
+    left:auto!important;top:auto!important;
+    width:100%!important;max-width:100%!important;
+    transform:none!important;translate:none!important;
+  }
+  body.home .arq-hero .arq-hero-content h1{
+    max-width:100%!important;
+    font-size:clamp(35px,8.4vw,60px)!important;
+    line-height:1.06!important;
+    white-space:normal!important;
+    overflow-wrap:normal!important;
+  }
+  body.home .arq-hero .arq-hero-content h1 em{white-space:normal!important}
+}
