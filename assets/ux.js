@@ -20,11 +20,10 @@ ready(function(){
    if(mega.parentElement!==trigger)trigger.appendChild(mega);
    mega.setAttribute("role","group");
    mega.setAttribute("aria-label","Remodeling services");
-   var enterMenu=false;
    function position(){
      if(window.innerWidth<=1000)return;
      var rect=trigger.getBoundingClientRect();
-     var width=Math.min(820,window.innerWidth-36);
+     var width=Math.min(800,window.innerWidth-36);
      // Position relative to Services LI, without clipping the viewport.
      var offset=Math.max(18-rect.left,Math.min(-12,window.innerWidth-18-rect.left-width));
      mega.style.setProperty("--fsc-services-menu-x",Math.round(offset)+"px");
