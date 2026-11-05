@@ -201,6 +201,8 @@ ready(function(){
  }
  initFeaturedProjectSliders();
  window.addEventListener("load",initFeaturedProjectSliders,{once:true});
+ // Keep the actual customer-selected service in the lead instead of grouping
+ // commercial requests under "Other" in the enquiry email.
  var contactForm=document.getElementById("five-star-enquiry-form");
  if(contactForm){
    var contactStarted=Math.floor(Date.now()/1000);
@@ -210,7 +212,7 @@ ready(function(){
      if(!contactForm.checkValidity()){contactForm.reportValidity();return;}
      var formData=new FormData(contactForm);
      var rawService=String(formData.get("service")||"");
-     var serviceMap={"Whole-house remodeling":"Whole-home remodeling","Commercial remodeling":"Other remodeling","Other / ask about availability":"Other remodeling"};
+     var serviceMap={"Whole-house remodeling":"Whole-home remodeling","Commercial remodeling":"Commercial remodeling","Other / ask about availability":"Other remodeling"};
      var payload={
        service:serviceMap[rawService]||rawService,
        name:String(formData.get("name")||"").trim(),
@@ -241,6 +243,27 @@ ready(function(){
    var contactAssurance=document.querySelector(".contact-direct .arq-contact-assurance");
    if(contactAssurance){contactAssurance.textContent="Project enquiries go to the 5 Star Constructions team. Your optional design brief stays on your device unless you choose to share it."; }
  }
+
+ // Build a complete Services index without altering the client-supplied cards.
+ function ensureServiceIndexCoverage(){
+   var services=document.querySelector(".fsc-ux-service-index-inner");
+   if(!services)return;
+   [
+     {href:"/adu-models/",label:"ADU Design & Build",copy:"Explore interactive designs and discuss your property.",number:"04"},
+     {href:"/atelier/services/commercial/",label:"Commercial Remodeling",copy:"Practical renovations with a clear business scope.",number:"05"}
+   ].forEach(function(item){
+     if(services.querySelector('a[href="'+item.href+'"]'))return;
+     var a=document.createElement("a");
+     a.href=item.href;
+     var num=document.createElement("span");num.textContent=item.number+" / SERVICE";
+     var label=document.createElement("strong");label.textContent=item.label;
+     var desc=document.createElement("small");desc.textContent=item.copy;
+     var arr=document.createElement("b");arr.textContent="↗";arr.setAttribute("aria-hidden","true");
+     a.append(num,label,desc,arr);services.appendChild(a);
+   });
+ }
+ ensureServiceIndexCoverage();
+ window.addEventListener("load",ensureServiceIndexCoverage,{once:true});
  syncContactLinks();window.addEventListener("load",syncContactLinks);
  setTimeout(syncContactLinks,600);
  if(cfg.isHome){
