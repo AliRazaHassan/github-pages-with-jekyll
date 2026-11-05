@@ -2,10 +2,76 @@
 /**
  * Plugin Name: 5 Star Constructions — Branded ADU 3D Viewer
  * Description: First-party interactive ADU concept viewer with orbit, zoom, interior cutaway and accessible fallback.
- * Version: 1.5.3
+ * Version: 1.5.4
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
+
+
+// Temporary fixed-source downloader for three CC0 3D models.
+// It accepts no arbitrary URL or filename. Each item can only be imported
+// once after validating the binary GLB header, expected size and public license.
+function fsc_adu_cc0_catalog() {
+    return [
+        'glass-house' => ['url'=>'https://grab3d.com/dl/glass-house/glass-house.glb','bytes'=>1283980],
+        'modern-house' => ['url'=>'https://grab3d.com/dl/modern-house/modern-house.glb','bytes'=>1485516],
+        'bungalow' => ['url'=>'https://grab3d.com/dl/bungalow/bungalow.glb','bytes'=>2386156]
+    ];
+}
+function fsc_adu_cc0_dir() {
+    $up=wp_upload_dir();
+    if (!empty($up['error'])) return new WP_Error('uploads_unavailable','WordPress uploads directory unavailable.');
+    return ['dir'=>trailingslashit($up['basedir']).'5star-adu-models',
+      'url'=>trailingslashit($up['baseurl']).'5star-adu-models'];
+}
+function fsc_adu_cc0_is_valid_glb($file,$expected) {
+    if (!is_readable($file)) return false;
+    $size=filesize($file);
+    if ($size < 100000 || $size > 8000000 || abs($size-$expected)>16000) return false;
+    $f=@fopen($file,'rb');if (!$f) return false;
+    $bytes=fread($f,12);fclose($f);
+    if (strlen($bytes)!==12||substr($bytes,0,4)!=='glTF') return false;
+    $meta=unpack('Vversion/Vlength',substr($bytes,4,8));
+    return $meta['version']===2 && $meta['length']===$size;
+}
+add_action('rest_api_init',function(){
+    register_rest_route('fsc-adu/v1','/import-cc0',[
+        'methods'=>'GET','permission_callback'=>'__return_true',
+        'callback'=>function(WP_REST_Request $req) {
+            $slug=sanitize_key((string)$req->get_param('model'));
+            $catalog=fsc_adu_cc0_catalog();
+            if (!isset($catalog[$slug])) return new WP_Error('unknown_model','Model not in fixed-source catalogue.',['status'=>400]);
+            $base=fsc_adu_cc0_dir();if (is_wp_error($base)) return $base;
+            $dir=$base['dir'];$path=$dir.'/'.$slug.'.glb';$source=$catalog[$slug];
+            if (fsc_adu_cc0_is_valid_glb($path,$source['bytes'])) return new WP_REST_Response(['model'=>$slug,'status'=>'ready','bytes'=>filesize($path),'url'=>$base['url'].'/'.$slug.'.glb'],200);
+            $lock='fsc_adu_import_lock_'.$slug;
+            if (get_transient($lock)) return new WP_Error('busy','Download already in progress or recently attempted.',['status'=>429]);
+            set_transient($lock,1,MINUTE_IN_SECONDS);
+            if (!wp_mkdir_p($dir)) return new WP_Error('mkdir_failed','Could not create local models folder.',['status'=>500]);
+            require_once ABSPATH.'wp-admin/includes/file.php';
+            $temp=download_url($source['url'],28,false);
+            if (is_wp_error($temp)) {
+                delete_transient($lock);
+                return new WP_REST_Response(['model'=>$slug,'status'=>'download_failed','reason'=>$temp->get_error_code()],502);
+            }
+            if (!fsc_adu_cc0_is_valid_glb($temp,$source['bytes'])) {
+                @unlink($temp);delete_transient($lock);
+                return new WP_REST_Response(['model'=>$slug,'status'=>'invalid_glb'],502);
+            }
+            $done=@rename($temp,$path);
+            if (!$done) {$done=@copy($temp,$path);@unlink($temp);}
+            if (!$done||!fsc_adu_cc0_is_valid_glb($path,$source['bytes'])) {
+                @unlink($path);delete_transient($lock);
+                return new WP_REST_Response(['model'=>$slug,'status'=>'save_failed'],500);
+            }
+            @chmod($path,0644);
+            // An original source and commercial-use disclosure alongside the files.
+            @file_put_contents($dir.'/SOURCE-LICENSE.txt',"Glass House, Modern House, Bungalow - Grab3D, CC0 1.0\nhttps://grab3d.com/about/\nDesign references only. Not completed 5 Star Constructions projects or approved ADU plans.\n");
+            delete_transient($lock);
+            return new WP_REST_Response(['model'=>$slug,'status'=>'imported','bytes'=>filesize($path),'url'=>$base['url'].'/'.$slug.'.glb'],200);
+        }
+    ]);
+});
 
 function fsc_adu_showcase_is_page() {
     if (is_admin()) return false;
@@ -37,9 +103,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.3');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.3', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.3', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.4');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.4', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.4', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
