@@ -343,6 +343,98 @@ ready(function(){
      if(window.ResizeObserver){new ResizeObserver(updateCarousel).observe(track);}
      requestAnimationFrame(updateCarousel);
      window.addEventListener("load",updateCarousel,{once:true});
+
+     // Premium on-site gallery lightbox: image click enlarges, never navigates away.
+     // The modal is attached to body to escape transformed theme sections.
+     (function initGalleryLightbox(){
+       var modal=gallery.querySelector("#fsc-ux-lightbox");
+       var cards=Array.from(track.querySelectorAll(".fsc-ux-gallery-card"));
+       if(!modal||!cards.length)return;
+       document.body.appendChild(modal);
+       var large=modal.querySelector("#fsc-ux-lightbox-image");
+       var count=modal.querySelector("#fsc-ux-lightbox-count");
+       var title=modal.querySelector("#fsc-ux-lightbox-title");
+       var caption=modal.querySelector("#fsc-ux-lightbox-caption");
+       var credit=modal.querySelector("#fsc-ux-lightbox-credit");
+       var source=modal.querySelector("#fsc-ux-lightbox-source");
+       var close=modal.querySelector(".fsc-ux-lightbox-close");
+       var back=modal.querySelector(".fsc-ux-lightbox-backdrop");
+       var left=modal.querySelector(".fsc-ux-lightbox-prev");
+       var right=modal.querySelector(".fsc-ux-lightbox-next");
+       var stage=modal.querySelector(".fsc-ux-lightbox-stage");
+       var position=0,lastFocus=null,swipeStart=null;
+       var total=cards.length;
+       function change(index){
+         position=((index%total)+total)%total;
+         var card=cards[position],image=card.querySelector("img");
+         var type=(card.getAttribute("data-fsc-credit")||"").split(" · ")[0];
+         var cardMeta=card.querySelector(".fsc-ux-card-meta strong");
+         var category=cardMeta?cardMeta.textContent:"DESIGN INSPIRATION";
+         var full=card.getAttribute("data-fsc-large")||image.currentSrc||image.src;
+         var fallback=image.currentSrc||image.src;
+         large.onerror=function(){
+           if(large.src!==fallback){large.src=fallback;return;}
+           large.onerror=null;
+           large.alt="This image could not load. Choose another picture.";
+         };
+         large.src=full;
+         large.alt=image.alt||"Enlarged "+category.toLowerCase()+" reference photo";
+         count.textContent=String(position+1).padStart(2,"0")+" / "+String(total).padStart(2,"0");
+         title.textContent=category.replace("-", " ")+" inspiration";
+         caption.textContent="Design inspiration only · Not a completed 5 Star Constructions project.";
+         credit.textContent=card.getAttribute("data-fsc-credit")||type;
+         var url=card.getAttribute("data-fsc-source");
+         if(url){source.href=url;source.hidden=false;}
+         else{source.hidden=true;source.removeAttribute("href");}
+       }
+       function open(index){
+         lastFocus=document.activeElement;
+         change(index);
+         modal.hidden=false;
+         document.body.classList.add("fsc-gallery-lightbox-open");
+         close.focus({preventScroll:true});
+       }
+       function dismiss(){
+         if(modal.hidden)return;
+         modal.hidden=true;
+         document.body.classList.remove("fsc-gallery-lightbox-open");
+         large.onerror=null;large.removeAttribute("src");
+         if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true});
+       }
+       cards.forEach(function(card,index){
+         card.addEventListener("click",function(){open(index);});
+       });
+       close.addEventListener("click",dismiss);
+       back.addEventListener("click",dismiss);
+       left.addEventListener("click",function(){change(position-1);});
+       right.addEventListener("click",function(){change(position+1);});
+       document.addEventListener("keydown",function(e){
+         if(modal.hidden)return;
+         if(e.key==="Escape"){e.preventDefault();dismiss();return;}
+         if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+           e.preventDefault();change(position+(e.key==="ArrowLeft"?-1:1));return;
+         }
+         if(e.key==="Tab"){
+           var focusable=Array.from(modal.querySelectorAll("button:not([hidden]):not([disabled]),a[href]:not([hidden])"))
+             .filter(function(node){return node!==back&&!node.closest("[hidden]");});
+           if(!focusable.length)return;
+           var first=focusable[0],last=focusable[focusable.length-1];
+           if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+           else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+         }
+       });
+       stage.addEventListener("pointerdown",function(e){
+         if(e.target!==large)return;
+         swipeStart={id:e.pointerId,x:e.clientX,y:e.clientY};
+       });
+       stage.addEventListener("pointerup",function(e){
+         if(!swipeStart||e.pointerId!==swipeStart.id)return;
+         var dx=e.clientX-swipeStart.x,dy=e.clientY-swipeStart.y;
+         swipeStart=null;
+         if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.2)change(position+(dx<0?1:-1));
+       });
+       stage.addEventListener("pointercancel",function(){swipeStart=null;});
+     })();
    }
  }
 
