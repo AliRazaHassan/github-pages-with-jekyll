@@ -7,7 +7,7 @@ ready(function(){
   var main=document.querySelector("main");
   var footer=document.querySelector("footer.site-footer")||document.querySelector("footer");
   if(main&&!main.contains(root))main.appendChild(root);
-  else if(footer&&root.compareDocumentPosition(footer)&Node.DOCUMENT_POSITION_PRECEDING){footer.parentNode.insertBefore(root,footer);}
+  else if(footer&&root.compareDocumentPosition(footer)&Node.DOCUMENT_POSITION_PRECEDING)footer.parentNode.insertBefore(root,footer);
 
   var frame=document.getElementById("fsc-adu-3d-frame");
   var canvas=document.getElementById("fsc-adu-own-canvas");
@@ -20,30 +20,47 @@ ready(function(){
   var description=document.getElementById("fsc-adu-3d-description");
   var consult=document.getElementById("fsc-adu-own-consult");
   if(!canvas||!frame)return;
-  if(fallbackModel&&fallback)fallback.appendChild(fallbackModel);
+  if(fallback&&fallbackModel)fallback.appendChild(fallbackModel);
+
   var configs={
-    studio:{key:"studio",title:"Modern Studio",size:"Approx. 420 sq ft · Studio / 1 bathroom",w:13,d:10,h:4.1,roof:"flat",exterior:0xe2d1bd,trim:0x3d4d55,wood:0x9d7656,glass:0x78a7b9,style:"wood"},
-    courtyard:{key:"courtyard",title:"Courtyard One",size:"Approx. 600 sq ft · 1 bedroom / 1 bathroom",w:16,d:12,h:4.3,roof:"flat",exterior:0xe9e1d3,trim:0x475a62,wood:0x916b53,glass:0x88b1bd,style:"white"},
-    family:{key:"family",title:"Family Nest",size:"Approx. 820 sq ft · 2 bedrooms / 1 bathroom",w:20,d:13,h:4.2,roof:"gable",exterior:0xd8e0db,trim:0x324b5f,wood:0x987b5f,glass:0x77a7bd,style:"sage"}
+    "glass-house":{key:"glass-house",title:"Glass House",subtitle:"Modern glazed pavilion · Furnished interior · 3D design reference",contact:"glass-house"},
+    "modern-house":{key:"modern-house",title:"Modern House",subtitle:"Contemporary two-storey architectural reference · Not a standard ADU plan",contact:"modern-house"},
+    "bungalow":{key:"bungalow",title:"Craftsman Bungalow",subtitle:"Single-storey Craftsman-inspired cottage · Architectural 3D reference",contact:"bungalow"}
   };
-  var chosen=configs.studio,THREE=null,renderer=null,scene=null,camera=null,building=null,roofGroup=null;
-  var yaw=-.71,elev=.56,radius=32,roofOff=false,drag=null,pending=false,resizeObserver=null,loadGuard=null;
-  function setLabel(){
-    if(title)title.innerHTML=chosen.title.replace(" "," <em>")+" </em>";
-    if(description)description.textContent=chosen.size+". Drag or swipe to rotate · Scroll or pinch to zoom.";
-    if(consult)consult.href="/atelier/contact/?adu_concept="+encodeURIComponent(chosen.key)+"#consultation";
-    root.querySelectorAll("[data-fsc-3d-model]").forEach(function(b){
-      var selected=b.dataset.fsc3dModel===chosen.key;
-      b.classList.toggle("is-current",selected);b.setAttribute("aria-pressed",String(selected));
+  var selection="glass-house";
+  var THREE=null,GLTFLoader=null,renderer=null,scene=null,camera=null,loader=null,ground=null,loadedGroup=null;
+  var cache=new Map(),yaw=-.64,elev=.49,radius=24,wireframe=false,sceneSize=null;
+  var activePointers=new Map(),lastPinch=0,pending=false,loadSequence=0,resizeObserver=null,guard=null;
+  var ready3d=false,failed=false;
+
+  function label(){
+    var cfg=configs[selection];
+    if(title){
+      var pieces=cfg.title.split(" ");
+      var tail=pieces.pop();
+      title.textContent="";
+      title.appendChild(document.createTextNode((pieces.join(" ")||"3D")+" "));
+      var em=document.createElement("em");em.textContent=tail;title.appendChild(em);
+    }
+    if(description)description.textContent=cfg.subtitle+". Drag to rotate · pinch or scroll to zoom.";
+    if(consult)consult.href="/atelier/contact/?adu_concept="+encodeURIComponent(cfg.contact)+"#consultation";
+    root.querySelectorAll("[data-fsc-3d-model]").forEach(function(button){
+      var chosen=button.getAttribute("data-fsc-3d-model")===selection;
+      button.classList.toggle("is-current",chosen);
+      button.setAttribute("aria-pressed",String(chosen));
     });
-    var roofBtn=root.querySelector('[data-fsc-3d-action="roof"]');
-    if(roofBtn){roofBtn.textContent=roofOff?"Roof on":"Roof off";roofBtn.setAttribute("aria-pressed",String(roofOff));}
+    var wf=root.querySelector('[data-fsc-3d-action="wireframe"]');
+    if(wf){wf.textContent=wireframe?"Shaded view":"Wireframe";wf.setAttribute("aria-pressed",String(wireframe));}
   }
-  function showFallback(){
-    if(loadGuard)window.clearTimeout(loadGuard);
+  function status(message){
+    if(loading){loading.textContent=message;loading.hidden=false;}
+  }
+  function fallbackMode(){
+    failed=true;
+    if(guard){window.clearTimeout(guard);guard=null;}
     if(loading)loading.hidden=true;
     if(noWebGL)noWebGL.hidden=false;
-    if(canvas)canvas.hidden=true;
+    canvas.hidden=true;
     if(fallback){
       fallback.hidden=false;
       if(fallbackModel)fallbackModel.hidden=false;
@@ -51,263 +68,220 @@ ready(function(){
     window.dispatchEvent(new Event("resize"));
   }
   if(fallbackBtn)fallbackBtn.addEventListener("click",function(){
-    if(fallback){fallback.hidden=false;if(fallbackModel)fallbackModel.hidden=false;window.dispatchEvent(new Event("resize"));}
+    if(fallback){
+      fallback.hidden=false;if(fallbackModel)fallbackModel.hidden=false;
+      window.dispatchEvent(new Event("resize"));
+    }
   });
-  setLabel();
-  var glAvailable=false;
-  try{
-    var test=document.createElement("canvas");
-    glAvailable=!!(window.WebGLRenderingContext&&(test.getContext("webgl2")||test.getContext("webgl")));
-  }catch(_){}
-  if(!glAvailable){showFallback();return;}
-
-  async function start(){
-    try{
-      try{THREE=await import("https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js");}
-      catch(_){THREE=await import("https://unpkg.com/three@0.160.1/build/three.module.js");}
-      renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true,powerPreference:"low-power"});
-      var smallScreen=!!(window.matchMedia && window.matchMedia("(max-width: 767px)").matches);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,smallScreen?1.25:1.7));
-      renderer.outputColorSpace=THREE.SRGBColorSpace;
-      renderer.toneMapping=THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure=1.38;
-      scene=new THREE.Scene();
-      scene.background=new THREE.Color(0xe8f0f0);
-      scene.fog=new THREE.Fog(0xe8f0f0,63,115);
-      camera=new THREE.PerspectiveCamera(43,1,.1,250);
-      scene.add(new THREE.HemisphereLight(0xffffff,0x94aab0,2.9));
-      var sun=new THREE.DirectionalLight(0xfff4dc,3.0);sun.position.set(-24,38,21);scene.add(sun);
-      var fill=new THREE.DirectionalLight(0xdbf0ff,1.15);fill.position.set(16,12,-19);scene.add(fill);
-      var ground=new THREE.Mesh(new THREE.PlaneGeometry(150,150),new THREE.MeshStandardMaterial({color:0xcbd9c9,roughness:1}));
-      ground.rotation.x=-Math.PI/2;ground.position.y=-.4;scene.add(ground);
-      build(chosen);
-      size();
-      if(loadGuard)window.clearTimeout(loadGuard);
-      if(loading)loading.hidden=true;
-      if(resizeObserver)resizeObserver.disconnect();
-      if(window.ResizeObserver){resizeObserver=new ResizeObserver(size);resizeObserver.observe(frame);}
-      window.addEventListener("resize",size,{passive:true});
-      canvas.addEventListener("webglcontextlost",function(e){e.preventDefault();showFallback();});
-    }catch(err){
-      if(window.console)console.warn("5 Star local ADU 3D unavailable",err && err.message);
-      showFallback();
-    }
+  function beginGuard(){
+    if(guard)window.clearTimeout(guard);
+    guard=window.setTimeout(function(){if(!failed&&loading&&!loading.hidden)fallbackMode();},18000);
   }
-  function material(hex,rough){return new THREE.MeshStandardMaterial({color:hex,roughness:rough===undefined?.83:rough,metalness:rough===.25?.08:0});}
-  function addBox(group,w,h,d,x,y,z,mat,rot){
-    var o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);o.position.set(x,y,z);
-    if(rot)o.rotation.z=rot;group.add(o);return o;
+  function stopGuard(){
+    if(guard){window.clearTimeout(guard);guard=null;}
   }
-  function sphere(group,x,y,z,r,mat){
-    var m=new THREE.Mesh(new THREE.IcosahedronGeometry(r,1),mat);m.position.set(x,y,z);group.add(m);return m;
+  function requestRender(){
+    if(pending||!renderer||!camera||!scene)return;
+    pending=true;
+    requestAnimationFrame(function(){
+      pending=false;
+      if(renderer&&scene&&camera)renderer.render(scene,camera);
+    });
   }
-  function plant(group,x,z,r){
-    var bark=material(0x877861),leaf=material(0x648f6e);
-    addBox(group,.14,r*2,.14,x,r,z,bark);
-    sphere(group,x,r*2.6,z,r,leaf);
-    sphere(group,x-r*.43,r*2.35,z,r*.64,material(0x7eaa84));
-  }
-  function glassPane(group,x,y,z,w,h,alongX,mat,frameMat){
-    if(alongX){
-      addBox(group,w,h,.085,x,y,z,frameMat);
-      addBox(group,w-.14,h-.14,.11,x,y,z+.035,mat);
-      addBox(group,.085,h,.13,x,y,z+.08,frameMat);
-      addBox(group,w,.065,.13,x,y,z+.08,frameMat);
-    }else{
-      addBox(group,.085,h,w,x,y,z,frameMat);
-      addBox(group,.11,h-.14,w-.14,x+.035,y,z,mat);
-      addBox(group,.13,h,.085,x+.08,y,z,frameMat);
-    }
-  }
-  function furnish(group,conf){
-    var floorWood=material(0xc8ad8d),ink=material(0x4d5a5e),fabric=material(0x9aaba9),linen=material(0xebe8db),counter=material(0xf4eee2),frame=material(0xb98b67);
-    var w=conf.w,d=conf.d,h=conf.h;
-    // Interior zoned floor, visible when roof is lifted.
-    addBox(group,w-.43,.09,d-.43,0,.45,0,floorWood);
-    // Kitchen along rear-left wall, overhead cabinets and appliances.
-    addBox(group,w*.34,.78,.77,-w*.23,.92,-d*.37,material(0xd3b79a));
-    addBox(group,w*.34,.09,.85,-w*.23,1.34,-d*.37,counter);
-    addBox(group,w*.32,.78,.34,-w*.23,2.85,-d*.43,material(0xe2d7c5));
-    addBox(group,.67,.07,.45,-w*.17,1.4,-d*.32,ink);
-    // Living zone sofa, coffee table, rug.
-    addBox(group,w*.24,.56,1.35,-w*.25,.82,d*.19,fabric);
-    addBox(group,w*.24,.8,.24,-w*.25,1.12,d*.52,fabric);
-    addBox(group,1.3,.12,1.1,w*.04,.64,d*.25,frame);
-    addBox(group,2.65,.025,2.15,-w*.11,.5,d*.21,linen);
-    // Bath wet-area boundary at back-right.
-    var bath=material(0xd2e2e2);
-    addBox(group,.13,2.7,d*.30,w*.23,1.85,-d*.35,material(0xd9d5ca));
-    addBox(group,w*.27,2.7,.13,w*.37,1.85,-d*.2,material(0xd9d5ca));
-    addBox(group,1.2,.12,1.35,w*.36,.56,-d*.37,bath);
-    if(conf.key!=="studio"){
-      // Bedroom zone and bed.
-      addBox(group,w*.31,2.8,.13,w*.07,1.85,-d*.05,material(0xd7d4c9));
-      addBox(group,2.5,.47,2.9,w*.27,.78,-d*.30,material(0xb8a18b));
-      addBox(group,2.38,.28,2.72,w*.27,1.15,-d*.30,linen);
-      addBox(group,1.2,.2,.67,w*.27,1.4,-d*.44,counter);
-    }
-    if(conf.key==="family"){
-      addBox(group,.12,2.9,d*.46,-w*.05,1.88,-d*.27,material(0xd7d4c9));
-      addBox(group,2.2,.54,2.7,-w*.26,.79,-d*.3,material(0xc2aa8d));
-      addBox(group,2.05,.24,2.52,-w*.26,1.2,-d*.3,linen);
-    }
-    // Front terrace + side planting.
-    addBox(group,w*.56,.12,2.7,w*.1,.16,d/2+1.5,material(0xa78264));
-    for(var i=0;i<7;i++)addBox(group,.075,.13,2.7,-w*.18+i*w*.095,.29,d/2+1.5,material(0x92765a));
-    plant(group,-w*.8,d*.78,.75);
-    plant(group,w*.76,-d*.45,1.05);
-    for(var j=0;j<7;j++){
-      sphere(group,-w*.72+j*.52,.04,d*.79+(j%2)*.30,.42,material(j%2?0x789c75:0x6d9271));
-    }
-  }
-  function build(conf){
-    if(building){scene.remove(building);building.traverse(function(o){
-      if(o.isMesh){o.geometry.dispose();}
-    });}
-    building=new THREE.Group();scene.add(building);
-    roofGroup=new THREE.Group();building.add(roofGroup);
-    var w=conf.w,d=conf.d,h=conf.h;
-    var outside=material(conf.exterior),edge=material(conf.trim),wood=material(conf.wood),glass=material(conf.glass,.25);
-    var white=material(0xf6f4e9),roofMat=material(conf.trim);
-    // Foundation.
-    addBox(building,w+.4,.49,d+.45,0,.12,0,material(0xaebbb4));
-    // Walls in simple high-quality architectural massing.
-    addBox(building,w,.22,d,0,.36,0,material(0xdfd8c9));
-    addBox(building,w,h,.2,0,h/2+.42,-d/2,outside);
-    addBox(building,w,h,.2,0,h/2+.42,d/2,outside);
-    addBox(building,.2,h,d,-w/2,h/2+.42,0,outside);
-    addBox(building,.2,h,d,w/2,h/2+.42,0,outside);
-    // Continuous facade accent with glass lines and inset door.
-    addBox(building,w*.35,h*.91,.12,-w*.27,h*.47+.42,d/2+.145,wood);
-    glassPane(building,-w*.27,h*.58+.42,d/2+.24,w*.26,h*.48,true,glass,edge);
-    glassPane(building,w*.08,h*.61+.42,d/2+.24,w*.24,h*.52,true,glass,edge);
-    addBox(building,w*.21,h*.69,.10,w*.35,h*.345+.42,d/2+.20,edge);
-    addBox(building,w*.182,h*.655,.125,w*.35,h*.33+.42,d/2+.255,wood);
-    addBox(building,.078,.07,.10,w*.423,1.6,d/2+.33,white);
-    glassPane(building,w/2+.23,h*.64+.42,-d*.18,d*.34,h*.47,false,glass,edge);
-    glassPane(building,-w/2-.23,h*.65+.42,-d*.08,d*.29,h*.44,false,glass,edge);
-    // Side cladding to give character without relying on third-party designs.
-    for(var slat=0;slat<8;slat++){
-      addBox(building,.072,h*.9,.09,-w*.47+slat*.17,h*.47+.42,d/2+.26,material(slat%2?0xa88363:0x8f6d50));
-    }
-    // Roof forms: flat parapet or gabled.
-    if(conf.roof==="gable"){
-      var slope=Math.atan2(1.55,w/2);
-      var half=(w/2+.8)/Math.cos(slope);
-      addBox(roofGroup,half,.24,d+1.0,-w/4,h+.42+.8,0,roofMat,slope);
-      addBox(roofGroup,half,.24,d+1.0,w/4,h+.42+.8,0,roofMat,-slope);
-      // Ridge
-      addBox(roofGroup,.19,.16,d+1.05,0,h+.42+1.57,0,edge);
-    }else{
-      addBox(roofGroup,w+.9,.28,d+.85,0,h+.55,0,roofMat);
-      addBox(roofGroup,w+1,.11,.18,0,h+.79,d/2+.37,material(0x273d4c));
-    }
-    furnish(building,conf);
-    roofGroup.visible=!roofOff;
-    radius=Math.max(26,Math.max(w,d)*1.95);
-    updateCamera();
+  function resize(){
+    if(!renderer||!camera)return;
+    var width=Math.max(240,frame.clientWidth),height=Math.max(280,frame.clientHeight);
+    renderer.setSize(width,height,false);
+    camera.aspect=width/height;
+    camera.updateProjectionMatrix();
+    requestRender();
   }
   function updateCamera(){
     if(!camera)return;
-    elev=Math.max(.17,Math.min(1.28,elev));
-    radius=Math.max(12,Math.min(72,radius));
-    var c=Math.cos(elev);
-    camera.position.set(Math.sin(yaw)*radius*c,radius*Math.sin(elev)+1.7,Math.cos(yaw)*radius*c);
-    camera.lookAt(0,1.5,0);
+    elev=Math.max(.12,Math.min(1.35,elev));
+    radius=Math.max(2.5,Math.min(180,radius));
+    var horizontal=Math.cos(elev)*radius;
+    camera.position.set(Math.sin(yaw)*horizontal,Math.sin(elev)*radius,Math.cos(yaw)*horizontal);
+    camera.lookAt(0,0,0);
     requestRender();
   }
-  function render(){if(renderer&&scene&&camera)renderer.render(scene,camera);}
-  function requestRender(){
-    if(pending)return;
-    pending=true;requestAnimationFrame(function(){pending=false;render();});
+  function setMaterialsWireframe(obj,flag){
+    if(!obj)return;
+    obj.traverse(function(mesh){
+      if(!mesh.isMesh||!mesh.material)return;
+      var mats=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+      mats.forEach(function(mat){if(mat&&"wireframe" in mat)mat.wireframe=flag;});
+    });
   }
-  function size(){
-    if(!renderer||!camera)return;
-    var w=Math.max(300,frame.clientWidth),h=Math.max(290,frame.clientHeight);
-    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();requestRender();
+  function applyModel(asset){
+    if(!scene||!THREE)return;
+    if(loadedGroup)scene.remove(loadedGroup);
+    loadedGroup=asset;
+    scene.add(loadedGroup);
+    var box=new THREE.Box3().setFromObject(loadedGroup);
+    if(box.isEmpty())throw Error("Model contains no visible mesh");
+    var center=box.getCenter(new THREE.Vector3());
+    var size=box.getSize(new THREE.Vector3());
+    // Normalise around the origin; scale stays in original real-world metres.
+    loadedGroup.position.sub(center);
+    sceneSize=size;
+    if(ground)ground.position.y=-size.y/2-.13;
+    var maxDimension=Math.max(size.x,size.y,size.z);
+    radius=Math.max(10,maxDimension*2.0);
+    yaw=-.64;elev=.49;
+    setMaterialsWireframe(loadedGroup,wireframe);
+    camera.near=.03;
+    camera.far=Math.max(150,maxDimension*15);
+    camera.updateProjectionMatrix();
+    updateCamera();
+    if(loading)loading.hidden=true;
+    stopGuard();
   }
-  function choose(key){
+  async function activate(key){
     if(!configs[key])return;
-    chosen=configs[key];yaw=-.71;elev=.56;roofOff=false;setLabel();
-    if(scene)build(chosen);
-    if(fallbackModel){
-      var map={studio:"studio",courtyard:"courtyard",family:"family"};
-      var button=fallbackModel.querySelector('[data-adu-model="'+map[key]+'"]');
-      if(button)button.click();
+    selection=key;wireframe=false;label();
+    if(failed){
+      var old=fallbackModel&&fallbackModel.querySelector('[data-adu-model="'+(key==="glass-house"?"studio":key==="modern-house"?"courtyard":"family")+'"]');
+      if(old)old.click();
+      return;
+    }
+    if(!ready3d)return;
+    var sequence=++loadSequence;
+    var url=window.fscADUModelUrls&&window.fscADUModelUrls[key];
+    if(!url) {status("3D model path not configured.");fallbackMode();return;}
+    var absolute=new URL(url,window.location.href);
+    if(absolute.origin!==window.location.origin){status("Invalid external model source.");fallbackMode();return;}
+    status("Loading "+configs[key].title+"…");
+    beginGuard();
+    try{
+      if(!cache.has(key)){
+        var promise=new Promise(function(resolve,reject){
+          loader.load(absolute.href,function(gltf){resolve(gltf.scene);},function(progress){
+            if(sequence!==loadSequence||!progress.lengthComputable)return;
+            var pct=Math.min(99,Math.round(progress.loaded/progress.total*100));
+            status("Loading "+configs[key].title+" · "+pct+"%");
+          },function(err){reject(err);});
+        });
+        cache.set(key,promise);
+      }
+      var obj=await cache.get(key);
+      if(sequence!==loadSequence||failed)return;
+      applyModel(obj);
+    }catch(e){
+      if(sequence!==loadSequence)return;
+      if(window.console)console.warn("5 Star model could not load",key,e&&e.message);
+      cache.delete(key);
+      fallbackMode();
     }
   }
+  function reset(){
+    if(!sceneSize||!camera)return;
+    yaw=-.64;elev=.49;
+    radius=Math.max(10,Math.max(sceneSize.x,sceneSize.y,sceneSize.z)*2.0);
+    updateCamera();
+  }
   root.querySelectorAll("[data-fsc-3d-model]").forEach(function(button){
-    button.addEventListener("click",function(){choose(button.dataset.fsc3dModel);});
+    button.addEventListener("click",function(){activate(button.dataset.fsc3dModel);});
   });
   root.querySelectorAll("[data-fsc-3d-action]").forEach(function(button){
     button.addEventListener("click",function(){
       var action=button.dataset.fsc3dAction;
-      if(action==="roof"){roofOff=!roofOff;if(roofGroup)roofGroup.visible=!roofOff;setLabel();requestRender();}
-      else if(action==="left"){yaw-=.23;updateCamera();}
-      else if(action==="right"){yaw+=.23;updateCamera();}
+      if(action==="wireframe"){
+        wireframe=!wireframe;
+        setMaterialsWireframe(loadedGroup,wireframe);
+        label();requestRender();
+      }else if(action==="left"){yaw-=.22;updateCamera();}
+      else if(action==="right"){yaw+=.22;updateCamera();}
       else if(action==="zoom-in"){radius*=.88;updateCamera();}
       else if(action==="zoom-out"){radius*=1.13;updateCamera();}
-      else if(action==="reset"){yaw=-.71;elev=.56;radius=Math.max(26,Math.max(chosen.w,chosen.d)*1.95);roofOff=false;if(roofGroup)roofGroup.visible=true;setLabel();updateCamera();}
+      else if(action==="reset"){reset();}
+      else if(action==="fullscreen"){
+        if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen();
+        else if(frame.requestFullscreen)frame.requestFullscreen().catch(function(){});
+      }
     });
   });
-  // One finger rotates the model. Two fingers pinch to zoom without triggering
-  // unwanted page scrolling; dedicated buttons remain keyboard accessible.
-  var activePointers=new Map(),previousPinchDistance=0;
-  function pinchDistance(){
-    var list=Array.from(activePointers.values());
-    if(list.length<2)return 0;
-    return Math.hypot(list[0].x-list[1].x,list[0].y-list[1].y);
-  }
   canvas.addEventListener("pointerdown",function(e){
     if(e.pointerType==="mouse"&&e.button!==0)return;
     activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
-    if(activePointers.size===1){drag={id:e.pointerId,x:e.clientX,y:e.clientY};previousPinchDistance=0;}
-    else{drag=null;previousPinchDistance=pinchDistance();}
+    try{canvas.setPointerCapture(e.pointerId);}catch(_){}
   });
   canvas.addEventListener("pointermove",function(e){
-    var old=activePointers.get(e.pointerId);
-    if(!old)return;
+    if(!activePointers.has(e.pointerId))return;
+    var old=activePointers.get(e.pointerId),dx=e.clientX-old.x,dy=e.clientY-old.y;
     activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(activePointers.size>=2){
-      var dist=pinchDistance();
-      if(dist>0&&previousPinchDistance>0){
-        var change=Math.max(.83,Math.min(1.17,previousPinchDistance/dist));
-        radius*=change;
-        updateCamera();
-      }
-      previousPinchDistance=dist;
-    }else if(drag&&drag.id===e.pointerId){
-      var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-      drag.x=e.clientX;drag.y=e.clientY;
-      yaw-=dx*.008;elev=Math.max(.2,Math.min(1.25,elev+dy*.006));updateCamera();
+    if(activePointers.size===1){yaw-=dx*.008;elev+=dy*.006;updateCamera();}
+    else if(activePointers.size===2){
+      var arr=Array.from(activePointers.values());
+      var dist=Math.hypot(arr[0].x-arr[1].x,arr[0].y-arr[1].y);
+      if(lastPinch>0&&dist>20){radius*=lastPinch/dist;updateCamera();}
+      lastPinch=dist;
     }
   });
-  function releasePointer(e){
-    activePointers.delete(e.pointerId);
-    previousPinchDistance=0;
-    if(activePointers.size===1){
-      var item=activePointers.entries().next().value;
-      drag={id:item[0],x:item[1].x,y:item[1].y};
-    }else drag=null;
-  }
-  canvas.addEventListener("pointerup",releasePointer);
-  canvas.addEventListener("pointercancel",releasePointer);
-  canvas.addEventListener("lostpointercapture",releasePointer);
-  canvas.addEventListener("wheel",function(e){e.preventDefault();radius*=e.deltaY>0?1.08:.92;updateCamera();},{passive:false});
+  function endPointer(e){activePointers.delete(e.pointerId);if(activePointers.size<2)lastPinch=0;}
+  canvas.addEventListener("pointerup",endPointer);
+  canvas.addEventListener("pointercancel",endPointer);
+  canvas.addEventListener("lostpointercapture",endPointer);
+  canvas.addEventListener("wheel",function(e){
+    e.preventDefault();radius*=e.deltaY>0?1.09:.91;updateCamera();
+  },{passive:false});
   canvas.addEventListener("keydown",function(e){
     if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","+","=","-"].indexOf(e.key)<0)return;
     e.preventDefault();
     if(e.key==="ArrowLeft")yaw-=.17;
     else if(e.key==="ArrowRight")yaw+=.17;
-    else if(e.key==="ArrowUp")elev+=.1;
-    else if(e.key==="ArrowDown")elev-=.1;
-    else if(e.key==="-")radius*=1.1;else radius*=.9;
+    else if(e.key==="ArrowUp")elev+=.11;
+    else if(e.key==="ArrowDown")elev-=.11;
+    else if(e.key==="-")radius*=1.11;else radius*=.9;
     updateCamera();
   });
-  window.addEventListener("pagehide",function(){if(renderer){renderer.dispose();renderer=null;}},{once:true});
-  // A blocked external 3D library must never trap visitors behind a spinner.
-  loadGuard=window.setTimeout(function(){if(loading&&!loading.hidden)showFallback();},10000);
+  window.addEventListener("pagehide",function(){
+    if(renderer){renderer.dispose();renderer=null;}
+    if(resizeObserver)resizeObserver.disconnect();
+  },{once:true});
+  label();
+  var canWebgl=false;
+  try{
+    var t=document.createElement("canvas");
+    canWebgl=!!(window.WebGLRenderingContext&&(t.getContext("webgl2")||t.getContext("webgl")));
+  }catch(_){}
+  if(!canWebgl){fallbackMode();return;}
+  async function start(){
+    beginGuard();
+    status("Preparing interactive 3D viewer…");
+    try{
+      // Both modules use the same version of Three.js via the on-page import map.
+      THREE=await import("three");
+      var tools=await import("three/addons/loaders/GLTFLoader.js");
+      GLTFLoader=tools.GLTFLoader;
+      renderer=new THREE.WebGLRenderer({canvas:canvas,alpha:true,antialias:true,powerPreference:"low-power"});
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
+      renderer.outputColorSpace=THREE.SRGBColorSpace;
+      renderer.toneMapping=THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure=1.33;
+      scene=new THREE.Scene();
+      scene.background=new THREE.Color(0xe7eff0);
+      scene.fog=new THREE.Fog(0xe7eff0,100,250);
+      camera=new THREE.PerspectiveCamera(43,1,.03,200);
+      scene.add(new THREE.HemisphereLight(0xffffff,0xb9c9c2,3.1));
+      var sun=new THREE.DirectionalLight(0xffe9ca,3.2);
+      sun.position.set(-18,40,25);scene.add(sun);
+      var other=new THREE.DirectionalLight(0xc4dfef,1.7);
+      other.position.set(22,19,-22);scene.add(other);
+      ground=new THREE.Mesh(new THREE.PlaneGeometry(300,300),new THREE.MeshStandardMaterial({color:0xd6e1d9,roughness:1}));
+      ground.rotation.x=-Math.PI/2;scene.add(ground);
+      loader=new GLTFLoader();
+      ready3d=true;
+      resize();
+      if(window.ResizeObserver){resizeObserver=new ResizeObserver(resize);resizeObserver.observe(frame);}
+      else window.addEventListener("resize",resize,{passive:true});
+      canvas.addEventListener("webglcontextlost",function(e){e.preventDefault();fallbackMode();});
+      await activate(selection);
+    }catch(err){
+      if(window.console)console.warn("5 Star GLB viewer unavailable",err&&err.message);
+      fallbackMode();
+    }
+  }
   start();
 });
 })();
