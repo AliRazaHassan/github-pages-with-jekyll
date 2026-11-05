@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.3.5
+ * Version: 1.3.6
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -150,6 +150,18 @@ add_action('wp_head', function() {
     }
 }, 25);
 
+// Former ADU model slugs now point to the consolidated 3D showcase.
+// Redirect only genuine 404s, so future real detail pages keep working.
+add_action('template_redirect', function() {
+    if (!is_404() || is_admin()) return;
+    $path = '/'.trim((string)wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/').'/';
+    $legacyModel = (bool)preg_match('~^/adu-models/model-(?:s1|a1|a2|a3|b3|r4)/$~i', $path);
+    if ($legacyModel || $path === '/atelier/services/adu/') {
+        wp_safe_redirect(home_url('/adu-models/'), 301);
+        exit;
+    }
+}, 1);
+
 // One-time cleanup of the obsolete Bathroom Gallery link under Projects.
 // Delete ONLY the verified WordPress nav-menu item; preserve the gallery page.
 add_action('init', function() {
@@ -263,8 +275,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.5');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.5', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.6');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.6', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
