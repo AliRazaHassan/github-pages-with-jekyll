@@ -110,7 +110,7 @@ ready(function(){
  function syncContactLinks(){
    document.querySelectorAll('a[href^="mailto:service@blueheavenconstructions.com"]').forEach(function(a){a.href=a.href.replace("service@blueheavenconstructions.com","contact@5starconstructionsca.com");if(/@/.test(a.textContent))a.textContent="contact@5starconstructionsca.com";});
    document.querySelectorAll("a").forEach(function(a){
-     if(/^get a free estimate/i.test((a.textContent||"").trim()))a.href="tel:+19162251015";
+     if(/^get a free estimate/i.test((a.textContent||"").trim()))a.href="/atelier/contact/#consultation";
    });
  }
 
@@ -244,6 +244,39 @@ ready(function(){
  syncContactLinks();window.addEventListener("load",syncContactLinks);
  setTimeout(syncContactLinks,600);
  if(cfg.isHome){
+   // Approved homepage trust-focused message (keep the existing clear Option 1).
+   // The estimate CTAs should go to the real enquiry form, not start a phone call.
+   var hero=document.querySelector("section.arq-hero");
+   if(hero){
+     var h=hero.querySelector(".arq-hero-content h1");
+     if(h)h.innerHTML="QUALITY CONSTRUCTION.<br><em>BUILT ON TRUST.</em>";
+     var desc=hero.querySelector(".arq-hero-content > p:not(.five-star-license)");
+     if(desc)desc.textContent="Transforming homes and commercial spaces with expert craftsmanship, honest pricing, and dependable service. From stunning remodels to complete renovations, we bring your vision to life.";
+     var mainEstimate=hero.querySelector(".arq-hero-actions .arq-btn");
+     if(mainEstimate){
+       mainEstimate.href="/atelier/contact/#consultation";
+       mainEstimate.innerHTML="GET A FREE ESTIMATE <span aria-hidden='true'>↗</span>";
+       mainEstimate.setAttribute("aria-label","Request a free construction estimate");
+     }
+     var license=hero.querySelector(".arq-hero-content .five-star-license");
+     if(license){
+       license.classList.add("fsc-hero-credentials");
+       license.innerHTML='<span class="fsc-hero-company">5 STAR CONSTRUCTIONS</span>'
+         +'<span class="fsc-hero-license">CSLB LICENSE #1163679</span>'
+         +'<span class="fsc-hero-pricing">HONEST &amp; TRANSPARENT PRICING</span>'
+         +'<a href="https://www.cslb.ca.gov/OnlineServices/CHECKLICENSEII/CheckLicense.aspx" target="_blank" rel="noopener noreferrer" aria-label="Verify CSLB license number 1163679 at the California Contractors State License Board">VERIFY LICENSE <span aria-hidden="true">↗</span></a>';
+     }
+   }
+   var headerEstimate=document.querySelector(".five-star-header .header-cta");
+   if(headerEstimate){
+     headerEstimate.href="/atelier/contact/#consultation";
+     headerEstimate.innerHTML='GET A FREE ESTIMATE <span aria-hidden="true">↗</span>';
+   }
+   var badges=document.querySelector("section.five-star-trust-strip");
+   if(badges){
+     badges.setAttribute("aria-label","5 Star Constructions quality and trust commitments");
+     badges.querySelectorAll(":scope > div").forEach(function(card){card.classList.add("fsc-trust-pillar");});
+   }
    var heroAction=document.querySelector("section.arq-hero .arq-hero-actions a.arq-quiet-link");
    if(heroAction){heroAction.href="tel:+19162251015";heroAction.innerHTML="(916) 225-1015 <span aria-hidden='true'>↗</span>";heroAction.setAttribute("aria-label","Call 5 Star Constructions at (916) 225-1015");}
    // Home audit cleanup: make core services discoverable even if the custom theme's
