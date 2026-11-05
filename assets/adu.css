@@ -391,3 +391,25 @@ body.fsc-adu-showcase-active .site-footer{clear:both;position:relative}
   #fsc-real-adu .fsc-adu-own-overlay span{font-size:8px}
   #fsc-real-adu .fsc-adu-own-overlay small{font-size:8px}
 }
+
+/* v1.6.0: real self-hosted GLB models, full-screen fit and download progress. */
+#fsc-real-adu .fsc-adu-3d-frame:fullscreen{
+ width:100vw!important;height:100dvh!important;
+ max-width:none!important;max-height:none!important;
+ border-radius:0!important;border:0!important;
+}
+#fsc-real-adu #fsc-adu-3d-loading{
+ z-index:3!important;letter-spacing:.025em!important;
+ background:linear-gradient(135deg,#e8f0efed,#f4f6f0ee)!important;
+}
+#fsc-real-adu #fsc-adu-3d-loading[hidden]{display:none!important}
+#fsc-real-adu .fsc-adu-3d-frame:fullscreen canvas{
+ width:100%!important;height:100%!important;
+}
+#fsc-real-adu .fsc-adu-3d-selector button.is-current{
+ box-shadow:inset 0 0 0 1px #092c4b,0 6px 22px #0c2c4814!important;
+}
+@media(max-width:700px){
+ #fsc-real-adu .fsc-adu-3d-frame{min-height:390px!important;}
+ #fsc-real-adu .fsc-adu-orbit-actions{gap:5px!important;}
+}
