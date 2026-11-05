@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.2.8
+ * Version: 1.2.9
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -36,6 +36,38 @@ add_filter('wp_nav_menu_objects', function($items) {
     }
     return $items;
 }, 100);
+
+// Embed a first-party Services photo menu into WordPress's navigation walker output.
+// This guarantees a shared CSS :hover / focus-within boundary before any JS runs,
+// including when the theme adds a detached duplicate panel later.
+add_filter('wp_nav_menu_items', function($items, $args) {
+    if (!is_string($items) || strpos($items, 'id="menu-item-28"') === false) return $items;
+    if (strpos($items, 'data-fsc-embedded="1"') !== false) return $items;
+    $start = strpos($items, 'id="menu-item-28"');
+    $next = strpos($items, 'id="menu-item-29"', $start);
+    $native_submenu = strpos($items, 'id="five-star-submenu-28"', $start);
+    if ($native_submenu !== false && ($next === false || $native_submenu < $next)) {
+        $sub_end = strpos($items, '</ul>', $native_submenu);
+        if ($sub_end === false) return $items;
+        $close = strpos($items, '</li>', $sub_end + 5);
+    } else {
+        $close = strpos($items, '</li>', $start);
+    }
+    if ($close === false || ($next !== false && $close > $next)) return $items;
+    $asset = esc_url(home_url('/wp-content/themes/arqora-studio/assets/responsive/'));
+    $links = [
+        ['Bathroom Remodeling', home_url('/atelier/services/bathroom/'), $asset . 'bath-after-960.webp'],
+        ['Kitchen Remodeling', home_url('/atelier/services/kitchen/'), $asset . 'kitchen-after-960.webp'],
+        ['Whole-House Remodeling', home_url('/atelier/services/whole-home/'), $asset . 'living-1600.webp'],
+        ['ADU Design', home_url('/adu-models/'), 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=700&q=85'],
+    ];
+    $panel = '<div class="five-star-services-mega" data-fsc-embedded="1" role="group" aria-label="Services menu">';
+    foreach ($links as $link) {
+        $panel .= '<a href="'.esc_url($link[1]).'"><img src="'.esc_url($link[2]).'" alt="'.esc_attr($link[0]).'" loading="lazy" decoding="async" /><span>'.esc_html($link[0]).'</span><b aria-hidden="true">↗</b></a>';
+    }
+    $panel .= '</div>';
+    return substr_replace($items, $panel, $close, 0);
+}, 150, 2);
 
 // Keep the Services photo mega-menu inside its own menu item in the server-rendered
 // header. The previous sibling structure caused native pointerleave to close the
@@ -124,8 +156,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.8');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.8', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.2.9');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.2.9', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
