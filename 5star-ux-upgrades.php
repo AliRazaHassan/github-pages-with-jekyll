@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.3.2
+ * Version: 1.3.3
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -120,8 +120,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.2');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.2', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.3');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.3', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -479,15 +479,7 @@ add_action('wp_footer', function() {
     </div>
   </div>
 </section>
-<section id="fsc-ux-final-cta" class="fsc-ux-final-cta" aria-labelledby="fsc-ux-cta-title">
-  <div class="fsc-ux-final-inner">
-    <div><span class="fsc-ux-eyebrow">START YOUR REMODEL</span><h2 id="fsc-ux-cta-title">Ready to talk about <em>your project?</em></h2><p>Kitchen, bathroom, and whole-home remodeling in the greater Sacramento area. Tell us what you need and our team can discuss your next step.</p></div>
-    <div class="fsc-ux-final-actions">
-      <a class="fsc-ux-final-primary" href="tel:+19162251015">Call (916) 225-1015 ↗</a>
-      <a class="fsc-ux-final-secondary" href="/atelier/contact/#consultation">Send project details ↗</a>
-    </div>
-  </div>
-</section>
+
 <?php endif; ?>
     <?php
 }, 17);
