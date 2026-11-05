@@ -66,7 +66,8 @@ ready(function(){
       try{THREE=await import("https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js");}
       catch(_){THREE=await import("https://unpkg.com/three@0.160.1/build/three.module.js");}
       renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true,powerPreference:"low-power"});
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.7));
+      var smallScreen=!!(window.matchMedia && window.matchMedia("(max-width: 767px)").matches);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,smallScreen?1.25:1.7));
       renderer.outputColorSpace=THREE.SRGBColorSpace;
       renderer.toneMapping=THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure=1.38;
@@ -249,19 +250,50 @@ ready(function(){
       else if(action==="reset"){yaw=-.71;elev=.56;radius=Math.max(26,Math.max(chosen.w,chosen.d)*1.95);roofOff=false;if(roofGroup)roofGroup.visible=true;setLabel();updateCamera();}
     });
   });
+  // One finger rotates the model. Two fingers pinch to zoom without triggering
+  // unwanted page scrolling; dedicated buttons remain keyboard accessible.
+  var activePointers=new Map(),previousPinchDistance=0;
+  function pinchDistance(){
+    var list=Array.from(activePointers.values());
+    if(list.length<2)return 0;
+    return Math.hypot(list[0].x-list[1].x,list[0].y-list[1].y);
+  }
   canvas.addEventListener("pointerdown",function(e){
     if(e.pointerType==="mouse"&&e.button!==0)return;
-    drag={id:e.pointerId,x:e.clientX,y:e.clientY};
+    activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+    if(activePointers.size===1){drag={id:e.pointerId,x:e.clientX,y:e.clientY};previousPinchDistance=0;}
+    else{drag=null;previousPinchDistance=pinchDistance();}
   });
   canvas.addEventListener("pointermove",function(e){
-    if(!drag||drag.id!==e.pointerId)return;
-    var dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;
-    yaw-=dx*.008;elev=Math.max(.2,Math.min(1.25,elev+dy*.006));updateCamera();
+    var old=activePointers.get(e.pointerId);
+    if(!old)return;
+    activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(activePointers.size>=2){
+      var dist=pinchDistance();
+      if(dist>0&&previousPinchDistance>0){
+        var change=Math.max(.83,Math.min(1.17,previousPinchDistance/dist));
+        radius*=change;
+        updateCamera();
+      }
+      previousPinchDistance=dist;
+    }else if(drag&&drag.id===e.pointerId){
+      var dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+      drag.x=e.clientX;drag.y=e.clientY;
+      yaw-=dx*.008;elev=Math.max(.2,Math.min(1.25,elev+dy*.006));updateCamera();
+    }
   });
-  canvas.addEventListener("pointerup",function(e){if(drag&&drag.id===e.pointerId)drag=null;});
-  canvas.addEventListener("pointercancel",function(){drag=null;});
-  canvas.addEventListener("lostpointercapture",function(){drag=null;});
+  function releasePointer(e){
+    activePointers.delete(e.pointerId);
+    previousPinchDistance=0;
+    if(activePointers.size===1){
+      var item=activePointers.entries().next().value;
+      drag={id:item[0],x:item[1].x,y:item[1].y};
+    }else drag=null;
+  }
+  canvas.addEventListener("pointerup",releasePointer);
+  canvas.addEventListener("pointercancel",releasePointer);
+  canvas.addEventListener("lostpointercapture",releasePointer);
   canvas.addEventListener("wheel",function(e){e.preventDefault();radius*=e.deltaY>0?1.08:.92;updateCamera();},{passive:false});
   canvas.addEventListener("keydown",function(e){
     if(["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","+","=","-"].indexOf(e.key)<0)return;
