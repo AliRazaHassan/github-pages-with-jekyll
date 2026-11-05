@@ -10,40 +10,48 @@ ready(function(){
  // a sibling at the header level and mouseleave closed it during travel.
  (function initServicesMegaMenu(){
    var header=document.querySelector("header.five-star-header");
-   if(!header)return;
-   var trigger=header.querySelector("#menu-item-28");
-   var mega=header.querySelector(".five-star-services-mega");
-   var arrow=trigger?trigger.querySelector(".sub-menu-toggle"):null;
-   if(!trigger||!mega)return;
-   // Keep the native mobile submenu untouched; only move the separate desktop
-   // image menu to the same pointer boundary as its parent link.
-   if(mega.parentElement!==trigger)trigger.appendChild(mega);
-   mega.setAttribute("role","group");
-   mega.setAttribute("aria-label","Remodeling services");
+   var trigger=header&&header.querySelector("#menu-item-28");
+   if(!header||!trigger)return;
+   var arrow=trigger.querySelector(".sub-menu-toggle");
    function position(){
-     if(window.innerWidth<=1000)return;
+     var mega=trigger.querySelector(".five-star-services-mega");
+     if(!mega||window.innerWidth<=1000)return;
      var rect=trigger.getBoundingClientRect();
-     var width=Math.min(800,window.innerWidth-36);
-     // Position relative to Services LI, without clipping the viewport.
-     var offset=Math.max(18-rect.left,Math.min(-12,window.innerWidth-18-rect.left-width));
-     mega.style.setProperty("--fsc-services-menu-x",Math.round(offset)+"px");
+     var width=Math.min(900,window.innerWidth-36);
+     // Keep the 900px photo grid in the viewport without losing its
+     // pointer-connected relationship to the Services trigger.
+     var left=Math.max(18-rect.left,Math.min(-12,window.innerWidth-18-rect.left-width));
+     mega.style.setProperty("--fsc-services-menu-x",Math.round(left)+"px");
    }
-   function expanded(){return !!(trigger.matches(":hover")||trigger.contains(document.activeElement)||trigger.classList.contains("is-submenu-open"));}
    function sync(){
      if(window.innerWidth<=1000)return;
-     var show=expanded();
-     trigger.classList.toggle("fsc-mega-open",show);
+     var hover=trigger.matches(":hover")||trigger.contains(document.activeElement);
+     trigger.classList.toggle("fsc-mega-open",hover||trigger.classList.contains("is-submenu-open"));
    }
-   // The site's original navigation handles arrow/click and Escape keys.
-   // Hover remains active as pointer moves onto menu links (now descendants).
-   trigger.addEventListener("pointerenter",function(){position();trigger.classList.add("fsc-mega-open");},{passive:true});
+   function attach(){
+     // The theme may insert the photo menu AFTER our script starts. Watch for
+     // that late node and reparent it immediately; never let it float as a
+     // header-level sibling, which closes on Services pointerleave.
+     var mega=header.querySelector(".five-star-services-mega");
+     if(!mega)return;
+     if(mega.parentElement!==trigger)trigger.appendChild(mega);
+     if(mega.getAttribute("role")!=="group")mega.setAttribute("role","group");
+     mega.setAttribute("aria-label","Remodeling services");
+     position();
+   }
+   // Observing child-list changes only prevents feedback loops on hover.
+   if(window.MutationObserver){
+     var observer=new MutationObserver(attach);
+     observer.observe(header,{childList:true,subtree:true});
+   }
+   trigger.addEventListener("pointerenter",function(){attach();trigger.classList.add("fsc-mega-open");},{passive:true});
    trigger.addEventListener("pointerleave",function(){trigger.classList.remove("fsc-mega-open");},{passive:true});
-   trigger.addEventListener("focusin",function(){position();trigger.classList.add("fsc-mega-open");});
+   trigger.addEventListener("focusin",function(){attach();trigger.classList.add("fsc-mega-open");});
    trigger.addEventListener("focusout",function(event){if(!trigger.contains(event.relatedTarget))setTimeout(sync,0);});
    if(arrow)arrow.addEventListener("click",function(){setTimeout(sync,0);});
-   position();
    window.addEventListener("resize",position,{passive:true});
-   window.addEventListener("load",position,{once:true});
+   window.addEventListener("load",attach,{once:true});
+   attach();
  })();
  var launch=document.getElementById("fsc-ux-launch"),dialog=document.getElementById("fsc-ux-dialog"),backdrop=document.getElementById("fsc-ux-backdrop"),closeBtn=document.getElementById("fsc-ux-close");
  var log=document.getElementById("fsc-ux-log"),questionForm=document.getElementById("fsc-ux-question"),questionInput=document.getElementById("fsc-ux-input"),leadForm=document.getElementById("fsc-ux-lead"),feedback=document.getElementById("fsc-ux-feedback"),quick=document.getElementById("fsc-ux-actions");
