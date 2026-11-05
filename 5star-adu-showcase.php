@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Branded ADU 3D Viewer
  * Description: First-party interactive ADU concept viewer with orbit, zoom, interior cutaway and accessible fallback.
- * Version: 1.5.1
+ * Version: 1.5.2
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
@@ -37,9 +37,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.1');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.1', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.1', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.2');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.2', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.2', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
