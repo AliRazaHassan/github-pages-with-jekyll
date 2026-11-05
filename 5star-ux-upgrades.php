@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.3.4
+ * Version: 1.3.5
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -263,8 +263,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.4');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.4', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.5');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.5', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
@@ -452,7 +452,7 @@ function fsc_ux_receive_inquiry(WP_REST_Request $request) {
     $timing = sanitize_text_field((string)($p['timing'] ?? ''));
     $details = sanitize_textarea_field((string)($p['details'] ?? ''));
     $consent = !empty($p['consent']);
-    $services = ['Kitchen remodeling','Bathroom remodeling','Whole-home remodeling','ADU design & build','Other remodeling'];
+    $services = ['Kitchen remodeling','Bathroom remodeling','Whole-home remodeling','ADU design & build','Commercial remodeling','Other remodeling'];
     if (!$consent || strlen($name) < 2 || strlen($name) > 100 || strlen($location) < 2 || strlen($location) > 120) {
         return new WP_Error('invalid','Please provide your name, project location and consent.',['status'=>400]);
     }
@@ -537,7 +537,7 @@ add_action('wp_footer', function() {
       <div class="fsc-ux-lead-grid">
         <label>Project type <select name="service" required>
           <option value="">Choose a service</option>
-          <option>Kitchen remodeling</option><option>Bathroom remodeling</option><option>Whole-home remodeling</option><option>ADU design &amp; build</option><option>Other remodeling</option>
+          <option>Kitchen remodeling</option><option>Bathroom remodeling</option><option>Whole-home remodeling</option><option>ADU design &amp; build</option><option>Commercial remodeling</option><option>Other remodeling</option>
         </select></label>
         <label>City or ZIP <input name="location" maxlength="120" required placeholder="Sacramento, CA"/></label>
         <label>Desired timing <select name="timing"><option>Just exploring</option><option>As soon as possible</option><option>Within 1–3 months</option><option>3+ months</option></select></label>
