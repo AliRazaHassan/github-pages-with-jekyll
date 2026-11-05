@@ -2,7 +2,7 @@
 /**
  * Plugin Name: 5 Star Constructions — Project Concierge & Gallery
  * Description: Accessible project enquiry assistant and curated homepage design gallery.
- * Version: 1.3.6
+ * Version: 1.3.7
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) { exit; }
@@ -95,10 +95,13 @@ add_action('template_redirect', function() {
         // Preserve existing images, project wording and user-supplied gallery content.
         $description = fsc_ux_page_meta_description($path);
         if ($description !== null && stripos($html, '<head') !== false) {
+            // The custom theme sometimes prints two descriptions. Remove both
+            // and add exactly one verified page-specific tag.
             $meta = '<meta name="description" content="'.esc_attr($description).'"/>';
-            $replaced = preg_replace('/<meta\b(?=[^>]*\bname\s*=\s*["\\x27]description["\\x27])[^>]*>/i', $meta, $html, 1, $count);
-            if ($replaced !== null) $html = $replaced;
-            if (empty($count)) $html = preg_replace('~</head>~i', $meta.'</head>', $html, 1);
+            $updated = preg_replace('~<meta\\b(?=[^>]*\\bname\\s*=\\s*"description")[^>]*>~i', '', $html);
+            if (is_string($updated)) $html = $updated;
+            $updated = preg_replace('~</head>~i', $meta.'</head>', $html, 1);
+            if (is_string($updated)) $html = $updated;
         }
         // WordPress custom ADU page is rendered without a canonical from the theme.
         if ($path === '/adu-models/' && !preg_match('/<link\b(?=[^>]*\brel\s*=\s*["\\x27]canonical["\\x27])[^>]*>/i', $html)) {
@@ -275,8 +278,8 @@ HTML;
 
 add_action('wp_enqueue_scripts', function() {
     if (is_admin()) return;
-    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.6');
-    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.6', true);
+    wp_enqueue_style('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.css', [], '1.3.7');
+    wp_enqueue_script('fsc-ux', plugin_dir_url(__FILE__) . 'assets/ux.js', [], '1.3.7', true);
     wp_add_inline_script('fsc-ux', 'window.FSC_UX=' . wp_json_encode([
         'endpoint' => esc_url_raw(rest_url('fsc/v1/inquiry')),
         'isHome' => fsc_ux_is_front(),
