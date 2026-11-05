@@ -220,8 +220,22 @@ ready(function(){
    var trustBand=document.querySelector("section.five-star-trust-strip");
    var expertiseSection=document.querySelector("section.expertise");
    if(trustBand&&expertiseSection)trustBand.insertAdjacentElement("afterend",expertiseSection);
-   var serviceAreas=document.getElementById("fsc-serve");
-   if(serviceAreas&&expertiseSection)expertiseSection.insertAdjacentElement("afterend",serviceAreas);
+   // Place the entire Service Areas / Who We Serve section directly before Reviews,
+   // not under the services list. The map plugin can add its block late in the page.
+   function placeServiceAreasAboveReviews(){
+     var serviceAreas=document.getElementById("fsc-serve");
+     var reviewsSection=document.querySelector("section.five-star-reviews");
+     if(serviceAreas&&reviewsSection&&serviceAreas.nextElementSibling!==reviewsSection){
+       reviewsSection.parentNode.insertBefore(serviceAreas,reviewsSection);
+     }
+   }
+   placeServiceAreasAboveReviews();
+   window.addEventListener("load",placeServiceAreasAboveReviews,{once:true});
+   if(window.MutationObserver){
+     var serviceAreaObserver=new MutationObserver(placeServiceAreasAboveReviews);
+     serviceAreaObserver.observe(document.body,{childList:true,subtree:true});
+     setTimeout(function(){serviceAreaObserver.disconnect();},5000);
+   }
    var services=document.querySelector("section.expertise .service-list");
    if(services&&!services.querySelector("a,article")){
      var options=[
