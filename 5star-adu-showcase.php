@@ -2,76 +2,29 @@
 /**
  * Plugin Name: 5 Star Constructions — Branded ADU 3D Viewer
  * Description: First-party interactive ADU concept viewer with orbit, zoom, interior cutaway and accessible fallback.
- * Version: 1.5.4
+ * Version: 1.6.0
  * Author: 5 Star Constructions
  */
 if (!defined('ABSPATH')) exit;
 
 
-// Temporary fixed-source downloader for three CC0 3D models.
-// It accepts no arbitrary URL or filename. Each item can only be imported
-// once after validating the binary GLB header, expected size and public license.
-function fsc_adu_cc0_catalog() {
-    return [
-        'glass-house' => ['url'=>'https://grab3d.com/dl/glass-house/glass-house.glb','bytes'=>1283980],
-        'modern-house' => ['url'=>'https://grab3d.com/dl/modern-house/modern-house.glb','bytes'=>1485516],
-        'bungalow' => ['url'=>'https://grab3d.com/dl/bungalow/bungalow.glb','bytes'=>2386156]
-    ];
-}
-function fsc_adu_cc0_dir() {
+// First-party 3D asset URLs. The GLB files are in this WordPress installation's
+// uploads folder and have passed binary GLB v2 validation.
+add_action('wp_head', function() {
+    if (!fsc_adu_showcase_is_page()) return;
     $up=wp_upload_dir();
-    if (!empty($up['error'])) return new WP_Error('uploads_unavailable','WordPress uploads directory unavailable.');
-    return ['dir'=>trailingslashit($up['basedir']).'5star-adu-models',
-      'url'=>trailingslashit($up['baseurl']).'5star-adu-models'];
-}
-function fsc_adu_cc0_is_valid_glb($file,$expected) {
-    if (!is_readable($file)) return false;
-    $size=filesize($file);
-    if ($size < 100000 || $size > 8000000 || abs($size-$expected)>16000) return false;
-    $f=@fopen($file,'rb');if (!$f) return false;
-    $bytes=fread($f,12);fclose($f);
-    if (strlen($bytes)!==12||substr($bytes,0,4)!=='glTF') return false;
-    $meta=unpack('Vversion/Vlength',substr($bytes,4,8));
-    return $meta['version']===2 && $meta['length']===$size;
-}
-add_action('rest_api_init',function(){
-    register_rest_route('fsc-adu/v1','/import-cc0',[
-        'methods'=>'GET','permission_callback'=>'__return_true',
-        'callback'=>function(WP_REST_Request $req) {
-            $slug=sanitize_key((string)$req->get_param('model'));
-            $catalog=fsc_adu_cc0_catalog();
-            if (!isset($catalog[$slug])) return new WP_Error('unknown_model','Model not in fixed-source catalogue.',['status'=>400]);
-            $base=fsc_adu_cc0_dir();if (is_wp_error($base)) return $base;
-            $dir=$base['dir'];$path=$dir.'/'.$slug.'.glb';$source=$catalog[$slug];
-            if (fsc_adu_cc0_is_valid_glb($path,$source['bytes'])) return new WP_REST_Response(['model'=>$slug,'status'=>'ready','bytes'=>filesize($path),'url'=>$base['url'].'/'.$slug.'.glb'],200);
-            $lock='fsc_adu_import_lock_'.$slug;
-            if (get_transient($lock)) return new WP_Error('busy','Download already in progress or recently attempted.',['status'=>429]);
-            set_transient($lock,1,MINUTE_IN_SECONDS);
-            if (!wp_mkdir_p($dir)) return new WP_Error('mkdir_failed','Could not create local models folder.',['status'=>500]);
-            require_once ABSPATH.'wp-admin/includes/file.php';
-            $temp=download_url($source['url'],28,false);
-            if (is_wp_error($temp)) {
-                delete_transient($lock);
-                return new WP_REST_Response(['model'=>$slug,'status'=>'download_failed','reason'=>$temp->get_error_code()],502);
-            }
-            if (!fsc_adu_cc0_is_valid_glb($temp,$source['bytes'])) {
-                @unlink($temp);delete_transient($lock);
-                return new WP_REST_Response(['model'=>$slug,'status'=>'invalid_glb'],502);
-            }
-            $done=@rename($temp,$path);
-            if (!$done) {$done=@copy($temp,$path);@unlink($temp);}
-            if (!$done||!fsc_adu_cc0_is_valid_glb($path,$source['bytes'])) {
-                @unlink($path);delete_transient($lock);
-                return new WP_REST_Response(['model'=>$slug,'status'=>'save_failed'],500);
-            }
-            @chmod($path,0644);
-            // An original source and commercial-use disclosure alongside the files.
-            @file_put_contents($dir.'/SOURCE-LICENSE.txt',"Glass House, Modern House, Bungalow - Grab3D, CC0 1.0\nhttps://grab3d.com/about/\nDesign references only. Not completed 5 Star Constructions projects or approved ADU plans.\n");
-            delete_transient($lock);
-            return new WP_REST_Response(['model'=>$slug,'status'=>'imported','bytes'=>filesize($path),'url'=>$base['url'].'/'.$slug.'.glb'],200);
-        }
-    ]);
-});
+    $base=trailingslashit($up['baseurl']).'5star-adu-models/';
+    $models=[
+      'glass-house'=>$base.'glass-house.glb',
+      'modern-house'=>$base.'modern-house.glb',
+      'bungalow'=>$base.'bungalow.glb'
+    ];
+    echo '<script type="importmap" id="fsc-adu-import-map">'.wp_json_encode(['imports'=>[
+      'three'=>'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js',
+      'three/addons/'=>'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/'
+    ]],JSON_UNESCAPED_SLASHES).'</script>'."\n";
+    echo '<script id="fsc-adu-model-paths">window.fscADUModelUrls='.wp_json_encode($models,JSON_UNESCAPED_SLASHES).';</script>'."\n";
+}, 1);
 
 function fsc_adu_showcase_is_page() {
     if (is_admin()) return false;
@@ -103,9 +56,9 @@ add_filter('body_class', function($classes) {
 }, 15);
 add_action('wp_enqueue_scripts', function() {
     if (!fsc_adu_showcase_is_page()) return;
-    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.5.4');
-    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.5.4', true);
-    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.5.4', true);
+    wp_enqueue_style('fsc-adu-showcase-css', plugin_dir_url(__FILE__) . 'assets/adu.css', [], '1.6.0');
+    wp_enqueue_script('fsc-adu-showcase-js', plugin_dir_url(__FILE__) . 'assets/adu.js', [], '1.6.0', true);
+    wp_enqueue_script('fsc-real-adu-js', plugin_dir_url(__FILE__) . 'assets/real-adu.js', ['fsc-adu-showcase-js'], '1.6.0', true);
 });
 
 // Preserve a selected concept in the existing Contact form without relying on JS.
@@ -114,7 +67,7 @@ add_action('template_redirect', function() {
     $path = trim((string)parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH), '/');
     if ($path !== 'atelier/contact') return;
     $choice = isset($_GET['adu_concept']) ? sanitize_key(wp_unslash($_GET['adu_concept'])) : '';
-    $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest','detached'=>'Detached ADU inspiration','garage'=>'Garage conversion inspiration','courtyardadu'=>'Backyard ADU inspiration'];
+    $names = ['studio'=>'Studio Retreat','courtyard'=>'Courtyard One','family'=>'Family Nest','glass-house'=>'Glass House 3D reference','modern-house'=>'Modern House 3D reference','bungalow'=>'Craftsman Bungalow 3D reference','detached'=>'Detached ADU inspiration','garage'=>'Garage conversion inspiration','courtyardadu'=>'Backyard ADU inspiration'];
     if (!isset($names[$choice])) return;
     $message = esc_textarea('I am interested in the ' . $names[$choice] . ' ADU concept. Please discuss property feasibility, planning requirements and the next steps.');
     ob_start(function($html) use ($message) {
@@ -134,32 +87,32 @@ function fsc_adu_render_3d_showcase() {
   <div class="fsc-real-intro">
     <span class="fsc-real-eyebrow">5 STAR CONSTRUCTIONS / INTERACTIVE ADU DESIGN</span>
     <h1 id="fsc-real-title">Explore ADUs <em>in 3D.</em></h1>
-    <p>Explore architectural possibilities in a full interactive 3D space. Rotate the home, zoom in, remove the roof to view interior zones, and discover a layout that fits your goals.</p>
-    <p class="fsc-real-disclaimer"><strong>Original 3D concept visualizations.</strong> These are illustrative design studies, not completed client projects, CAD plans or permit-ready models. Actual ADU layouts, measurements and feasibility depend on your property.</p>
+    <p>Browse three downloadable architectural 3D models, now hosted directly on our website. Rotate, zoom and inspect the real model geometry to explore styles for your future space.</p>
+    <p class="fsc-real-disclaimer"><strong>Independent 3D design references (CC0).</strong> These are architectural visualization assets, not completed 5 Star projects, approved ADU layouts or build-ready construction plans. Modern House is a two-storey reference; sizes and permitted layouts require a property-specific review.</p>
   </div>
   <section class="fsc-adu-3d-section" aria-label="5 Star interactive 3D architectural model viewer">
     <div class="fsc-adu-3d-heading">
       <div><span class="fsc-real-eyebrow">YOUR ADU, YOUR SPACE</span>
-        <h2 id="fsc-adu-3d-title">Modern <em>Studio</em></h2>
-        <p id="fsc-adu-3d-description">Approx. 420 sq ft · Studio / 1 bath concept. Drag to rotate or use the controls below.</p>
+        <h2 id="fsc-adu-3d-title">Glass <em>House</em></h2>
+        <p id="fsc-adu-3d-description">Contemporary glazed architecture · Actual downloadable GLB model, not a slideshow.</p>
       </div>
       <span class="fsc-adu-own-brand"><span aria-hidden="true">✦</span> 5 STAR INTERACTIVE 3D</span>
     </div>
     <div class="fsc-adu-3d-selector" role="group" aria-label="Choose an ADU design concept">
-      <button type="button" data-fsc-3d-model="studio" class="is-current" aria-pressed="true">
-        <span>01 / COMPACT</span><strong>Modern Studio</strong><small>Approx. 420 sq ft · Studio / 1 bath</small>
+      <button type="button" data-fsc-3d-model="glass-house" class="is-current" aria-pressed="true">
+        <span>01 / CONTEMPORARY</span><strong>Glass House</strong><small>Glass pavilion · furnished interior</small>
       </button>
-      <button type="button" data-fsc-3d-model="courtyard" aria-pressed="false">
-        <span>02 / ONE BEDROOM</span><strong>Courtyard One</strong><small>Approx. 600 sq ft · 1 bed / 1 bath</small>
+      <button type="button" data-fsc-3d-model="modern-house" aria-pressed="false">
+        <span>02 / MODERN</span><strong>Modern House</strong><small>Two-storey design reference</small>
       </button>
-      <button type="button" data-fsc-3d-model="family" aria-pressed="false">
-        <span>03 / TWO BEDROOM</span><strong>Family Nest</strong><small>Approx. 820 sq ft · 2 beds / 1 bath</small>
+      <button type="button" data-fsc-3d-model="bungalow" aria-pressed="false">
+        <span>03 / CRAFTSMAN</span><strong>Craftsman Bungalow</strong><small>Single-storey home concept</small>
       </button>
     </div>
     <div class="fsc-adu-3d-frame" id="fsc-adu-3d-frame">
       <canvas id="fsc-adu-own-canvas" tabindex="0" aria-label="Interactive three-dimensional ADU concept. Drag to rotate, scroll or pinch to zoom."></canvas>
-      <div id="fsc-adu-3d-loading" class="fsc-adu-loading" aria-live="polite">Preparing your 3D home…</div>
-      <div class="fsc-adu-own-overlay" aria-hidden="true"><span>5 STAR CONSTRUCTIONS</span><small>3D DESIGN STUDY · NOT TO SCALE</small></div>
+      <div id="fsc-adu-3d-loading" class="fsc-adu-loading" aria-live="polite">Loading locally hosted 3D model…</div>
+      <div class="fsc-adu-own-overlay" aria-hidden="true"><span>5 STAR CONSTRUCTIONS</span><small>REAL 3D GEOMETRY · CONCEPT REFERENCE</small></div>
       <div id="fsc-adu-3d-no-webgl" class="fsc-adu-3d-no-webgl" hidden>
         <strong>Lightweight 3D mode</strong>
         <p>Your browser can't display the detailed 3D scene. The compatible interactive concept viewer is available below.</p>
@@ -174,20 +127,20 @@ function fsc_adu_render_3d_showcase() {
         <button type="button" data-fsc-3d-action="zoom-out">－ Zoom</button>
       </div>
       <div class="fsc-adu-orbit-actions">
-        <button type="button" data-fsc-3d-action="roof" aria-pressed="false">Roof off</button>
-        <button type="button" data-fsc-3d-action="reset">Reset view</button>
+        <button type="button" data-fsc-3d-action="wireframe" aria-pressed="false">Wireframe</button>
+        <button type="button" data-fsc-3d-action="reset">Reset view</button><button type="button" data-fsc-3d-action="fullscreen">Full screen</button>
       </div>
     </div>
-    <p class="fsc-adu-3d-hint">Drag or swipe the home to orbit · Use mouse wheel/pinch to zoom · Switch designs above. No external site opens.</p>
+    <p class="fsc-adu-3d-hint">Drag or swipe to orbit · Scroll or pinch to zoom · Switch actual 3D model files above. All models load from this website.</p>
     <div id="fsc-adu-fallback" hidden>
-      <p>Compatible stylized 3D concept viewer. This is an illustrative model, not a scan of a completed building.</p>
+      <p>Fallback is a simplified illustrative model for browsers without WebGL. The main viewer loads real GLB files.</p>
     </div>
     <div class="fsc-adu-3d-cta">
       <div><h3>Have a property in mind? <em>Let's talk ADUs.</em></h3>
         <p>Share your property size and priorities, and our team can discuss local rules, possibilities and next steps.</p>
       </div>
       <div>
-        <a id="fsc-adu-own-consult" href="/atelier/contact/?adu_concept=studio#consultation">Request ADU consultation ↗</a>
+        <a id="fsc-adu-own-consult" href="/atelier/contact/?adu_concept=glass-house#consultation">Request ADU consultation ↗</a>
         <a href="tel:+19162251015">Call (916) 225-1015</a>
       </div>
     </div>
