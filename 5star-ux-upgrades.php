@@ -69,42 +69,6 @@ add_filter('wp_nav_menu_items', function($items, $args) {
     return substr_replace($items, $panel, $close, 0);
 }, 150, 2);
 
-// Keep the Services photo mega-menu inside its own menu item in the server-rendered
-// header. The previous sibling structure caused native pointerleave to close the
-// menu as soon as users moved from Services down to the images.
-// Restrict this transformation to the precise known 5 Star menu IDs and markup.
-add_action('template_redirect', function() {
-    if (is_admin()) return;
-    ob_start(function($html) {
-        if (!is_string($html) || strpos($html, 'five-star-services-mega') === false) return $html;
-        $header_start = strpos($html, '<header');
-        if ($header_start === false) return $html;
-        $header_end = strpos($html, '</header>', $header_start);
-        if ($header_end === false) return $html;
-        $header_len = $header_end - $header_start + strlen('</header>');
-        $header = substr($html, $header_start, $header_len);
-        if (strpos($header, 'id="menu-item-28"') === false) return $html;
-        if (!preg_match('~<div\\b[^>]*class="five-star-services-mega"[^>]*>[\\s\\S]*?</div>~', $header, $hit, PREG_OFFSET_CAPTURE)) return $html;
-        $panel = $hit[0][0];
-        $panel_pos = $hit[0][1];
-        $submenu = strpos($header, 'id="five-star-submenu-28"');
-        if ($submenu === false) return $html;
-        $submenu_end = strpos($header, '</ul>', $submenu);
-        if ($submenu_end === false) return $html;
-        $parent_close = strpos($header, '</li>', $submenu_end + 5);
-        if ($parent_close === false) return $html;
-        // Already nested by the theme or another plugin — leave it untouched.
-        if ($panel_pos > $submenu_end && $panel_pos < $parent_close) return $html;
-        $header = substr_replace($header, '', $panel_pos, strlen($panel));
-        $submenu = strpos($header, 'id="five-star-submenu-28"');
-        $submenu_end = strpos($header, '</ul>', $submenu);
-        $parent_close = strpos($header, '</li>', $submenu_end + 5);
-        if ($parent_close === false) return $html;
-        $header = substr_replace($header, $panel, $parent_close, 0);
-        return substr_replace($html, $header, $header_start, $header_len);
-    });
-}, 0);
-
 function fsc_ux_is_front() {
     return is_front_page() || is_home() || is_page(5);
 }
