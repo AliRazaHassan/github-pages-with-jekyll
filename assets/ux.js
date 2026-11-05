@@ -313,10 +313,34 @@ ready(function(){
      var expertiseDesc=document.querySelector("section.expertise .section-head>p");
      if(expertiseDesc)expertiseDesc.textContent="Kitchen, bathroom and whole-home remodeling services across the Sacramento area.";
    }
+   // There is ONE final conversion section, not two disconnected blocks.
+   // The old theme already provides the full-height kitchen/photo closing.
+   // Use it as the sole coherent invitation immediately after Reviews.
    var reviews=document.querySelector("section.five-star-reviews");
-   var lastCTA=document.querySelector("#fsc-ux-final-cta");
-   if(reviews&&lastCTA)reviews.insertAdjacentElement("afterend",lastCTA);
-   else if(lastCTA)document.querySelector("main")?.appendChild(lastCTA);
+   var closing=document.querySelector("section.arq-closing");
+   if(closing){
+     closing.classList.add("fsc-single-closing");
+     var closerLabel=closing.querySelector(".arq-closing-copy .kicker");
+     if(closerLabel)closerLabel.textContent="LET'S BUILD SOMETHING BETTER";
+     var closerTitle=closing.querySelector(".arq-closing-copy h2");
+     if(closerTitle)closerTitle.innerHTML="Your vision.<br><em>Built with care.</em>";
+     var closerDesc=closing.querySelector(".arq-closing-copy > p");
+     if(closerDesc)closerDesc.textContent="Planning a kitchen, bathroom, whole-home renovation or ADU? Tell us what you're imagining. We'll help you understand the next steps for your property.";
+     var buttons=closing.querySelector(".arq-closing-links");
+     if(buttons){
+       buttons.innerHTML='<a class="arq-btn arq-btn-light" href="/atelier/contact/#consultation">GET A FREE ESTIMATE <span aria-hidden="true">↗</span></a>'
+          +'<a class="arq-quiet-link" href="tel:+19162251015" aria-label="Call 5 Star Constructions at (916) 225-1015">Call (916) 225-1015 <span aria-hidden="true">↗</span></a>';
+     }
+     var artCaption=closing.querySelector(".arq-art-label");
+     if(artCaption)artCaption.textContent="THE SPACE YOU IMAGINE. THE QUALITY YOU DESERVE.";
+     var copy=closing.querySelector(".arq-closing-copy");
+     if(copy&&!copy.querySelector(".fsc-closing-trust")){
+       var trust=document.createElement("div");
+       trust.className="fsc-closing-trust";
+       trust.innerHTML='<span>✦ Quality workmanship</span><span>✦ Honest communication</span><span>CSLB #1163679</span>';
+       copy.appendChild(trust);
+     }
+   }
    var reviewLoop=document.querySelector("section.five-star-reviews a.review-link[href='#verified-reviews']");
    if(reviewLoop)reviewLoop.hidden=true;
    // Review display is clearly attributed to the affiliated team, not falsely sold as 5 Star reviews.
